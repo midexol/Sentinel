@@ -1,0 +1,22 @@
+{
+  "name": "nonce-sentinel",
+  "version": "0.1.0",
+  "description": "AI-assisted nonce gap detector and resolver for high-frequency agents on Base",
+  "type": "module",
+  "main": "dist/cli.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/cli.js",
+    "dev": "tsx src/cli.ts",
+    "watch": "tsx src/cli.ts watch"
+  },
+  "dependencies": {
+    "viem": "^2.21.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2",
+    "tsx": "^4.19.1",
+    "@types/node": "^22.7.4"
+  }
+}
