@@ -9,7 +9,8 @@
     "start": "node dist/cli.js",
     "dev": "tsx src/cli.ts",
     "watch": "tsx src/cli.ts watch",
-    "demo": "tsx scripts/demo-trigger.ts"
+    "demo": "tsx scripts/demo-trigger.ts",
+    "serve": "npx serve -l 3000 ."
   },
   "dependencies": {
     "viem": "^2.21.0",
