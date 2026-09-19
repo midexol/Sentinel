@@ -1,14 +1,14 @@
-# Nonce Sentinel
+# Sentinel
 
-A nonce-gap watchdog for high-frequency trading agents on Base — built for
+A nonce-gap watchdog for high-frequency trading agents on Base : built for
 the Orion Builder Hackathon (orionagents.org/hackathon).
 
 ## What it does
 
 A trading bot fires several transactions rapidly. One occasionally gets
 stuck due to a documented Flashblocks nonce-reporting quirk on Base,
-blocking everything queued behind it. Nonce Sentinel watches for this,
-diagnoses what's likely going on, and fixes it — with every decision
+blocking everything queued behind it. Sentinel watches for this,
+diagnoses what's likely going on, and fixes it : with every decision
 logged as a receipt.
 
 ## Status: core pipeline complete
