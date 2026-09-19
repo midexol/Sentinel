@@ -1,40 +1,6 @@
 import type { Metadata } from "next";
-import { Cinzel, Fraunces, IBM_Plex_Sans, IBM_Plex_Mono, Pacifico } from "next/font/google";
 import Providers from "@/components/providers";
 import "./globals.css";
-
-const cinzel = Cinzel({
-  subsets: ["latin"],
-  variable: "--font-cinzel",
-  display: "swap",
-});
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
-  display: "swap",
-});
-
-const ibmSans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const ibmMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-mono",
-  display: "swap",
-});
-
-const brandScript = Pacifico({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-brand-script",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Sentinel : Autonomous Nonce Gap Watchdog on Base L2",
@@ -53,12 +19,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`${cinzel.variable} ${fraunces.variable} ${ibmSans.variable} ${ibmMono.variable} ${brandScript.variable}`}
-    >
+    <html lang="en">
       <head>
         <link rel="icon" type="image/png" href="/icon.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Pacifico&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body className="bg-void text-marble font-sans antialiased min-h-screen selection:bg-aurum/20 selection:text-aurum-light">
         <Providers>{children}</Providers>

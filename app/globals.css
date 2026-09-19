@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 :root {
+  --font-cinzel: 'Cinzel', serif;
+  --font-fraunces: 'Fraunces', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-brand-script: 'Pacifico', cursive, sans-serif;
   --void: #08090C;
   --void-2: #111318;
   --void-3: #181B22;
@@ -62,7 +67,12 @@ body {
 }
 
 .font-mono {
-  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-family: 'JetBrains Mono', var(--font-mono), SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-feature-settings: "zero" 1, "cv01" 1;
+}
+
+.font-sans {
+  font-family: 'Plus Jakarta Sans', var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .glass-card {
