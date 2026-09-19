@@ -13,7 +13,7 @@ import type { AuditLogger } from "./logger.js";
 export class NoPrivateKeyError extends Error {
   constructor() {
     super(
-      "Cannot resolve gaps: PRIVATE_KEY is not set in .env. Nonce Sentinel can watch and detect read-only, but resolving a stuck transaction requires a signing key."
+      "Cannot resolve gaps: PRIVATE_KEY is not set in .env. Sentinel can watch and detect read-only, but resolving a stuck transaction requires a signing key."
     );
   }
 }

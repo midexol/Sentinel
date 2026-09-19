@@ -98,7 +98,7 @@ export class GapDiagnostician {
       .map((e) => `${e.kind} @ ${new Date(e.timestamp).toISOString()}`)
       .join("; ") || "no recent events";
 
-    const systemPrompt = `You are the diagnostic layer of Nonce Sentinel, a nonce-gap watchdog for a trading bot on Base.
+    const systemPrompt = `You are the diagnostic layer of Sentinel, a nonce-gap watchdog for a trading bot on Base.
 A nonce gap was just detected. Your job is to classify the likely cause and recommend a gas-fee bump percentage.
 You do NOT set the final gas fee - your number is a recommendation that gets clamped to a safe range by the caller regardless of what you say. Be honest even if you're uncertain.
 

@@ -1,938 +1,509 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NONCE SENTINEL — Algorithmic Integrity for Autonomous Agents on Base</title>
-  
-  <!-- Typography: Monumental Roman Classical + High-Density Monospace -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Tailwind CSS Engine -->
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
-  
-  <style>
-    :root {
-      --bg-obsidian: #08090C;
-      --bg-surface: #0E1015;
-      --bg-card: rgba(16, 19, 26, 0.75);
-      --border-gold: rgba(212, 175, 55, 0.28);
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --gold-primary: #D4AF37;
-      --gold-light: #F3E5AB;
-      --gold-dark: #8F721D;
-      --base-blue: #0052FF;
-      --emerald-radar: #00FF88;
-      --vermilion-alert: #FF3B30;
-      --text-marble: #F5F5F7;
-      --text-muted: #8E8E9F;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinel : Autonomous Nonce Watchdog on Base</title>
+<link rel="icon" type="image/jpeg" href="/assets/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          brand: ['Cinzel', 'serif'],
+          serif: ['Fraunces', 'Georgia', 'serif'],
+          sans: ['IBM Plex Sans', 'sans-serif'],
+          mono: ['IBM Plex Mono', 'monospace'],
+        },
+        colors: {
+          void: '#08090C',
+          void2: '#101216',
+          void3: '#171A20',
+          marble: '#F5F3EF',
+          marbleDim: '#C2BEB4',
+          ash: '#686660',
+          aurum: '#C9A961',
+          aurumGlow: '#E5C989',
+          current: '#4A7A99',
+          ember: '#D9532F',
+        }
+      }
     }
+  }
+</script>
+<style>
+  :root {
+    --hair: rgba(201, 169, 97, 0.20);
+  }
+  body {
+    background-color: #08090C;
+    color: #F5F3EF;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .brand-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+  }
+  .hairline {
+    border: 1px solid var(--hair);
+  }
+  .glow-aurum {
+    box-shadow: 0 0 45px -12px rgba(201, 169, 97, 0.3);
+  }
+  .image-card {
+    transition: transform 0.4s ease, border-color 0.4s ease;
+  }
+  .image-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(201, 169, 97, 0.45);
+  }
 
-    body {
-      background-color: var(--bg-obsidian);
-      color: var(--text-marble);
-      font-family: 'Inter', -apple-system, sans-serif;
-      overflow-x: hidden;
-      selection-background-color: var(--gold-primary);
-      selection-color: #000;
-    }
-
-    .font-cinzel { font-family: 'Cinzel', serif; }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
-
-    /* Fine Architectural Grid & Noise */
-    .bg-arch-grid {
-      background-size: 40px 40px;
-      background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    }
-
-    .bg-radial-vignette {
-      background: radial-gradient(circle at 50% 20%, rgba(212, 175, 55, 0.08) 0%, rgba(8, 9, 12, 0.95) 75%, #08090C 100%);
-    }
-
-    /* Glassmorphic Roman Architraves */
-    .stone-card {
-      background: var(--bg-card);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border-subtle);
-      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7), inset 0 1px 1px 0 rgba(255, 255, 255, 0.06);
-    }
-
-    .stone-card:hover {
-      border-color: rgba(212, 175, 55, 0.35);
-    }
-
-    .gold-glow {
-      box-shadow: 0 0 35px -5px rgba(212, 175, 55, 0.25);
-    }
-
-    .gold-text-shimmer {
-      background: linear-gradient(135deg, #FFF6D6 0%, #D4AF37 50%, #9E7D23 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .radar-sweep {
-      background: conic-gradient(from 0deg at 50% 50%, rgba(0, 255, 136, 0.18) 0deg, transparent 60deg, transparent 360deg);
-      animation: rotateSweep 4s linear infinite;
-    }
-
-    @keyframes rotateSweep {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    /* Custom Terminal Scrollbar */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: #08090C; }
-    ::-webkit-scrollbar-thumb { background: #222530; border-radius: 2px; }
-    ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
-
-    /* Classical Border Flourish */
-    .classical-frame {
-      position: relative;
-    }
-    .classical-frame::before {
-      content: '';
-      position: absolute;
-      top: -3px; left: -3px; width: 8px; height: 8px;
-      border-top: 1px solid var(--gold-primary);
-      border-left: 1px solid var(--gold-primary);
-    }
-    .classical-frame::after {
-      content: '';
-      position: absolute;
-      bottom: -3px; right: -3px; width: 8px; height: 8px;
-      border-bottom: 1px solid var(--gold-primary);
-      border-right: 1px solid var(--gold-primary);
-    }
-  </style>
+  /* Usance Dynamic Condensing Header Island */
+  #site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    padding: 16px 0;
+    transition: padding 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    background: transparent;
+    pointer-events: none;
+  }
+  #site-header::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 120px;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(8, 9, 12, 0.6) 0%, rgba(8, 9, 12, 0) 100%);
+    transition: opacity 0.35s ease;
+  }
+  #site-header.condensed::before {
+    opacity: 0;
+  }
+  #site-header .header-inner {
+    pointer-events: auto;
+    width: min(1200px, calc(100% - 48px));
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 8px 8px 20px;
+    border-radius: 9999px;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: max-width 0.35s cubic-bezier(0.32, 0.72, 0, 1),
+                background-color 0.35s ease,
+                border-color 0.35s ease,
+                box-shadow 0.35s ease,
+                padding 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  #site-header.condensed {
+    padding: 10px 0;
+  }
+  #site-header.condensed .header-inner {
+    max-width: 820px;
+    width: calc(100% - 32px);
+    background: rgba(14, 16, 22, 0.94);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(201, 169, 97, 0.1);
+    padding: 6px 6px 6px 20px;
+  }
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+  }
+  .site-nav a {
+    padding: 7px 14px;
+    border-radius: 9999px;
+    font-size: 13.5px;
+    color: #C2BEB4;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .site-nav a:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #F5F3EF;
+  }
+  .site-nav a.active {
+    color: #F5F3EF;
+    font-weight: 500;
+  }
+  .header-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 20px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 500;
+    white-space: nowrap;
+    background: #181A20;
+    color: #F5F3EF;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+  }
+  .header-cta:hover {
+    background: #20242D;
+    border-color: rgba(255, 255, 255, 0.28);
+    transform: translateY(-1px);
+  }
+  #site-header.condensed .header-cta {
+    background: #F5F3EF !important;
+    color: #08090C !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 600 !important;
+  }
+  #site-header.condensed .header-cta:hover {
+    background: #FFFFFF !important;
+    transform: scale(1.02);
+  }
+</style>
 </head>
-<body class="bg-arch-grid min-h-screen relative selection:bg-[#D4AF37] selection:text-black">
+<body class="min-h-screen bg-[#08090C] relative text-[#F5F3EF] selection:bg-[#C9A961] selection:text-black">
 
-  <!-- Ambient Lighting Effects -->
-  <div class="fixed inset-0 pointer-events-none bg-radial-vignette -z-10"></div>
-  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-[#D4AF37]/5 blur-[160px] pointer-events-none -z-10"></div>
+  <!-- Ambient Golden Spotlight Gradients -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] bg-gradient-to-b from-[#C9A961]/12 via-transparent to-transparent blur-3xl pointer-events-none -z-10"></div>
+  <div class="fixed bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-t from-[#4A7A99]/8 via-transparent to-transparent blur-3xl pointer-events-none -z-10"></div>
 
-  <!-- ========================================================================= -->
-  <!-- NAVIGATION BAR                                                            -->
-  <!-- ========================================================================= -->
-  <header class="sticky top-0 z-50 backdrop-blur-xl border-b border-[var(--border-subtle)] bg-[#08090C]/85">
-    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-      
-      <!-- Brand & Insignia -->
-      <div class="flex items-center space-x-4 cursor-pointer" onclick="switchView('landing')">
-        <div class="w-10 h-10 border border-[#D4AF37] bg-[#0E1015] flex items-center justify-center classical-frame shadow-sm">
-          <span class="font-cinzel text-lg font-bold text-[#D4AF37]">N</span>
-        </div>
-        <div>
-          <div class="font-cinzel tracking-[0.25em] text-sm font-bold text-[#F5F5F7]">NONCE SENTINEL</div>
-          <div class="font-mono text-[10px] tracking-wider text-[#8E8E9F] flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#0052FF]"></span> BASE L2 HFT WATCHDOG
-          </div>
-        </div>
-      </div>
+  <!-- Usance Dynamic Condensing Header Island -->
+  <header id="site-header" data-condensed="false">
+    <div class="header-inner">
+      <a href="/" class="flex items-center gap-2.5 group shrink-0">
+        <img src="/assets/logo.jpg" alt="Sentinel" class="w-6 h-6 rounded-full object-cover border border-[#C9A961]/40 shadow-[0_0_10px_rgba(201,169,97,0.3)] group-hover:scale-110 transition-transform duration-300">
+        <span class="brand-title text-sm tracking-[0.16em] text-white">SENTINEL</span>
+      </a>
 
-      <!-- Navigation Modes -->
-      <nav class="hidden md:flex items-center space-x-1 p-1.5 rounded-lg border border-[var(--border-subtle)] bg-[#0E1015]/80">
-        <button id="nav-btn-landing" onclick="switchView('landing')" class="px-5 py-2 rounded font-cinzel text-xs tracking-wider transition-all duration-200 bg-[#D4AF37] text-black font-semibold shadow-sm">
-          PROTOCOL DOSSIER
-        </button>
-        <button id="nav-btn-dapp" onclick="switchView('dapp')" class="px-5 py-2 rounded font-cinzel text-xs tracking-wider transition-all duration-200 text-[#8E8E9F] hover:text-[#F5F5F7]">
-          SENTINEL OBSERVATORY (DAPP)
-        </button>
-        <button id="nav-btn-docs" onclick="switchView('architecture')" class="px-5 py-2 rounded font-cinzel text-xs tracking-wider transition-all duration-200 text-[#8E8E9F] hover:text-[#F5F5F7]">
-          SAFETY PROOFS
-        </button>
+      <!-- Navigation Links -->
+      <nav class="site-nav hidden md:flex" aria-label="Site">
+        <a href="/assets">Pipelines</a>
+        <a href="/simulate">Simulation</a>
+        <a href="/security">Security</a>
+        <a href="/status">Status</a>
+        <a href="https://docs.basescan.org" target="_blank" rel="noreferrer">Docs</a>
       </nav>
 
-      <!-- Network & Live Status Indicator -->
-      <div class="flex items-center space-x-4">
-        <div class="hidden lg:flex flex-col items-end text-right">
-          <div class="flex items-center gap-2 font-mono text-xs text-[#00FF88]">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00FF88] opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-[#00FF88]"></span>
-            </span>
-            FLASHBLOCK SYNC: 200MS
-          </div>
-          <div class="font-mono text-[10px] text-[#8E8E9F]">CHAIN ID: 84532 (SEPOLIA)</div>
-        </div>
-
-        <button onclick="switchView('dapp')" class="relative px-5 py-2.5 border border-[#D4AF37] bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black font-cinzel font-bold text-xs tracking-[0.15em] transition-all duration-300 classical-frame">
-          LAUNCH OBSERVATORY
-        </button>
-      </div>
-
+      <!-- Launch Observatory CTA -->
+      <a href="/dapp" class="header-cta">
+        <span>Launch Observatory</span>
+      </a>
     </div>
   </header>
 
-  <!-- ========================================================================= -->
-  <!-- VIEW 1: PROTOCOL DOSSIER (LANDING PAGE)                                   -->
-  <!-- ========================================================================= -->
-  <main id="view-landing" class="block transition-opacity duration-300">
-    
-    <!-- Hero Banner with Cybernetic Classical Imagery -->
-    <section class="relative pt-16 pb-28 border-b border-[var(--border-subtle)] overflow-hidden">
-      <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        
-        <!-- Left: Monumental Manifesto -->
-        <div class="lg:col-span-7 space-y-8 z-10">
-          <div class="inline-flex items-center gap-3 px-3 py-1.5 border border-[#D4AF37]/40 bg-[#D4AF37]/5 rounded-sm">
-            <span class="font-mono text-[11px] text-[#D4AF37] tracking-widest font-semibold uppercase">[ORION BUILDER HACKATHON]</span>
-            <span class="w-1 h-1 bg-[#D4AF37] rounded-full"></span>
-            <span class="font-mono text-[11px] text-[#8E8E9F] uppercase">Autonomous Base Watchdog</span>
-          </div>
+  <!-- Hero Section -->
+  <section class="max-w-7xl mx-auto px-6 pt-32 pb-20 space-y-12">
+    <div class="text-center max-w-4xl mx-auto space-y-6">
 
-          <h1 class="font-cinzel text-4xl sm:text-6xl font-bold tracking-tight leading-[1.1] text-[#F5F5F7]">
-            THE FLASHBLOCK<br>
-            <span class="gold-text-shimmer">NONCE ANOMALY</span><br>
-            IS RESOLVED.
-          </h1>
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-serif font-normal tracking-tight leading-[1.08] text-white">
+        The Nonce Gap Watchdog for Autonomous Agents on Base.
+      </h1>
 
-          <p class="text-[#A1A1B2] text-lg leading-relaxed max-w-2xl font-normal">
-            High-frequency trading bots on Base submit rapid bursts of transactions. When Base's 200ms Flashblocks pre-confirmation system returns a stale nonce tag, downstream transactions deadlock indefinitely. Nonce Sentinel continuously monitors the dual-nonce gradient, diagnoses root causality via LLM reasoning, and unblocks the execution queue with mathematical gas clamps.
-          </p>
+      <p class="text-base sm:text-lg text-[#C2BEB4] font-light max-w-2xl mx-auto leading-relaxed">
+        When sub-second sequencing and sudden gas surges strand in-flight transactions, high-frequency pipelines freeze. Sentinel observes, diagnoses, and heals nonce deadlocks autonomously.
+      </p>
 
-          <!-- Metrics Row -->
-          <div class="grid grid-cols-3 gap-6 pt-4 border-t border-[var(--border-subtle)]">
-            <div>
-              <div class="font-mono text-2xl font-bold text-[#F5F5F7]">200<span class="text-[#D4AF37] text-sm">ms</span></div>
-              <div class="font-cinzel text-[11px] text-[#8E8E9F] tracking-widest mt-1">FLASHBLOCK SCAN</div>
-            </div>
-            <div>
-              <div class="font-mono text-2xl font-bold text-[#F5F5F7]">10-50<span class="text-[#D4AF37] text-sm">%</span></div>
-              <div class="font-cinzel text-[11px] text-[#8E8E9F] tracking-widest mt-1">SAFETY CLAMP RANGE</div>
-            </div>
-            <div>
-              <div class="font-mono text-2xl font-bold text-[#00FF88]">0.00<span class="text-[#8E8E9F] text-sm">%</span></div>
-              <div class="font-cinzel text-[11px] text-[#8E8E9F] tracking-widest mt-1">DOUBLE SPEND RISK</div>
-            </div>
-          </div>
-
-          <!-- CTAs -->
-          <div class="flex flex-wrap items-center gap-4 pt-4">
-            <button onclick="switchView('dapp')" class="px-8 py-4 bg-[#D4AF37] hover:bg-[#F3E5AB] text-black font-cinzel font-bold text-xs tracking-[0.2em] transition-all duration-200 shadow-xl gold-glow">
-              OPEN LIVE OBSERVATORY
-            </button>
-            <button onclick="document.getElementById('section-architecture').scrollIntoView({ behavior: 'smooth' })" class="px-8 py-4 border border-[var(--border-subtle)] hover:border-[#D4AF37] text-[#F5F5F7] font-cinzel text-xs tracking-[0.15em] transition-all bg-[#0E1015]">
-              STUDY ARCHITECTURE
-            </button>
-          </div>
-        </div>
-
-        <!-- Right: Classical Cybernetic Sculpture Showcase -->
-        <div class="lg:col-span-5 relative">
-          <div class="relative mx-auto max-w-md classical-frame p-2 border border-[#D4AF37]/30 bg-[#0E1015]/80 stone-card">
-            <div class="relative overflow-hidden aspect-[4/5] bg-black">
-              <img src="assets/david_cyborg.jpg" alt="Algorithmic Classical Sentinel" class="w-full h-full object-cover object-center filter contrast-110 brightness-95 opacity-90 transition-transform duration-700 hover:scale-105">
-              <div class="absolute inset-0 bg-gradient-to-t from-[#08090C] via-transparent to-transparent opacity-80"></div>
-              
-              <!-- Monospace HUD overlay -->
-              <div class="absolute top-4 left-4 font-mono text-[10px] text-[#00FF88] bg-black/80 px-2.5 py-1 border border-[#00FF88]/30 backdrop-blur-md">
-                SYS: AGENT_ONLINE // NONCE_VECTOR: ARMED
-              </div>
-              <div class="absolute bottom-4 left-4 right-4 p-3 bg-black/80 backdrop-blur-md border border-[var(--border-subtle)]">
-                <div class="flex justify-between items-center text-[10px] font-mono text-[#8E8E9F]">
-                  <span>REASONING KERNEL: CLAUDE / GEMINI</span>
-                  <span class="text-[#D4AF37]">CLAMP: ACTIVE</span>
-                </div>
-                <div class="text-xs font-cinzel font-semibold text-[#F5F5F7] mt-1 tracking-wide">
-                  Autonomous Watchdog Protocol v0.1.0
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+        <a href="/dapp" class="px-6 py-3 rounded-full bg-[#C9A961] hover:bg-[#E5C989] text-black font-medium text-xs font-mono transition-all transform hover:scale-[1.02] shadow-[0_0_25px_rgba(201,169,97,0.3)]">
+          Launch Live Observatory
+        </a>
+        <a href="#problem" class="px-6 py-3 rounded-full bg-[#101216] hairline hover:bg-white/5 text-[#F5F3EF] text-xs font-mono transition-all">
+          Explore The Nonce Gap
+        </a>
       </div>
-    </section>
-
-    <!-- Visual Breakdown: The Divine Gap in High Frequency Nonces -->
-    <section class="py-24 border-b border-[var(--border-subtle)] bg-[#0A0C10]">
-      <div class="max-w-7xl mx-auto px-6">
-        
-        <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div class="font-mono text-xs text-[#D4AF37] tracking-[0.2em] uppercase">[MEMPOOL ANOMALY CAUSALITY]</div>
-          <h2 class="font-cinzel text-3xl sm:text-4xl font-bold text-[#F5F5F7]">
-            THE FRACTURE BETWEEN <span class="gold-text-shimmer">"LATEST"</span> AND <span class="gold-text-shimmer">"PENDING"</span>
-          </h2>
-          <p class="text-[#8E8E9F] text-base leading-relaxed">
-            In sub-second Layer-2 execution, traditional RPC clients assume linear nonce progression. Base’s Flashblocks decouple pre-confirmation state from canonical block settlement, opening an execution abyss.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <!-- Artwork Representation of The Gap -->
-          <div class="lg:col-span-5">
-            <div class="stone-card p-3 classical-frame">
-              <div class="relative overflow-hidden aspect-[16/10] bg-black">
-                <img src="assets/adam_creation_gap.jpg" alt="The Nonce Gap Mosaic" class="w-full h-full object-cover opacity-85 hover:scale-105 transition-transform duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#0E1015] via-transparent to-transparent opacity-90"></div>
-                <div class="absolute bottom-3 left-3 right-3 text-center">
-                  <div class="font-mono text-[11px] text-[#D4AF37] bg-black/80 px-2 py-1 border border-[#D4AF37]/30">
-                    THE DEADLOCK: STUCK TX ISOLATES DOWNSTREAM ORDERFLOW
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Comparison Columns -->
-          <div class="lg:col-span-7 space-y-6">
-            <div class="stone-card p-6 border-l-4 border-l-[#FF3B30]">
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="font-cinzel font-bold text-lg text-[#F5F5F7]">THE STANDARD TRADING BOT FAILURE</h3>
-                <span class="font-mono text-xs text-[#FF3B30] bg-[#FF3B30]/10 px-2 py-0.5 border border-[#FF3B30]/30">UNPROTECTED</span>
-              </div>
-              <p class="text-sm text-[#8E8E9F] leading-relaxed">
-                Trading bot submits Nonces #42, #43, #44 in a 50ms window. Nonce #43 is underpriced or suffers a cache desync. Flashblocks pre-confirms #42. Nonce #44 queues behind #43. The bot keeps sending #45, #46, burning gas or freezing arbitrage opportunities while the queue stalls indefinitely.
-              </p>
-            </div>
-
-            <div class="stone-card p-6 border-l-4 border-l-[#00FF88]">
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="font-cinzel font-bold text-lg text-[#F5F5F7]">THE NONCE SENTINEL SHIELD</h3>
-                <span class="font-mono text-xs text-[#00FF88] bg-[#00FF88]/10 px-2 py-0.5 border border-[#00FF88]/30">INTERCEPTOR ACTIVE</span>
-              </div>
-              <p class="text-sm text-[#8E8E9F] leading-relaxed">
-                The bot submits through <code class="text-[#D4AF37] font-mono text-xs">interceptor.submitTransaction(tx)</code>. Sentinel catches the gap at Nonce #43 before sending #44. It queries the AI diagnostic engine for causal classification, applies a bounded bump to Priority Fee and Max Fee, verifies on-chain receipts to eliminate double-spends, broadcasts replacement, and safely forwards #44.
-              </p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- The Tripartite Architecture -->
-    <section id="section-architecture" class="py-24 border-b border-[var(--border-subtle)]">
-      <div class="max-w-7xl mx-auto px-6">
-        
-        <div class="text-center max-w-3xl mx-auto mb-20 space-y-4">
-          <div class="font-mono text-xs text-[#D4AF37] tracking-[0.2em] uppercase">[TRI-TIER SAFETY HARNESS]</div>
-          <h2 class="font-cinzel text-3xl sm:text-4xl font-bold text-[#F5F5F7]">
-            ENGINEERED AROUND FIVE NON-NEGOTIABLE AXIOMS
-          </h2>
-          <p class="text-[#8E8E9F] text-base">
-            Why algorithmic traders trust Sentinel with production capital: strict bounds, fail-safe degradation, and zero black-box autonomy over signing keys.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          <!-- Pillar 1 -->
-          <div class="stone-card p-8 relative flex flex-col justify-between group">
-            <div class="space-y-4">
-              <div class="w-12 h-12 border border-[#D4AF37] flex items-center justify-center font-cinzel text-xl font-bold text-[#D4AF37] bg-[#08090C] classical-frame">
-                I
-              </div>
-              <h3 class="font-cinzel font-bold text-lg text-[#F5F5F7]">MODEL PROPOSES, CODE DECIDES</h3>
-              <p class="text-sm text-[#8E8E9F] leading-relaxed">
-                The AI reasoning layer in <code class="text-[#D4AF37] font-mono">agent.ts</code> recommends gas-bump multipliers and categorizes failure modes. It never signs, never holds keys, and can never set fee parameters directly.
-              </p>
-            </div>
-            <div class="pt-6 mt-6 border-t border-[var(--border-subtle)] font-mono text-[11px] text-[#D4AF37]">
-              GOVERNOR: resolver.ts::clampBumpPct()
-            </div>
-          </div>
-
-          <!-- Pillar 2 -->
-          <div class="stone-card p-8 relative flex flex-col justify-between group">
-            <div class="space-y-4">
-              <div class="w-12 h-12 border border-[#D4AF37] flex items-center justify-center font-cinzel text-xl font-bold text-[#D4AF37] bg-[#08090C] classical-frame">
-                II
-              </div>
-              <h3 class="font-cinzel font-bold text-lg text-[#F5F5F7]">PRE-FLIGHT RECEIPT VERIFICATION</h3>
-              <p class="text-sm text-[#8E8E9F] leading-relaxed">
-                Before broadcasting any replacement transaction, the resolver re-verifies <code class="text-[#D4AF37] font-mono">isConfirmed()</code> against canonical receipts to guarantee a late-landing original transaction is never double-spent.
-              </p>
-            </div>
-            <div class="pt-6 mt-6 border-t border-[var(--border-subtle)] font-mono text-[11px] text-[#D4AF37]">
-              RACE CONDITION GUARD: ATOMIC
-            </div>
-          </div>
-
-          <!-- Pillar 3 -->
-          <div class="stone-card p-8 relative flex flex-col justify-between group">
-            <div class="space-y-4">
-              <div class="w-12 h-12 border border-[#D4AF37] flex items-center justify-center font-cinzel text-xl font-bold text-[#D4AF37] bg-[#08090C] classical-frame">
-                III
-              </div>
-              <h3 class="font-cinzel font-bold text-lg text-[#F5F5F7]">CIRCUIT BREAKER FOR FAILURES</h3>
-              <p class="text-sm text-[#8E8E9F] leading-relaxed">
-                A market surge creating 100 resolved gaps is healthy. The circuit breaker counts only repeated <em>resolution failures</em> in a rolling window, halting the watchdog if RPC nodes degrade or funds deplete.
-              </p>
-            </div>
-            <div class="pt-6 mt-6 border-t border-[var(--border-subtle)] font-mono text-[11px] text-[#D4AF37]">
-              WINDOW: 10 FAILURES / 300 SECONDS
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Code Integration Showcase -->
-    <section class="py-24 border-b border-[var(--border-subtle)] bg-[#0E1015]/60">
-      <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        
-        <div class="lg:col-span-5 space-y-6">
-          <div class="font-mono text-xs text-[#D4AF37] tracking-[0.2em] uppercase">[DROP-IN INTEGRATION]</div>
-          <h2 class="font-cinzel text-3xl font-bold text-[#F5F5F7]">
-            TWO LINES OF CODE. IMMEDIATE IMMUNITY.
-          </h2>
-          <p class="text-[#8E8E9F] text-base leading-relaxed">
-            Trading bots continue signing transactions with their own private keys, nonces, and gas heuristics. The Interceptor wraps the broadcast endpoint, transparently healing prior stalls before sending.
-          </p>
-
-          <div class="space-y-3 font-mono text-xs text-[#A1A1B2]">
-            <div class="flex items-center gap-2">
-              <span class="text-[#00FF88] font-bold">[✓]</span> Zero private key custody in Interceptor mode
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-[#00FF88] font-bold">[✓]</span> Fully compatible with Viem, Ethers v6, and raw RPC
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-[#00FF88] font-bold">[✓]</span> Built-in Dry Run simulation mode
-            </div>
-          </div>
-
-          <button onclick="switchView('dapp')" class="mt-4 px-6 py-3 border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black font-cinzel text-xs font-bold tracking-[0.2em] transition-all">
-            TEST IN DAPP CONSOLE →
-          </button>
-        </div>
-
-        <div class="lg:col-span-7">
-          <div class="stone-card rounded-lg overflow-hidden border border-[var(--border-subtle)]">
-            <div class="px-5 py-3 bg-[#08090C] border-b border-[var(--border-subtle)] flex justify-between items-center">
-              <div class="flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></span>
-                <span class="ml-3 font-mono text-xs text-[#8E8E9F]">bot_integration.ts</span>
-              </div>
-              <span class="font-mono text-[10px] text-[#D4AF37]">TYPESCRIPT // VIEM</span>
-            </div>
-            <pre class="p-6 font-mono text-xs leading-relaxed overflow-x-auto text-[#D1D1D8] bg-[#0A0C10]"><code><span class="text-[#8E8E9F]">// Replace raw RPC client.sendRawTransaction with Sentinel</span>
-<span class="text-[#D4AF37]">import</span> { TransactionInterceptor } <span class="text-[#D4AF37]">from</span> <span class="text-[#00FF88]">"@base/nonce-sentinel"</span>;
-
-<span class="text-[#8E8E9F]">// 1. Initialize Interceptor with bot config</span>
-<span class="text-[#D4AF37]">const</span> interceptor = <span class="text-[#D4AF37]">new</span> TransactionInterceptor(config, tracker, store, resolver, ai, logger);
-
-<span class="text-[#8E8E9F]">// 2. Trading bot signs its own transaction as usual</span>
-<span class="text-[#D4AF37]">const</span> signedTx = <span class="text-[#D4AF37]">await</span> botWallet.signTransaction(orderTx);
-
-<span class="text-[#8E8E9F]">// 3. Submit through Sentinel: resolves prior stalls before forwarding!</span>
-<span class="text-[#D4AF37]">const</span> txHash = <span class="text-[#D4AF37]">await</span> interceptor.<span class="text-[#F3E5AB] font-bold">submitTransaction</span>(signedTx);
-<span class="text-[#8E8E9F]">console.log("Transaction broadcast confirmed:", txHash);</span></code></pre>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Visual Monument: Seraph of Flashblocks -->
-    <section class="py-24 border-b border-[var(--border-subtle)] relative overflow-hidden">
-      <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        <div class="lg:col-span-5 order-2 lg:order-1">
-          <div class="stone-card p-3 classical-frame">
-            <img src="assets/celestial_dome.jpg" alt="Celestial Architecture" class="w-full h-[420px] object-cover filter brightness-90 contrast-110">
-          </div>
-        </div>
-        <div class="lg:col-span-7 order-1 lg:order-2 space-y-6">
-          <div class="font-mono text-xs text-[#D4AF37] tracking-[0.2em] uppercase">[ORION HACKATHON 2026]</div>
-          <h2 class="font-cinzel text-3xl sm:text-4xl font-bold text-[#F5F5F7]">
-            BUILT FOR AUTONOMOUS AGENT ECOSYSTEMS
-          </h2>
-          <p class="text-[#8E8E9F] text-base leading-relaxed">
-            As autonomous trading agents on Base assume primary volume across decentralised exchanges, nonces become the critical single-point of failure. Nonce Sentinel provides the essential infrastructural safety rail for institutional-grade reliability.
-          </p>
-          <div class="pt-4 flex items-center space-x-6">
-            <button onclick="switchView('dapp')" class="px-8 py-4 bg-[#D4AF37] hover:bg-[#F3E5AB] text-black font-cinzel font-bold text-xs tracking-[0.2em] shadow-lg">
-              ENTER SENTINEL CONSOLE
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ========================================================================= -->
-  <!-- VIEW 2: DAPP CONSOLE (THE SENTINEL OBSERVATORY)                           -->
-  <!-- ========================================================================= -->
-  <main id="view-dapp" class="hidden transition-opacity duration-300 py-10">
-    <div class="max-w-7xl mx-auto px-6 space-y-8">
-      
-      <!-- DApp Top Control Bar -->
-      <div class="stone-card p-6 border border-[#D4AF37]/30 flex flex-wrap items-center justify-between gap-6">
-        <div class="flex items-center space-x-4">
-          <div class="w-12 h-12 rounded bg-black/60 border border-[#D4AF37] flex items-center justify-center font-cinzel text-xl font-bold text-[#D4AF37]">
-            Ω
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h2 class="font-cinzel text-xl font-bold text-[#F5F5F7]">SENTINEL OBSERVATORY</h2>
-              <span class="px-2 py-0.5 font-mono text-[10px] bg-[#0052FF]/20 text-[#0052FF] border border-[#0052FF]/40">BASE SEPOLIA</span>
-            </div>
-            <div class="font-mono text-xs text-[#8E8E9F] mt-0.5 flex items-center gap-2">
-              <span>TARGET WALLET:</span>
-              <span class="text-[#D4AF37] font-semibold">0x71CB...8F29</span>
-              <button onclick="copyWallet()" class="text-[10px] text-[#8E8E9F] hover:text-[#F5F5F7]">[COPY]</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Simulation Triggers -->
-        <div class="flex flex-wrap items-center gap-3">
-          <button id="btn-trigger-gap" onclick="triggerSimulatedGap()" class="px-4 py-2.5 bg-[#FF3B30]/15 hover:bg-[#FF3B30] text-[#FF3B30] hover:text-white border border-[#FF3B30]/40 font-mono text-xs font-semibold tracking-wider transition-all">
-            [!] INJECT STUCK TX (GAP)
-          </button>
-          <button id="btn-resolve-gap" onclick="triggerSentinelResolution()" class="px-5 py-2.5 bg-[#D4AF37] hover:bg-[#F3E5AB] text-black font-cinzel font-bold text-xs tracking-wider transition-all shadow-md">
-            HEAL VIA SENTINEL
-          </button>
-          <button onclick="resetSimulation()" class="px-4 py-2.5 border border-[var(--border-subtle)] hover:border-[#D4AF37] text-[#8E8E9F] hover:text-[#F5F5F7] font-mono text-xs transition-all">
-            RESET
-          </button>
-        </div>
-      </div>
-
-      <!-- Telemetry Status Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        <div class="stone-card p-5">
-          <div class="flex justify-between items-center text-xs font-mono text-[#8E8E9F]">
-            <span>LATEST NONCE (SETTLED)</span>
-            <span class="w-2 h-2 rounded-full bg-[#00FF88]"></span>
-          </div>
-          <div id="stat-latest-nonce" class="font-mono text-3xl font-bold text-[#F5F5F7] mt-3">42</div>
-          <div class="font-mono text-[10px] text-[#8E8E9F] mt-1">Confirmed on canonical block #18,924,102</div>
-        </div>
-
-        <div class="stone-card p-5">
-          <div class="flex justify-between items-center text-xs font-mono text-[#8E8E9F]">
-            <span>PENDING NONCE (FLASHBLOCK)</span>
-            <span class="w-2 h-2 rounded-full bg-[#0052FF]"></span>
-          </div>
-          <div id="stat-pending-nonce" class="font-mono text-3xl font-bold text-[#F5F5F7] mt-3">45</div>
-          <div class="font-mono text-[10px] text-[#8E8E9F] mt-1">In-flight Flashblocks pre-confirmed</div>
-        </div>
-
-        <div class="stone-card p-5 border-l-4 border-l-[#FF3B30]">
-          <div class="flex justify-between items-center text-xs font-mono text-[#8E8E9F]">
-            <span>GAP STATUS</span>
-            <span id="stat-gap-badge" class="font-mono text-[10px] px-1.5 py-0.5 bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30 font-bold">DETECTED</span>
-          </div>
-          <div id="stat-gap-nonce" class="font-mono text-3xl font-bold text-[#FF3B30] mt-3">NONCE #43</div>
-          <div id="stat-gap-desc" class="font-mono text-[10px] text-[#8E8E9F] mt-1">Blocking nonces #44, #45 in queue</div>
-        </div>
-
-        <div class="stone-card p-5">
-          <div class="flex justify-between items-center text-xs font-mono text-[#8E8E9F]">
-            <span>CIRCUIT BREAKER</span>
-            <span class="font-mono text-[10px] text-[#00FF88] font-bold">ARMED</span>
-          </div>
-          <div class="font-mono text-3xl font-bold text-[#F5F5F7] mt-3">0 <span class="text-sm font-normal text-[#8E8E9F]">/ 10</span></div>
-          <div class="font-mono text-[10px] text-[#8E8E9F] mt-1">Rolling window: 300s (0 failures)</div>
-        </div>
-
-      </div>
-
-      <!-- Main Operational Panels: Nonce Pipeline + AI Diagnostic Stream -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        <!-- Left: Live Nonce Visualizer Pipeline (7 cols) -->
-        <div class="lg:col-span-7 space-y-6">
-          <div class="stone-card p-6">
-            <div class="flex justify-between items-center mb-6">
-              <div>
-                <h3 class="font-cinzel font-bold text-base text-[#F5F5F7]">FLASHBLOCK NONCE QUEUE</h3>
-                <p class="font-mono text-xs text-[#8E8E9F]">Linear execution state across sub-second mempool</p>
-              </div>
-              <div class="font-mono text-xs text-[#D4AF37] px-2 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30">
-                ACTIVE QUEUE: 4 TXS
-              </div>
-            </div>
-
-            <!-- Visual Pipeline Items -->
-            <div id="nonce-pipeline" class="space-y-3">
-              
-              <!-- Nonce 42 (Settled) -->
-              <div class="p-4 rounded border border-[#00FF88]/30 bg-[#00FF88]/5 flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                  <div class="w-8 h-8 rounded bg-[#00FF88]/20 border border-[#00FF88] flex items-center justify-center font-mono text-xs font-bold text-[#00FF88]">
-                    42
-                  </div>
-                  <div>
-                    <div class="font-mono text-xs font-semibold text-[#F5F5F7]">Tx: 0xaa...4210</div>
-                    <div class="font-mono text-[10px] text-[#8E8E9F]">Tip: 1.5 Gwei // MaxFee: 2.0 Gwei</div>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <span class="font-mono text-xs text-[#00FF88] font-bold">[SETTLED]</span>
-                  <div class="font-mono text-[10px] text-[#8E8E9F]">Block #18,924,102</div>
-                </div>
-              </div>
-
-              <!-- Nonce 43 (STUCK / GAP) -->
-              <div id="item-nonce-43" class="p-4 rounded border border-[#FF3B30] bg-[#FF3B30]/10 flex items-center justify-between animate-pulse">
-                <div class="flex items-center space-x-4">
-                  <div class="w-8 h-8 rounded bg-[#FF3B30]/30 border border-[#FF3B30] flex items-center justify-center font-mono text-xs font-bold text-[#FF3B30]">
-                    43
-                  </div>
-                  <div>
-                    <div class="font-mono text-xs font-bold text-[#FF3B30]">Tx: 0xbb...1094 [STUCK TX]</div>
-                    <div class="font-mono text-[10px] text-[#FF3B30]">Tip: 1 Wei (Underpriced) // 12.4s Stalled</div>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <span class="font-mono text-xs text-[#FF3B30] font-bold">[BLOCKING GAP]</span>
-                  <div class="font-mono text-[10px] text-[#FF3B30]">Awaiting Sentinel Bump</div>
-                </div>
-              </div>
-
-              <!-- Nonce 44 (Queued) -->
-              <div id="item-nonce-44" class="p-4 rounded border border-[var(--border-subtle)] bg-[#08090C] opacity-60 flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                  <div class="w-8 h-8 rounded bg-white/5 border border-white/20 flex items-center justify-center font-mono text-xs font-bold text-[#8E8E9F]">
-                    44
-                  </div>
-                  <div>
-                    <div class="font-mono text-xs text-[#8E8E9F]">Tx: 0xcc...3319 [QUEUED]</div>
-                    <div class="font-mono text-[10px] text-[#8E8E9F]">Tip: 2.0 Gwei // Valid Price</div>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <span class="font-mono text-xs text-[#8E8E9F]">[HELD BEHIND #43]</span>
-                  <div class="font-mono text-[10px] text-[#8E8E9F]">Pending resolution</div>
-                </div>
-              </div>
-
-              <!-- Nonce 45 (Queued) -->
-              <div id="item-nonce-45" class="p-4 rounded border border-[var(--border-subtle)] bg-[#08090C] opacity-60 flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                  <div class="w-8 h-8 rounded bg-white/5 border border-white/20 flex items-center justify-center font-mono text-xs font-bold text-[#8E8E9F]">
-                    45
-                  </div>
-                  <div>
-                    <div class="font-mono text-xs text-[#8E8E9F]">Tx: 0xdd...8841 [QUEUED]</div>
-                    <div class="font-mono text-[10px] text-[#8E8E9F]">Tip: 2.0 Gwei // Arbitrage Leg 2</div>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <span class="font-mono text-xs text-[#8E8E9F]">[HELD BEHIND #43]</span>
-                  <div class="font-mono text-[10px] text-[#8E8E9F]">Pending resolution</div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Gas Safety Bounds Gauge -->
-            <div class="mt-6 pt-6 border-t border-[var(--border-subtle)] space-y-3">
-              <div class="flex justify-between items-center text-xs font-mono">
-                <span class="text-[#8E8E9F]">GAS BUMP VECTOR CLAMP (RESOLVER.TS)</span>
-                <span id="clamp-indicator" class="text-[#D4AF37] font-semibold">CLAMP: +35.0% [WITHIN LIMITS]</span>
-              </div>
-              <div class="h-2 w-full bg-black/60 rounded-full overflow-hidden border border-[var(--border-subtle)] flex">
-                <div class="h-full bg-[#8E8E9F]/40" style="width: 10%"></div> <!-- Floor: 10% -->
-                <div id="gauge-bump" class="h-full bg-[#D4AF37] transition-all duration-500" style="width: 35%"></div>
-                <div class="h-full bg-transparent flex-1"></div>
-                <div class="h-full bg-[#FF3B30]/30" style="width: 50%"></div> <!-- Ceiling: 50% -->
-              </div>
-              <div class="flex justify-between text-[10px] font-mono text-[#8E8E9F]">
-                <span>MIN FLOOR (10%)</span>
-                <span>RECOMMENDED BUMP</span>
-                <span>MAX CEILING (50%)</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Right: AI Diagnostic Neural Stream (5 cols) -->
-        <div class="lg:col-span-5 space-y-6">
-          <div class="stone-card p-6 flex flex-col h-full justify-between">
-            <div>
-              <div class="flex justify-between items-center pb-4 border-b border-[var(--border-subtle)] mb-4">
-                <div class="flex items-center space-x-3">
-                  <div class="w-2.5 h-2.5 rounded-full bg-[#D4AF37] animate-pulse"></div>
-                  <h3 class="font-cinzel font-bold text-sm text-[#F5F5F7]">AI DIAGNOSTIC REASONING</h3>
-                </div>
-                <span class="font-mono text-[10px] text-[#D4AF37] bg-[#D4AF37]/10 px-2 py-0.5 border border-[#D4AF37]/30">CLAUDE / GEMINI</span>
-              </div>
-
-              <!-- Artwork Integration in Terminal -->
-              <div class="relative mb-4 h-28 overflow-hidden rounded border border-[var(--border-subtle)]">
-                <img src="assets/oracle_waveform.jpg" alt="Oracle Telemetry" class="w-full h-full object-cover opacity-60">
-                <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
-                <div class="absolute inset-0 p-3 flex flex-col justify-center">
-                  <div class="font-mono text-[10px] text-[#00FF88]">CAUSAL INFERENCE ENGINE</div>
-                  <div id="diag-status" class="font-mono text-xs font-bold text-[#F5F5F7] mt-0.5">ANALYZING GAP #43 PATTERN...</div>
-                </div>
-              </div>
-
-              <!-- Diagnostic Feed Box -->
-              <div class="bg-[#08090C] border border-[var(--border-subtle)] p-4 rounded font-mono text-xs space-y-3 leading-relaxed">
-                <div>
-                  <span class="text-[#8E8E9F]">CATEGORY:</span> 
-                  <span id="diag-category" class="text-[#FF3B30] font-bold ml-2">underpriced</span>
-                </div>
-                <div>
-                  <span class="text-[#8E8E9F]">RAW ASK:</span> 
-                  <span id="diag-raw-bump" class="text-[#F5F5F7] ml-2">80.0% (Reckless)</span>
-                </div>
-                <div>
-                  <span class="text-[#8E8E9F]">CLAMPED BUMP:</span> 
-                  <span id="diag-clamped-bump" class="text-[#D4AF37] font-bold ml-2">50.0% (Hard Ceiling)</span>
-                </div>
-                <div class="pt-2 border-t border-white/5">
-                  <span class="text-[#8E8E9F]">REASONING:</span>
-                  <p id="diag-explanation" class="text-[#D1D1D8] text-[11px] mt-1 italic">
-                    "Transaction #43 was submitted with 1 wei priority fee during a gas spike on Base. Transaction is stalled in pending state. Recommending gas replacement to match current BaseFee * 2."
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Terminal Actions -->
-            <div class="pt-4 mt-4 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-mono">
-              <span class="text-[#8E8E9F]">AUDIT RECORD:</span>
-              <span class="text-[#00FF88]">RECEIPT SIGNED [DRY_RUN]</span>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Real-Time JSONL Audit Ledger -->
-      <div class="stone-card p-6">
-        <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
-          <div class="flex items-center space-x-3">
-            <span class="w-3 h-3 border border-[#D4AF37] flex items-center justify-center font-mono text-[8px] text-[#D4AF37]">§</span>
-            <h3 class="font-cinzel font-bold text-sm text-[#F5F5F7]">CRYPTO-AUDIT LEDGER (JSONL PROVENANCE)</h3>
-          </div>
-          <div class="flex items-center space-x-3">
-            <span class="font-mono text-xs text-[#8E8E9F]">LOG FILE: <code class="text-[#D4AF37]">./nonce-sentinel.log</code></span>
-            <button onclick="clearAuditLog()" class="text-xs font-mono text-[#8E8E9F] hover:text-[#F5F5F7] px-2 py-1 border border-white/10">[CLEAR]</button>
-          </div>
-        </div>
-
-        <div id="audit-log-container" class="bg-[#060709] border border-[var(--border-subtle)] p-4 rounded font-mono text-[11px] leading-relaxed max-h-56 overflow-y-auto space-y-2 text-[#A1A1B2]">
-          <div class="text-[#8E8E9F]">// Nonce Sentinel JSONL audit trail initialized...</div>
-          <div><span class="text-[#D4AF37]">[2026-09-19T00:20:11.002Z]</span> <span class="text-[#0052FF]">{"action":"sentinel_started","wallet":"0x71CB...8F29","chain":"base_sepolia","dryRun":true}</span></div>
-          <div><span class="text-[#D4AF37]">[2026-09-19T00:20:12.441Z]</span> <span class="text-[#FF3B30]">{"action":"gap_detected","gapNonce":43,"latestNonce":42,"pendingNonce":45,"stuckTxHash":"0xbb10...94"}</span></div>
-          <div><span class="text-[#D4AF37]">[2026-09-19T00:20:12.780Z]</span> <span class="text-[#D4AF37]">{"action":"diagnosis","category":"underpriced","rawRequestedBumpPct":80,"clampedBumpPct":50,"wasClamped":true}</span></div>
-        </div>
-      </div>
-
     </div>
-  </main>
 
-  <!-- ========================================================================= -->
-  <!-- FOOTER                                                                    -->
-  <!-- ========================================================================= -->
-  <footer class="border-t border-[var(--border-subtle)] py-12 bg-[#060709] mt-20">
-    <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-      <div class="flex items-center space-x-3">
-        <div class="w-7 h-7 border border-[#D4AF37] flex items-center justify-center font-cinzel text-xs font-bold text-[#D4AF37]">
-          N
-        </div>
-        <div class="font-cinzel text-xs font-bold tracking-[0.2em] text-[#F5F5F7]">
-          NONCE SENTINEL // BASE L2
+    <!-- Grand Hero Visual Showcase -->
+    <div class="relative rounded-[28px] overflow-hidden hairline bg-[#101216] glow-aurum max-w-5xl mx-auto">
+      <div class="aspect-[16/9] sm:aspect-[21/9] relative">
+        <img src="assets/david_cyborg.jpg" alt="Autonomous Sentinel Intelligence" class="w-full h-full object-cover object-center filter brightness-[0.88] contrast-[1.08]">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#08090C] via-[#08090C]/40 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-[#08090C]/80 via-transparent to-[#08090C]/80"></div>
+
+        <!-- Floating Telemetry Badges -->
+        <div class="absolute bottom-6 left-6 right-6 flex flex-wrap items-end justify-between gap-4">
+          <div class="space-y-1">
+            <span class="text-[10px] font-mono uppercase tracking-widest text-[#C9A961]">Autonomous Guardian</span>
+            <div class="font-serif text-xl sm:text-2xl text-white">Continuous Sub-Second Mempool Protection</div>
+            <div class="text-xs text-[#C2BEB4] font-mono">Monitoring Base Sepolia RPC & Flashblock 200ms pre-confirmations</div>
+          </div>
+          <div class="flex items-center gap-3 font-mono text-xs">
+            <div class="px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md hairline text-[#C9A961]">
+              Flashblocks: ~200ms
+            </div>
+            <div class="px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md hairline text-[#4A7A99]">
+              Desync Delta: 0.00
+            </div>
+          </div>
         </div>
       </div>
-      <div class="font-mono text-xs text-[#8E8E9F]">
-        SUBMISSION FOR ORION BUILDER HACKATHON 2026 • ZERO DOUBLE-SPEND INVARIANT
+    </div>
+  </section>
+
+  <!-- The Core Problem: Anatomy of a Nonce Gap -->
+  <section id="problem" class="max-w-7xl mx-auto px-6 py-20 border-t border-white/5 space-y-16">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-5 space-y-5">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D9532F]/10 text-[#D9532F] text-[11px] font-mono uppercase tracking-wider">
+          The Fundamental Vulnerability
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-serif text-white leading-tight">
+          The Nonce Gap: Why High-Frequency Bots Freeze.
+        </h2>
+        <p class="text-sm text-[#C2BEB4] leading-relaxed">
+          Ethereum nonces are strictly sequential. An agent cannot confirm Nonce #128 until Nonce #127 is included in a block. On Base with ~200ms Flashblocks, when an agent dispatches 10 transactions in a 1-second burst:
+        </p>
+        <p class="text-sm text-[#C2BEB4] leading-relaxed">
+          A sudden gas surge strands Nonce #127 below the base fee. The entire downstream pipeline, including arbitrage fills, liquidation cancellations, and vault rebalances, halts indefinitely in queue deadlock.
+        </p>
+        <div class="pt-2">
+          <div class="p-4 rounded-[18px] bg-[#101216] hairline space-y-2">
+            <div class="text-xs font-mono text-[#C9A961]">Flashblocks Latency Paradox:</div>
+            <div class="text-xs text-[#C2BEB4] leading-relaxed">
+              Standard block intervals are 2 seconds, but Flashblocks stream partial blocks every 200ms. If your bot’s local nonce tracker falls out of sync with the sequencer by just one sub-block, every subsequent submission errors with <code class="text-[#D9532F]">NONCE_TOO_LOW</code> or stalls forever in <code class="text-[#D9532F]">QUEUED</code> status.
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="flex items-center space-x-6 font-mono text-xs text-[#8E8E9F]">
-        <a href="https://github.com" target="_blank" class="hover:text-[#D4AF37] transition-colors">GITHUB</a>
-        <a href="https://base.org" target="_blank" class="hover:text-[#D4AF37] transition-colors">BASE L2</a>
-        <a href="https://orionagents.org/hackathon" target="_blank" class="hover:text-[#D4AF37] transition-colors">ORION</a>
+
+      <!-- Framed Classical Artwork: Creation of Adam (The Nonce Gap) -->
+      <div class="lg:col-span-7">
+        <div class="relative rounded-[26px] overflow-hidden hairline bg-[#101216] image-card glow-aurum">
+          <img src="assets/adam_creation_gap.jpg" alt="The Nonce Gap Representation" class="w-full h-auto object-cover filter brightness-[0.92] contrast-[1.05]">
+          <div class="p-6 bg-[#101216] border-t border-[#C9A961]/20 flex items-center justify-between">
+            <div>
+              <div class="font-serif text-base text-white">The Microsecond Disconnect</div>
+              <div class="text-xs font-mono text-[#686660]">Michelangelo's Creation of Adam · Symbol of the Unconfirmed Nonce Gap</div>
+            </div>
+            <span class="text-xs font-mono px-3 py-1 rounded-full bg-[#D9532F]/15 text-[#D9532F] border border-[#D9532F]/30">
+              DEADLOCK STATE
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 Deadly Failure Modes Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-[#101216] rounded-[22px] hairline p-6 space-y-4 hover:border-[#C9A961]/40 transition-all">
+        <div class="w-10 h-10 rounded-full bg-[#D9532F]/10 border border-[#D9532F]/30 flex items-center justify-center text-xs font-mono text-[#D9532F]">
+          01
+        </div>
+        <h3 class="font-serif text-lg text-white">Underpriced Gas Stall</h3>
+        <p class="text-xs text-[#C2BEB4] leading-relaxed">
+          Base fee surges during volatility. Nonce #N’s priority tip is insufficient for sequencer inclusion. Nonce #N+1 through #N+K sit permanently blocked in the node’s queued pool.
+        </p>
+      </div>
+
+      <div class="bg-[#101216] rounded-[22px] hairline p-6 space-y-4 hover:border-[#C9A961]/40 transition-all">
+        <div class="w-10 h-10 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/30 flex items-center justify-center text-xs font-mono text-[#C9A961]">
+          02
+        </div>
+        <h3 class="font-serif text-lg text-white">Silent Mempool Eviction</h3>
+        <p class="text-xs text-[#C2BEB4] leading-relaxed">
+          RPC nodes evict low-fee transactions under load without firing error callbacks. The agent assumes the transaction is in flight, but the chain has forgotten it entirely.
+        </p>
+      </div>
+
+      <div class="bg-[#101216] rounded-[22px] hairline p-6 space-y-4 hover:border-[#C9A961]/40 transition-all">
+        <div class="w-10 h-10 rounded-full bg-[#4A7A99]/10 border border-[#4A7A99]/30 flex items-center justify-center text-xs font-mono text-[#4A7A99]">
+          03
+        </div>
+        <h3 class="font-serif text-lg text-white">Micro-Fork Reorg Collision</h3>
+        <p class="text-xs text-[#C2BEB4] leading-relaxed">
+          Sub-second Flashblock reorgs invalidate an assumed pre-confirmation. The agent increments its internal counter, triggering immediate <code class="text-[#4A7A99]">REPLACEMENT_UNDERPRICED</code> errors.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture & Neoclassical Precision -->
+  <section id="architecture" class="max-w-7xl mx-auto px-6 py-20 border-t border-white/5 space-y-16">
+    <div class="text-center max-w-3xl mx-auto space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C9A961]/10 text-[#C9A961] text-[11px] font-mono uppercase tracking-wider">
+        Autonomous Engine
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-serif text-white">
+        Neoclassical Precision: How Sentinel Heals the Stream.
+      </h2>
+      <p class="text-sm text-[#C2BEB4] leading-relaxed">
+        Sentinel runs as an autonomous, out-of-band watchdog alongside any trading daemon. It operates via three non-intrusive phases:
+      </p>
+    </div>
+
+    <!-- 2 Art-Rich Architectural Cards -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Card 1: Chronometer & In-Flight Tracking -->
+      <div class="bg-[#101216] rounded-[26px] hairline overflow-hidden image-card flex flex-col justify-between">
+        <div class="aspect-[16/10] relative overflow-hidden">
+          <img src="assets/chronometer.jpg" alt="Renaissance Celestial Astrolabe Chronometer" class="w-full h-full object-cover filter brightness-[0.9] contrast-[1.1]">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#101216] via-transparent to-transparent"></div>
+        </div>
+        <div class="p-8 space-y-4">
+          <span class="text-[10px] font-mono uppercase tracking-widest text-[#C9A961]">TRACKING SUBSYSTEM</span>
+          <h3 class="font-serif text-2xl text-white">Deterministic Sequence Tracking</h3>
+          <p class="text-xs text-[#C2BEB4] leading-relaxed">
+            The <code class="text-[#C9A961]">nonceTracker.ts</code> engine monitors pending vs mined nonces at 200ms intervals matching Base Flashblocks. It maintains an eviction timer on every in-flight hash, distinguishing normal block latency from silent drops.
+          </p>
+          <div class="pt-2 flex items-center gap-4 text-xs font-mono text-[#C9A961]">
+            <span>✓ 200ms Polling Tick</span>
+            <span>✓ Eviction Timeout Window</span>
+            <span>✓ Ghost Nonce Reaper</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Celestial Dome & Clamped Resolution -->
+      <div class="bg-[#101216] rounded-[26px] hairline overflow-hidden image-card flex flex-col justify-between">
+        <div class="aspect-[16/10] relative overflow-hidden">
+          <img src="assets/celestial_dome.jpg" alt="Celestial Dome Consensus Architecture" class="w-full h-full object-cover filter brightness-[0.88] contrast-[1.1]">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#101216] via-transparent to-transparent"></div>
+        </div>
+        <div class="p-8 space-y-4">
+          <span class="text-[10px] font-mono uppercase tracking-widest text-[#4A7A99]">RESOLVER SUBSYSTEM</span>
+          <h3 class="font-serif text-2xl text-white">AI Diagnostics & Clamped Gas Bumping</h3>
+          <p class="text-xs text-[#C2BEB4] leading-relaxed">
+            When a gap is confirmed, <code class="text-[#4A7A99]">agent.ts</code> classifies the root cause via Claude 3.5 Sonnet or local fast heuristics. <code class="text-[#4A7A99]">resolver.ts</code> constructs a zero-value cancellation or bumped replacement, strictly clamped within user-defined percentage bounds.
+          </p>
+          <div class="pt-2 flex items-center gap-4 text-xs font-mono text-[#4A7A99]">
+            <span>✓ Bounded Gas Clamp (10% - 100%)</span>
+            <span>✓ Fallback Heuristics</span>
+            <span>✓ Nonce Unblocking</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Institutional Security Axioms (Cloud Citadel) -->
+  <section id="axioms" class="max-w-7xl mx-auto px-6 py-20 border-t border-white/5 space-y-12">
+    <div class="relative rounded-[28px] overflow-hidden hairline bg-[#101216] glow-aurum">
+      <div class="aspect-[21/9] relative">
+        <img src="assets/cloud_citadel.jpg" alt="Neoclassical Sentinel Citadel" class="w-full h-full object-cover filter brightness-[0.7] contrast-[1.15]">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#08090C] via-[#08090C]/60 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-[#08090C]/90 via-transparent to-[#08090C]/90"></div>
+
+        <div class="absolute inset-0 p-8 sm:p-12 flex flex-col justify-end max-w-3xl space-y-3">
+          <span class="text-[11px] font-mono uppercase tracking-widest text-[#C9A961]">INSTITUTIONAL SAFETY MANDATE</span>
+          <h2 class="text-3xl sm:text-4xl font-serif text-white">
+            The Armored Citadel: Fail-Safe Guardrails.
+          </h2>
+          <p class="text-xs sm:text-sm text-[#C2BEB4] leading-relaxed">
+            Autonomous healing must never run amok. Sentinel is designed with strict mathematical constraints that guarantee agent capital preservation under catastrophic network conditions.
+          </p>
+        </div>
+      </div>
+
+      <!-- 4 Axiom Pillars -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-8 bg-[#101216] border-t border-[#C9A961]/15">
+        <div class="space-y-2">
+          <div class="text-xs font-mono text-[#C9A961]">AXIOM I</div>
+          <div class="font-serif text-base text-white">Hard Clamped Bumping</div>
+          <div class="text-xs text-[#C2BEB4] leading-relaxed">
+            AI recommendations are strictly clamped between <code class="text-[#C9A961]">minGasBumpPct</code> (10%) and <code class="text-[#C9A961]">maxGasBumpPct</code> (100%). Zero runaway fees.
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="text-xs font-mono text-[#C9A961]">AXIOM II</div>
+          <div class="font-serif text-base text-white">Triple-Strike Breaker</div>
+          <div class="text-xs text-[#C2BEB4] leading-relaxed">
+            If 3 healing interventions occur within a 60-second sliding window, the circuit breaker trips, freezing all automated writes and sounding an urgent webhook alert.
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="text-xs font-mono text-[#C9A961]">AXIOM III</div>
+          <div class="font-serif text-base text-white">Zero Key Exposure</div>
+          <div class="text-xs text-[#C2BEB4] leading-relaxed">
+            Deploy in Proxy Interceptor mode to inspect and repair JSON-RPC traffic in flight without storing private keys inside Sentinel itself.
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="text-xs font-mono text-[#C9A961]">AXIOM IV</div>
+          <div class="font-serif text-base text-white">Audit Trail Provenance</div>
+          <div class="text-xs text-[#C2BEB4] leading-relaxed">
+            Every gap detection, diagnosis reason, gas bump calculation, and broadcast hash is permanently recorded to structured JSONL logs.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Observatory Teaser / Call to Action -->
+  <section id="dapp-preview" class="max-w-7xl mx-auto px-6 py-20 border-t border-white/5">
+    <div class="rounded-[28px] bg-gradient-to-b from-[#171A20] to-[#101216] hairline p-8 sm:p-14 text-center space-y-8 relative overflow-hidden glow-aurum">
+      <div class="w-full max-w-xl mx-auto space-y-4">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A961]/10 text-[#C9A961] text-xs font-mono">
+          <span class="w-2 h-2 rounded-full bg-[#C9A961] animate-pulse"></span>
+          REAL-TIME OBSERVATORY INTERFACE
+        </div>
+        <h2 class="text-3xl sm:text-5xl font-serif text-white">
+          Enter the Live Observatory.
+        </h2>
+        <p class="text-sm text-[#C2BEB4] font-light leading-relaxed">
+          Step inside the telemetry console. Inspect the active mempool pipeline, simulate stuck transactions, and witness Sentinel execute bounded auto-healing in real-time.
+        </p>
+      </div>
+
+      <div class="flex justify-center pt-2">
+        <a href="/dapp" class="px-8 py-4 rounded-full bg-[#C9A961] hover:bg-[#E5C989] text-black font-semibold text-sm font-mono transition-all transform hover:scale-[1.03] shadow-[0_0_35px_rgba(201,169,97,0.35)] flex items-center justify-center">
+          <span>Open Fullscreen Observatory Console</span>
+        </a>
+      </div>
+
+      <!-- Artwork Accent: Oracle Waveform -->
+      <div class="max-w-md mx-auto pt-6 opacity-60">
+        <img src="assets/oracle_waveform.jpg" alt="Oracle Waveform Telemetry" class="rounded-full w-24 h-24 mx-auto object-cover hairline">
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 py-12 px-6 bg-[#08090C] text-[#686660] text-xs font-mono">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <img src="/assets/logo.jpg" alt="Sentinel" class="w-5 h-5 rounded-full object-cover border border-[#C9A961]/40">
+        <span class="brand-title text-white text-xs tracking-[0.16em]">SENTINEL</span>
+        <span>•</span>
+        <span>High-Frequency Nonce Watchdog for Base</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="https://sepolia.basescan.org" target="_blank" class="hover:text-[#C9A961] transition-colors">Base Sepolia</a>
+        <a href="/dapp" class="text-[#C9A961] hover:underline">Observatory Console</a>
       </div>
     </div>
   </footer>
 
-  <!-- ========================================================================= -->
-  <!-- JAVASCRIPT SIMULATOR & LOGIC                                              -->
-  <!-- ========================================================================= -->
   <script>
-    let currentView = 'landing';
-    let isGapResolved = false;
-
-    function switchView(view) {
-      currentView = view;
-      const landingEl = document.getElementById('view-landing');
-      const dappEl = document.getElementById('view-dapp');
-      const btnLanding = document.getElementById('nav-btn-landing');
-      const btnDapp = document.getElementById('nav-btn-dapp');
-      const btnDocs = document.getElementById('nav-btn-docs');
-
-      if (view === 'landing') {
-        landingEl.classList.remove('hidden');
-        dappEl.classList.add('hidden');
-        btnLanding.className = "px-5 py-2 rounded font-cinzel text-xs tracking-wider transition-all duration-200 bg-[#D4AF37] text-black font-semibold shadow-sm";
-        btnDapp.className = "px-5 py-2 rounded font-cinzel text-xs tracking-wider transition-all duration-200 text-[#8E8E9F] hover:text-[#F5F5F7]";
-        if (btnDocs) btnDocs.className = "px-5 py-2 rounded font-cinzel text-xs tracking-wider transition-all duration-200 text-[#8E8E9F] hover:text-[#F5F5F7]";
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else if (view === 'dapp') {
-        landingEl.classList.add('hidden');
-        dappEl.classList.remove('hidden');
-        btnDapp.className = "px-5 py-2 rounded font-cinzel text-xs tracking-wider transition-all duration-200 bg-[#D4AF37] text-black font-semibold shadow-sm";
-        btnLanding.className = "px-5 py-2 rounded font-cinzel text-xs tracking-wider transition-all duration-200 text-[#8E8E9F] hover:text-[#F5F5F7]";
-        if (btnDocs) btnDocs.className = "px-5 py-2 rounded font-cinzel text-xs tracking-wider transition-all duration-200 text-[#8E8E9F] hover:text-[#F5F5F7]";
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else if (view === 'architecture') {
-        switchView('landing');
-        setTimeout(() => {
-          document.getElementById('section-architecture')?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+    const siteHeader = document.getElementById('site-header');
+    function updateHeader() {
+      if (window.scrollY > 20) {
+        siteHeader.classList.add('condensed');
+        siteHeader.setAttribute('data-condensed', 'true');
+      } else {
+        siteHeader.classList.remove('condensed');
+        siteHeader.setAttribute('data-condensed', 'false');
       }
     }
-
-    function addAuditLog(entry) {
-      const container = document.getElementById('audit-log-container');
-      const time = new Date().toISOString();
-      const div = document.createElement('div');
-      
-      let colorClass = 'text-[#F5F5F7]';
-      if (entry.action.includes('fail') || entry.action.includes('tripped')) colorClass = 'text-[#FF3B30]';
-      if (entry.action.includes('resolved') || entry.action.includes('healed')) colorClass = 'text-[#00FF88]';
-      if (entry.action.includes('diagnosis')) colorClass = 'text-[#D4AF37]';
-      if (entry.action.includes('gap')) colorClass = 'text-[#FFBD2E]';
-
-      div.innerHTML = `<span class="text-[#D4AF37]">[${time}]</span> <span class="${colorClass}">${JSON.stringify(entry)}</span>`;
-      container.appendChild(div);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function triggerSimulatedGap() {
-      isGapResolved = false;
-      
-      // Update UI elements
-      document.getElementById('stat-latest-nonce').innerText = "42";
-      document.getElementById('stat-pending-nonce').innerText = "45";
-      document.getElementById('stat-gap-nonce').innerText = "NONCE #43";
-      document.getElementById('stat-gap-nonce').className = "font-mono text-3xl font-bold text-[#FF3B30] mt-3";
-      document.getElementById('stat-gap-badge').innerText = "STALLED";
-      document.getElementById('stat-gap-badge').className = "font-mono text-[10px] px-1.5 py-0.5 bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30 font-bold";
-      document.getElementById('stat-gap-desc').innerText = "Blocking nonces #44, #45 in queue";
-
-      // Nonce list
-      const item43 = document.getElementById('item-nonce-43');
-      item43.className = "p-4 rounded border border-[#FF3B30] bg-[#FF3B30]/10 flex items-center justify-between animate-pulse";
-      item43.innerHTML = `
-        <div class="flex items-center space-x-4">
-          <div class="w-8 h-8 rounded bg-[#FF3B30]/30 border border-[#FF3B30] flex items-center justify-center font-mono text-xs font-bold text-[#FF3B30]">43</div>
-          <div>
-            <div class="font-mono text-xs font-bold text-[#FF3B30]">Tx: 0xbb...1094 [STUCK TX]</div>
-            <div class="font-mono text-[10px] text-[#FF3B30]">Tip: 1 Wei (Underpriced) // Stalled in Flashblocks</div>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="font-mono text-xs text-[#FF3B30] font-bold">[BLOCKING GAP]</span>
-          <div class="font-mono text-[10px] text-[#FF3B30]">Awaiting Sentinel Bump</div>
-        </div>
-      `;
-
-      document.getElementById('item-nonce-44').className = "p-4 rounded border border-[var(--border-subtle)] bg-[#08090C] opacity-60 flex items-center justify-between";
-      document.getElementById('item-nonce-45').className = "p-4 rounded border border-[var(--border-subtle)] bg-[#08090C] opacity-60 flex items-center justify-between";
-
-      // AI box
-      document.getElementById('diag-status').innerText = "GAP DETECTED: INFERRING ROOT CAUSE...";
-      document.getElementById('diag-category').innerText = "underpriced";
-      document.getElementById('diag-raw-bump').innerText = "80.0% (Unclamped)";
-      document.getElementById('diag-clamped-bump').innerText = "50.0% (Safety Ceiling)";
-      document.getElementById('clamp-indicator').innerText = "CLAMP: +50.0% [HARD CEILING]";
-      document.getElementById('gauge-bump').style.width = "50%";
-      document.getElementById('diag-explanation').innerText = 
-        '"Mempool telemetry indicates Nonce #43 gas tip of 1 wei is below Flashblock pre-confirmation threshold during Base activity spike. Gas bump required."';
-
-      addAuditLog({
-        action: "gap_detected",
-        wallet: "0x71CB8F2900000000000000000000000000000000",
-        gapNonce: 43,
-        latestNonce: 42,
-        pendingNonce: 45,
-        stuckTxHash: "0xbbbb109400000000000000000000000000000000000000000000000000000000"
-      });
-    }
-
-    function triggerSentinelResolution() {
-      if (isGapResolved) return;
-      isGapResolved = true;
-
-      // Update AI Box
-      document.getElementById('diag-status').innerText = "REPLACING TX WITH CLAMPED BUMP...";
-      
-      setTimeout(() => {
-        // Unblock Nonce 43
-        const item43 = document.getElementById('item-nonce-43');
-        item43.className = "p-4 rounded border border-[#00FF88]/40 bg-[#00FF88]/10 flex items-center justify-between transition-all duration-500";
-        item43.innerHTML = `
-          <div class="flex items-center space-x-4">
-            <div class="w-8 h-8 rounded bg-[#00FF88]/20 border border-[#00FF88] flex items-center justify-center font-mono text-xs font-bold text-[#00FF88]">43</div>
-            <div>
-              <div class="font-mono text-xs font-bold text-[#00FF88]">Tx: 0xdryrun002b [REPLACED]</div>
-              <div class="font-mono text-[10px] text-[#00FF88]">Bumped: +50% Tip // Confirmed on-chain</div>
-            </div>
-          </div>
-          <div class="text-right">
-            <span class="font-mono text-xs text-[#00FF88] font-bold">[RESOLVED]</span>
-            <div class="font-mono text-[10px] text-[#8E8E9F]">Receipt Verified</div>
-          </div>
-        `;
-
-        // Unblock downstream
-        document.getElementById('item-nonce-44').className = "p-4 rounded border border-[#00FF88]/30 bg-[#00FF88]/5 flex items-center justify-between";
-        document.getElementById('item-nonce-44').querySelector('.text-right span').className = "font-mono text-xs text-[#00FF88] font-bold";
-        document.getElementById('item-nonce-44').querySelector('.text-right span').innerText = "[FORWARDED]";
-
-        document.getElementById('item-nonce-45').className = "p-4 rounded border border-[#00FF88]/30 bg-[#00FF88]/5 flex items-center justify-between";
-        document.getElementById('item-nonce-45').querySelector('.text-right span').className = "font-mono text-xs text-[#00FF88] font-bold";
-        document.getElementById('item-nonce-45').querySelector('.text-right span').innerText = "[FORWARDED]";
-
-        // Update stats
-        document.getElementById('stat-latest-nonce').innerText = "45";
-        document.getElementById('stat-gap-nonce').innerText = "NONE";
-        document.getElementById('stat-gap-nonce').className = "font-mono text-3xl font-bold text-[#00FF88] mt-3";
-        document.getElementById('stat-gap-badge').innerText = "HEALTHY";
-        document.getElementById('stat-gap-badge').className = "font-mono text-[10px] px-1.5 py-0.5 bg-[#00FF88]/20 text-[#00FF88] border border-[#00FF88]/30 font-bold";
-        document.getElementById('stat-gap-desc').innerText = "Zero stalled nonces. All transactions clearing";
-
-        document.getElementById('diag-status').innerText = "QUEUE CLEARED: MONITORING IDLE";
-
-        addAuditLog({
-          action: "gap_resolved",
-          wallet: "0x71CB8F2900000000000000000000000000000000",
-          gapNonce: 43,
-          originalTxHash: "0xbbbb109400000000000000000000000000000000000000000000000000000000",
-          newTxHash: "0xdryrun002b1a0af27fe07",
-          bumpPct: 50,
-          result: "dry_run_success"
-        });
-      }, 700);
-    }
-
-    function resetSimulation() {
-      triggerSimulatedGap();
-    }
-
-    function copyWallet() {
-      navigator.clipboard.writeText("0x71CB8F2900000000000000000000000000000000");
-      alert("Target wallet copied to clipboard.");
-    }
-
-    function clearAuditLog() {
-      document.getElementById('audit-log-container').innerHTML = '<div class="text-[#8E8E9F]">// Nonce Sentinel JSONL audit trail cleared...</div>';
-    }
+    window.addEventListener('scroll', updateHeader, { passive: true });
+    updateHeader();
   </script>
-
 </body>
 </html>

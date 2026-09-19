@@ -39,7 +39,7 @@ export class CircuitBreaker {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              text: `🚨 Nonce Sentinel circuit breaker tripped for ${this.config.walletAddress}: ${this.failureTimestamps.length} failures in the last ${this.config.circuitBreakerWindowMs / 1000}s. Trading bot should halt.`,
+              text: `🚨 Sentinel circuit breaker tripped for ${this.config.walletAddress}: ${this.failureTimestamps.length} failures in the last ${this.config.circuitBreakerWindowMs / 1000}s. Trading bot should halt.`,
             }),
           });
         } catch {

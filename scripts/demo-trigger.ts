@@ -18,7 +18,7 @@ import { GapDiagnostician } from "../src/agent.js";
 import { TransactionInterceptor } from "../src/interceptor.js";
 
 /**
- * Demo Trigger Script for Nonce Sentinel.
+ * Demo Trigger Script for Sentinel.
  *
  * This script demonstrates the exact Flashblocks / mempool stuck nonce problem:
  * 1. Sends Tx 1 with standard gas.
@@ -28,7 +28,7 @@ import { TransactionInterceptor } from "../src/interceptor.js";
  * Modes:
  * - `npm run demo -- --mode=raw`:
  *   Submits transactions directly to Base Sepolia RPC. Run `npm run watch`
- *   in a separate terminal to watch the Sentinel detect the gap, diagnose it
+ *   in a separate terminal to watch Sentinel detect the gap, diagnose it
  *   with Claude, and resubmit it with the clamped bump.
  *
  * - `npm run demo -- --mode=interceptor`:
@@ -45,7 +45,7 @@ const modeArg = process.argv.find((a) => a.startsWith("--mode="))?.split("=")[1]
 
 async function runSimulation() {
   console.log("================================================================================");
-  console.log("  NONCE SENTINEL DEMO: In-Memory Dry-Run Simulation (No ETH / Private Key Required)");
+  console.log("  SENTINEL DEMO: In-Memory Dry-Run Simulation (No ETH / Private Key Required)");
   console.log("================================================================================\n");
 
   const mockConfig = {
@@ -149,7 +149,7 @@ async function runSimulation() {
 
 async function runLive(mode: "raw" | "interceptor") {
   console.log(`================================================================================`);
-  console.log(`  NONCE SENTINEL DEMO: Live Base Sepolia Test (${mode.toUpperCase()} MODE)`);
+  console.log(`  SENTINEL DEMO: Live Base Sepolia Test (${mode.toUpperCase()} MODE)`);
   console.log(`================================================================================\n`);
 
   const config = loadConfig();
@@ -220,7 +220,7 @@ async function runLive(mode: "raw" | "interceptor") {
 
   console.log("\n--------------------------------------------------------------------------------");
   console.log("Tx sequence deployed! Nonce gap created at nonce", currentNonce + 1);
-  console.log("Run 'npm run watch' in another window to see Nonce Sentinel detect and resolve it live!");
+  console.log("Run 'npm run watch' in another window to see Sentinel detect and resolve it live!");
   console.log("--------------------------------------------------------------------------------\n");
 }
 

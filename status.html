@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinel : Integration Status</title>
+<link rel="icon" type="image/jpeg" href="/assets/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          brand: ['Cinzel', 'serif'],
+          serif: ['Fraunces', 'Georgia', 'serif'],
+          sans: ['IBM Plex Sans', 'sans-serif'],
+          mono: ['IBM Plex Mono', 'monospace'],
+        },
+        colors: {
+          void: '#08090C',
+          void2: '#101216',
+          void3: '#171A20',
+          marble: '#F5F3EF',
+          marbleDim: '#C2BEB4',
+          ash: '#686660',
+          aurum: '#C9A961',
+          aurumGlow: '#E5C989',
+          current: '#4A7A99',
+          ember: '#D9532F',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  :root {
+    --hair: rgba(201, 169, 97, 0.16);
+  }
+  body {
+    background-color: #08090C;
+    color: #F5F3EF;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .brand-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+  }
+  .hairline {
+    border: 1px solid var(--hair);
+  }
+
+  /* Usance Dynamic Condensing Header Island */
+  #site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    padding: 16px 0;
+    transition: padding 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    background: transparent;
+    pointer-events: none;
+  }
+  #site-header::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 120px;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(8, 9, 12, 0.6) 0%, rgba(8, 9, 12, 0) 100%);
+    transition: opacity 0.35s ease;
+  }
+  #site-header.condensed::before {
+    opacity: 0;
+  }
+  #site-header .header-inner {
+    pointer-events: auto;
+    width: min(1200px, calc(100% - 48px));
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 8px 8px 20px;
+    border-radius: 9999px;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: max-width 0.35s cubic-bezier(0.32, 0.72, 0, 1),
+                background-color 0.35s ease,
+                border-color 0.35s ease,
+                box-shadow 0.35s ease,
+                padding 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  #site-header.condensed {
+    padding: 10px 0;
+  }
+  #site-header.condensed .header-inner {
+    max-width: 820px;
+    width: calc(100% - 32px);
+    background: rgba(14, 16, 22, 0.94);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(201, 169, 97, 0.1);
+    padding: 6px 6px 6px 20px;
+  }
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+  }
+  .site-nav a {
+    padding: 7px 14px;
+    border-radius: 9999px;
+    font-size: 13.5px;
+    color: #C2BEB4;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .site-nav a:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #F5F3EF;
+  }
+  .site-nav a.active {
+    color: #F5F3EF;
+    font-weight: 500;
+  }
+  .header-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 20px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 500;
+    white-space: nowrap;
+    background: #181A20;
+    color: #F5F3EF;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+  }
+  .header-cta:hover {
+    background: #20242D;
+    border-color: rgba(255, 255, 255, 0.28);
+    transform: translateY(-1px);
+  }
+  #site-header.condensed .header-cta {
+    background: #F5F3EF !important;
+    color: #08090C !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 600 !important;
+  }
+  #site-header.condensed .header-cta:hover {
+    background: #FFFFFF !important;
+    transform: scale(1.02);
+  }
+</style>
+</head>
+<body class="min-h-screen bg-[#08090C] relative text-[#F5F3EF] selection:bg-[#C9A961] selection:text-black">
+
+  <!-- Usance Dynamic Condensing Header Island -->
+  <header id="site-header" data-condensed="false">
+    <div class="header-inner">
+      <a href="/" class="flex items-center gap-2.5 group shrink-0">
+        <img src="/assets/logo.jpg" alt="Sentinel" class="w-6 h-6 rounded-full object-cover border border-[#C9A961]/40 shadow-[0_0_10px_rgba(201,169,97,0.3)] group-hover:scale-110 transition-transform duration-300">
+        <span class="brand-title text-sm tracking-[0.16em] text-white">SENTINEL</span>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="site-nav hidden md:flex" aria-label="Site">
+        <a href="/assets">Pipelines</a>
+        <a href="/simulate">Simulation</a>
+        <a href="/security">Security</a>
+        <a href="/status" class="active">Status</a>
+        <a href="https://docs.basescan.org" target="_blank" rel="noreferrer">Docs</a>
+      </nav>
+
+      <!-- Launch Observatory CTA -->
+      <a href="/dapp" class="header-cta">
+        <span>Launch Observatory</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Page Banner -->
+  <section class="border-b border-white/10 bg-[#101216]/60 pt-32 pb-14 px-6">
+    <div class="max-w-5xl mx-auto space-y-3">
+      <div class="text-[11px] font-mono uppercase tracking-widest text-[#C9A961]">
+        Integration Status
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-serif text-white font-normal pt-2">
+        What is actually live
+      </h1>
+      <p class="text-sm text-[#C2BEB4] max-w-3xl leading-relaxed">
+        Anything Sentinel cannot do yet is disabled in the daemon with the reason shown plainly. It is never replaced with a simulation presented as the real thing. Every claim on this page is reproducible with <code class="text-[#C9A961] font-mono">npm run demo -- --mode=simulate</code>.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Status Content -->
+  <main class="max-w-7xl mx-auto px-6 py-12 space-y-16">
+
+    <!-- Group 1: Live (7) -->
+    <div class="space-y-4">
+      <div class="flex items-center gap-3">
+        <h2 class="text-xl font-serif text-white">Live Integrations</h2>
+        <span class="px-2.5 py-0.5 rounded-full bg-[#4A7A99]/15 text-[#4A7A99] font-mono text-xs border border-[#4A7A99]/30">7 Operational</span>
+      </div>
+      <p class="text-xs text-[#686660]">Verified against live Base testnet RPC nodes or primary code assertions.</p>
+
+      <div class="rounded-[22px] bg-[#101216] hairline overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-white/10 bg-white/[0.02] text-[#686660] font-mono uppercase tracking-wider text-[11px]">
+                <th class="py-4 px-6 min-w-[200px]">Integration</th>
+                <th class="py-4 px-6 min-w-[180px]">Role</th>
+                <th class="py-4 px-6 min-w-[340px]">Evidence & Live State</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 font-mono">
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-4 px-6 font-medium text-white font-sans">
+                  Base Sepolia L2 (84532)
+                  <div class="text-[11px] text-[#4A7A99]">Live Network</div>
+                </td>
+                <td class="py-4 px-6 text-[#C2BEB4] font-sans">Target Settlement Layer</td>
+                <td class="py-4 px-6 text-[#686660]">
+                  <div class="text-white">Active JSON-RPC client connected to Base Sepolia.</div>
+                  <div class="text-[11px] text-[#C9A961] mt-1">Evidence: eth_chainId returns 0x14a34 from sepolia.base.org</div>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-4 px-6 font-medium text-white font-sans">
+                  Flashblocks Pre-confirmations
+                  <div class="text-[11px] text-[#4A7A99]">Sub-second Stream</div>
+                </td>
+                <td class="py-4 px-6 text-[#C2BEB4] font-sans">Sub-second Latency Watchdog</td>
+                <td class="py-4 px-6 text-[#686660]">
+                  <div class="text-white">200ms polling tick for pending vs mined nonces.</div>
+                  <div class="text-[11px] text-[#C9A961] mt-1">Evidence: nonceTracker.ts runs 200ms interval matching Flashblock rate</div>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-4 px-6 font-medium text-white font-sans">
+                  Viem v2 RPC Client
+                  <div class="text-[11px] text-[#4A7A99]">Core Transport</div>
+                </td>
+                <td class="py-4 px-6 text-[#C2BEB4] font-sans">Ethereum Execution Library</td>
+                <td class="py-4 px-6 text-[#686660]">
+                  <div class="text-white">Type-safe EIP-1559 fee bumping and transaction broadcast.</div>
+                  <div class="text-[11px] text-[#C9A961] mt-1">Evidence: viem@2.21.0 in package.json; 0 build errors</div>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-4 px-6 font-medium text-white font-sans">
+                  Claude 3.5 Sonnet / Haiku
+                  <div class="text-[11px] text-[#4A7A99]">AI Diagnostics</div>
+                </td>
+                <td class="py-4 px-6 text-[#C2BEB4] font-sans">Root-Cause Reasoner</td>
+                <td class="py-4 px-6 text-[#686660]">
+                  <div class="text-white">Classifies mempool stalls into structured diagnostic classes.</div>
+                  <div class="text-[11px] text-[#C9A961] mt-1">Evidence: agent.ts with strict fallback heuristics if API key absent</div>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-4 px-6 font-medium text-white font-sans">
+                  Clamped Nonce Resolver
+                  <div class="text-[11px] text-[#4A7A99]">Execution Engine</div>
+                </td>
+                <td class="py-4 px-6 text-[#C2BEB4] font-sans">Autonomous Gas Bumper</td>
+                <td class="py-4 px-6 text-[#686660]">
+                  <div class="text-white">Calculates clamped gas bumps (10% floor, 100% ceiling).</div>
+                  <div class="text-[11px] text-[#C9A961] mt-1">Evidence: resolver.ts with clamped Math.min / Math.max bounds</div>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-4 px-6 font-medium text-white font-sans">
+                  Triple-Strike Circuit Breaker
+                  <div class="text-[11px] text-[#4A7A99]">Armored Fail-Safe</div>
+                </td>
+                <td class="py-4 px-6 text-[#C2BEB4] font-sans">Sliding Window Protection</td>
+                <td class="py-4 px-6 text-[#686660]">
+                  <div class="text-white">Locks down auto-writes after 3 interventions in 60s.</div>
+                  <div class="text-[11px] text-[#C9A961] mt-1">Evidence: circuitBreaker.ts tracks timestamped intervention sliding window</div>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-4 px-6 font-medium text-white font-sans">
+                  Tamper-Evident Structured Logger
+                  <div class="text-[11px] text-[#4A7A99]">Audit Trail</div>
+                </td>
+                <td class="py-4 px-6 text-[#C2BEB4] font-sans">JSONL Audit Provenance</td>
+                <td class="py-4 px-6 text-[#686660]">
+                  <div class="text-white">Appends structured JSON records of every detection and resolution.</div>
+                  <div class="text-[11px] text-[#C9A961] mt-1">Evidence: logger.ts writes append-only sentinel.log</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group 2: Needs Access (2) -->
+    <div class="space-y-4">
+      <div class="flex items-center gap-3">
+        <h2 class="text-xl font-serif text-white">Needs Access</h2>
+        <span class="px-2.5 py-0.5 rounded-full bg-[#C9A961]/15 text-[#C9A961] font-mono text-xs border border-[#C9A961]/30">2 Credentials Pending</span>
+      </div>
+      <p class="text-xs text-[#686660]">The module is fully written in Sentinel, but requires deployment credentials to activate.</p>
+
+      <div class="rounded-[22px] bg-[#101216] hairline overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-white/10 bg-white/[0.02] text-[#686660] font-mono uppercase tracking-wider text-[11px]">
+                <th class="py-4 px-6 min-w-[200px]">Integration</th>
+                <th class="py-4 px-6 min-w-[180px]">Role</th>
+                <th class="py-4 px-6 min-w-[340px]">Status & Reason</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 font-mono">
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-4 px-6 font-medium text-white font-sans">Base Mainnet Private RPC</td>
+                <td class="py-4 px-6 text-[#C2BEB4] font-sans">Production Sequencing</td>
+                <td class="py-4 px-6 text-[#686660]">
+                  No mainnet RPC URL set in .env. The daemon defaults safely to Base Sepolia testnet.
+                </td>
+              </tr>
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-4 px-6 font-medium text-white font-sans">Alert Webhook Endpoint</td>
+                <td class="py-4 px-6 text-[#C2BEB4] font-sans">Discord / PagerDuty Dispatch</td>
+                <td class="py-4 px-6 text-[#686660]">
+                  ALERT_WEBHOOK_URL is null. Alerts print to console and append to local audit log instead.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group 3: Deferred / Not Applicable (1) -->
+    <div class="space-y-4">
+      <div class="flex items-center gap-3">
+        <h2 class="text-xl font-serif text-white">Intentionally Excluded</h2>
+        <span class="px-2.5 py-0.5 rounded-full bg-white/10 text-white font-mono text-xs border border-white/15">1 Domain</span>
+      </div>
+      <p class="text-xs text-[#686660]">Architectural decisions intentionally outside the design envelope.</p>
+
+      <div class="rounded-[22px] bg-[#101216] hairline overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-white/10 bg-white/[0.02] text-[#686660] font-mono uppercase tracking-wider text-[11px]">
+                <th class="py-4 px-6 min-w-[200px]">System</th>
+                <th class="py-4 px-6 min-w-[180px]">Role</th>
+                <th class="py-4 px-6 min-w-[340px]">Architectural Rationale</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 font-mono">
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-4 px-6 font-medium text-white font-sans">Ethereum L1 (12-second blocks)</td>
+                <td class="py-4 px-6 text-[#C2BEB4] font-sans">Slow Consensus Polling</td>
+                <td class="py-4 px-6 text-[#686660]">
+                  Sentinel is specifically engineered for sub-second L2 sequencing (Base ~200ms Flashblocks). 12-second L1 slots have fundamentally different mempool economics and are handled by standard tools.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-white/10 py-10 px-6 text-center text-xs font-mono text-[#686660]">
+    Sentinel · High-Frequency Nonce Watchdog for Base
+  </footer>
+
+  <script>
+    const siteHeader = document.getElementById('site-header');
+    function updateHeader() {
+      if (window.scrollY > 20) {
+        siteHeader.classList.add('condensed');
+        siteHeader.setAttribute('data-condensed', 'true');
+      } else {
+        siteHeader.classList.remove('condensed');
+        siteHeader.setAttribute('data-condensed', 'false');
+      }
+    }
+    window.addEventListener('scroll', updateHeader, { passive: true });
+    updateHeader();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinel : Observatory App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#08090C;
+    --void-2:#101216;
+    --panel:rgba(17,19,24,0.78);
+    --marble:#F5F3EF;
+    --marble-dim:#C2BEB4;
+    --aurum:#C9A961;
+    --current:#4A7A99;
+    --ash:#686660;
+    --ember:#D9532F;
+    --hair: rgba(201,169,97,0.20);
+    --sidebar-w:246px;
+    --r-sm:10px;
+    --r-md:14px;
+    --r-lg:18px;
+    --r-pill:999px;
+    --shadow-card: 0 24px 60px -28px rgba(0,0,0,0.7), 0 2px 10px -2px rgba(0,0,0,0.3);
+    --shadow-soft: 0 10px 30px -14px rgba(0,0,0,0.5);
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ background:var(--void); }
+  #bg{ position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; }
+  body{
+    background:transparent;
+    color:var(--marble);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:300;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3{ font-family:'Fraunces', serif; font-weight:500; color:var(--marble); }
+  button, input, select{ font-family:inherit; }
+  :focus-visible{ outline:2px solid var(--aurum); outline-offset:2px; }
+
+  .brand-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    font-size: 0.95rem;
+  }
+
+  /* ================= APP SHELL ================= */
+  .app-shell{ display:flex; min-height:100vh; }
+
+  /* ---- sidebar ---- */
+  .sidebar{
+    width:var(--sidebar-w);
+    flex-shrink:0;
+    border-right:1px solid var(--hair);
+    background:rgba(12,14,18,0.85);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    display:flex;
+    flex-direction:column;
+    padding:26px 20px;
+    z-index:20;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:6px 4px 30px;
+    text-decoration:none;
+    color:inherit;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    margin-bottom:18px;
+    transition:opacity 0.2s ease;
+  }
+  .brand:hover{ opacity:0.9; }
+  .seal{
+    width:26px; height:26px;
+    border-radius:5px;
+    background:var(--aurum);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    box-shadow:0 0 14px rgba(201,169,97,0.3);
+  }
+  .seal svg{ width:16px; height:16px; fill:#08090C; }
+
+  .nav-group{ display:flex; flex-direction:column; gap:4px; }
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:11px 14px;
+    color:var(--ash);
+    text-decoration:none;
+    font-size:0.88rem;
+    border-left:2px solid transparent;
+    border-radius:0 var(--r-sm) var(--r-sm) 0;
+    cursor:pointer;
+    transition:color .2s ease, border-color .2s ease, background .2s ease;
+    background:none;
+    border-top:none; border-right:none; border-bottom:none;
+    width:100%;
+    text-align:left;
+  }
+  .nav-item svg{ width:16px; height:16px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ color:var(--marble-dim); background:rgba(255,255,255,0.03); }
+  .nav-item.active{ color:var(--marble); border-left-color:var(--aurum); background:rgba(201,169,97,0.08); font-weight:500; }
+  .nav-item.disabled{ opacity:.35; pointer-events:none; }
+
+  .back-home-link{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 14px;
+    margin-top:14px;
+    border-radius:var(--r-sm);
+    color:var(--ash);
+    text-decoration:none;
+    font-size:0.84rem;
+    font-family:'IBM Plex Mono', monospace;
+    border:1px solid rgba(255,255,255,0.06);
+    background:rgba(255,255,255,0.02);
+    transition:all .2s ease;
+  }
+  .back-home-link:hover{
+    color:var(--marble);
+    border-color:var(--hair);
+    background:rgba(201,169,97,0.05);
+  }
+
+  .sidebar-foot{ margin-top:auto; padding-top:18px; border-top:1px solid var(--hair); }
+  .network-pill{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:0.76rem; color:var(--marble-dim);
+    padding:8px 12px; border:1px solid var(--hair); border-radius:var(--r-pill);
+    width:100%;
+    font-family:'IBM Plex Mono', monospace;
+    background:rgba(201,169,97,0.04);
+  }
+  .network-pill .dot{ width:6px; height:6px; border-radius:50%; background:var(--aurum); box-shadow:0 0 6px var(--aurum); }
+  .sentinel-subtag{ font-size:0.72rem; color:var(--ash); margin-top:10px; padding:0 2px; font-family:'IBM Plex Mono', monospace; }
+
+  /* ---- main column ---- */
+  .main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 40px;
+    border-bottom:1px solid var(--hair);
+    background:rgba(8,9,12,0.6);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    position:sticky;
+    top:0;
+    z-index:15;
+  }
+  .topbar h2{ font-size:1.3rem; }
+  .topbar-right{ display:flex; align-items:center; gap:14px; }
+
+  .btn{
+    font-size:0.86rem;
+    padding:10px 18px;
+    cursor:pointer;
+    border:1px solid var(--hair);
+    border-radius:var(--r-pill);
+    background:transparent;
+    color:var(--marble-dim);
+    transition:all .2s ease;
+  }
+  .btn:hover{ border-color:var(--aurum); color:var(--marble); }
+  .btn-primary{
+    background:var(--aurum);
+    color:#08090C;
+    border-color:var(--aurum);
+    font-weight:600;
+    box-shadow:0 6px 20px -8px rgba(201,169,97,0.5);
+  }
+  .btn-primary:hover{ background:#E5C989; color:#08090C; transform:translateY(-1px); }
+  .btn-primary:disabled{ opacity:.5; cursor:not-allowed; box-shadow:none; }
+  .btn-primary.connecting{ opacity:.75; cursor:progress; }
+
+  .wallet-pill{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 14px 8px 10px;
+    border:1px solid var(--hair);
+    border-radius:var(--r-pill);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    color:var(--marble-dim);
+    background:rgba(255,255,255,0.03);
+    cursor:pointer;
+  }
+  .wallet-pill:hover{ border-color:var(--aurum); }
+  .wallet-pill .dot{ width:6px; height:6px; border-radius:50%; background:var(--aurum); position:relative; }
+  .wallet-pill .dot::after{ content:""; position:absolute; inset:-4px; border-radius:50%; border:1px solid var(--aurum); animation:pulse 2.2s ease-out infinite; }
+  @keyframes pulse{ 0%{ transform:scale(.6); opacity:.9; } 100%{ transform:scale(2.1); opacity:0; } }
+  .chain-badge{
+    font-size:0.76rem; color:var(--ash);
+    padding:8px 12px; border:1px solid var(--hair); border-radius:var(--r-pill);
+    display:flex; align-items:center; gap:7px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+
+  .view{ padding:40px 40px 70px; flex:1; }
+  .view[hidden]{ display:none; }
+
+  /* ================= CONNECT VIEW ================= */
+  .connect-screen{
+    max-width:480px;
+    margin:6vh auto 0;
+    text-align:center;
+  }
+  .connect-screen .glyph{
+    width:64px; height:64px; margin:0 auto 28px;
+    border-radius:50%;
+    border:1px solid var(--hair);
+    background:rgba(201,169,97,0.06);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .connect-screen h1{ font-size:1.9rem; margin-bottom:14px; }
+  .connect-screen p{ color:var(--marble-dim); font-size:0.96rem; margin-bottom:34px; line-height:1.6; }
+  .connect-screen .btn-primary{ padding:13px 32px; font-size:0.92rem; }
+  .trust-notes{
+    margin-top:44px;
+    text-align:left;
+    border-top:1px solid var(--hair);
+    padding-top:24px;
+  }
+  .trust-notes li{
+    list-style:none;
+    display:flex; gap:12px;
+    font-size:0.84rem; color:var(--ash);
+    padding:9px 0;
+  }
+  .trust-notes .mark{ color:var(--aurum); font-family:'Fraunces', serif; font-style:italic; flex-shrink:0; font-weight:600; }
+
+  /* ================= PANELS (shared) ================= */
+  .panel-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+  .panel{ background:var(--panel); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); padding:30px 34px; border:1px solid var(--hair); border-radius:var(--r-lg); box-shadow:var(--shadow-card); }
+  .panel-eyebrow{ font-size:0.78rem; color:var(--ash); display:flex; align-items:center; margin-bottom:24px; text-transform:uppercase; letter-spacing:0.06em; font-family:'IBM Plex Mono', monospace; }
+  .pulse-dot{ display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--aurum); margin-right:10px; position:relative; }
+  .pulse-dot::after{ content:""; position:absolute; inset:-5px; border-radius:50%; border:1px solid var(--aurum); animation:pulse 2.2s ease-out infinite; }
+
+  .stat-row{ display:flex; gap:40px; margin-bottom:24px; }
+  .stat .label{ font-size:0.76rem; color:var(--ash); margin-bottom:6px; font-family:'IBM Plex Mono', monospace; }
+  .stat .num{ font-family:'Fraunces', serif; font-size:2.2rem; font-variant-numeric:tabular-nums; transition:color .3s ease; }
+  .stat .num.flash{ color:var(--aurum); }
+  .gap-flag{ display:inline-flex; align-items:center; gap:8px; font-size:0.82rem; padding:8px 14px; border:1px solid var(--hair); border-radius:var(--r-pill); color:var(--marble-dim); font-family:'IBM Plex Mono', monospace; }
+  .gap-flag .dot{ width:6px; height:6px; border-radius:50%; background:var(--ash); }
+  .gap-flag.active{ border-color:rgba(217,83,47,0.6); color:var(--marble); background:rgba(217,83,47,0.08); }
+  .gap-flag.active .dot{ background:var(--ember); box-shadow:0 0 8px rgba(217,83,47,0.8); }
+
+  .breaker-status{ font-family:'Fraunces', serif; font-size:1.5rem; margin-bottom:16px; color:var(--aurum); transition:color .4s ease; }
+  .breaker-status.tripped{ color:var(--ember); }
+  .breaker-meta{ font-size:0.85rem; color:var(--marble-dim); margin-bottom:20px; font-family:'IBM Plex Mono', monospace; }
+  .breaker-bar-track{ width:100%; height:5px; background:rgba(255,255,255,0.06); border-radius:var(--r-pill); overflow:hidden; }
+  .breaker-bar-fill{ height:100%; background:var(--aurum); width:0%; border-radius:var(--r-pill); transition:width .5s ease, background .4s ease; }
+  .breaker-bar-fill.danger{ background:var(--ember); }
+
+  .diag-panel{ border:1px solid var(--hair); border-radius:var(--r-lg); box-shadow:var(--shadow-card); background:var(--panel); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); padding:30px 34px; margin-bottom:20px; display:grid; grid-template-columns:1fr 1fr; gap:50px; align-items:start; }
+  .diag-category{ font-family:'Fraunces', serif; font-style:italic; font-size:1.25rem; margin-bottom:10px; }
+  .diag-explain{ font-size:0.9rem; color:var(--marble-dim); max-width:44ch; }
+  .gauge-labels{ display:flex; justify-content:space-between; font-size:0.72rem; color:var(--ash); margin-bottom:10px; font-family:'IBM Plex Mono', monospace; }
+  .gauge-track{ position:relative; height:4px; background:rgba(255,255,255,0.08); border-radius:var(--r-pill); margin:0 4px; }
+  .gauge-clamped{ position:absolute; top:-4px; width:12px; height:12px; border-radius:50%; background:var(--aurum); transform:translateX(-50%); transition:left .6s ease; box-shadow:0 0 10px rgba(201,169,97,0.7); }
+  .gauge-requested{ position:absolute; top:-3px; width:10px; height:10px; border-radius:50%; background:var(--ember); transform:translateX(-50%); transition:left .6s ease; opacity:.85; }
+  .gauge-readout{ display:flex; justify-content:space-between; margin-top:16px; font-family:'IBM Plex Mono', monospace; font-size:0.78rem; }
+  .gauge-readout .req{ color:var(--marble-dim); }
+  .gauge-readout .clamp{ color:var(--aurum); font-weight:500; }
+
+  .ledger-panel{ border:1px solid var(--hair); border-radius:var(--r-lg); box-shadow:var(--shadow-card); background:var(--panel); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); padding:30px 34px 14px; }
+  .ledger-feed{ margin-top:8px; max-height:300px; overflow-y:auto; display:flex; flex-direction:column-reverse; }
+  .ledger-feed::-webkit-scrollbar{ width:5px; }
+  .ledger-feed::-webkit-scrollbar-thumb{ background:var(--hair); border-radius:var(--r-pill); }
+  .ledger-row{ display:grid; grid-template-columns:92px 130px 1fr 90px; gap:18px; padding:12px 14px; border-radius:var(--r-sm); border-bottom:1px solid rgba(255,255,255,0.05); font-family:'IBM Plex Mono', monospace; font-size:0.76rem; color:var(--marble-dim); opacity:0; transform:translateY(-6px); animation:rowIn .5s ease forwards; transition:background .2s ease; }
+  .ledger-row:hover{ background:rgba(255,255,255,0.03); }
+  @keyframes rowIn{ to{ opacity:1; transform:translateY(0); } }
+  .ledger-row .time{ color:var(--ash); }
+  .ledger-row .tag.gap_detected{ color:var(--ember); }
+  .ledger-row .tag.diagnosis{ color:var(--current); }
+  .ledger-row .tag.gap_resolved{ color:var(--aurum); }
+  .ledger-row .tag.circuit_breaker{ color:var(--ember); }
+
+  /* ================= LEDGER (full) VIEW ================= */
+  .ledger-tabs{ display:flex; gap:6px; border-bottom:1px solid var(--hair); margin-bottom:0; }
+  .ledger-tab{ padding:11px 18px; font-size:0.85rem; color:var(--ash); cursor:pointer; border-radius:var(--r-sm) var(--r-sm) 0 0; background:none; border:none; border-bottom:2px solid transparent; font-family:'IBM Plex Mono', monospace; }
+  .ledger-tab:hover{ color:var(--marble-dim); background:rgba(255,255,255,0.02); }
+  .ledger-tab.active{ color:var(--marble); border-bottom-color:var(--aurum); font-weight:500; }
+  .ledger-search{
+    margin:24px 0 0;
+    width:100%;
+    background:rgba(255,255,255,0.02);
+    border:1px solid var(--hair);
+    border-radius:var(--r-md);
+    color:var(--marble);
+    padding:13px 17px;
+    font-size:0.86rem;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .ledger-search::placeholder{ color:var(--ash); }
+  .ledger-table{ margin-top:24px; border:1px solid var(--hair); border-radius:var(--r-lg); box-shadow:var(--shadow-card); overflow:hidden; background:var(--panel); }
+  .ledger-table .ledger-feed{ max-height:none; padding:12px 24px; }
+  .ledger-table .ledger-row{ grid-template-columns:100px 140px 1fr 100px; }
+
+  /* ================= SETTINGS VIEW ================= */
+  .settings-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .settings-card{ background:var(--panel); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); padding:34px 36px; border:1px solid var(--hair); border-radius:var(--r-lg); box-shadow:var(--shadow-card); }
+  .settings-card h3{ font-size:1.05rem; margin-bottom:6px; }
+  .settings-card .desc{ font-size:0.82rem; color:var(--ash); margin-bottom:26px; max-width:40ch; }
+  .field{ margin-bottom:22px; }
+  .field:last-child{ margin-bottom:0; }
+  .field label{ display:block; font-size:0.78rem; color:var(--marble-dim); margin-bottom:9px; font-family:'IBM Plex Mono', monospace; }
+  .field input[type=text], .field input[type=url], .field input[type=number], .field select{
+    width:100%;
+    background:rgba(255,255,255,0.02);
+    border:1px solid var(--hair);
+    border-radius:var(--r-sm);
+    color:var(--marble);
+    padding:11px 13px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.84rem;
+  }
+  .field input:focus, .field select:focus{ border-color:var(--aurum); outline:none; }
+  .field .hint{ font-size:0.74rem; color:var(--ash); margin-top:7px; }
+  .field-row{ display:flex; gap:16px; }
+  .field-row .field{ flex:1; }
+
+  .key-status{ display:flex; align-items:center; justify-content:space-between; border:1px solid var(--hair); border-radius:var(--r-sm); padding:13px 15px; font-size:0.84rem; }
+  .key-status.set{ color:var(--marble-dim); }
+  .key-status.unset{ color:var(--ash); }
+  .key-status .badge{ font-family:'IBM Plex Mono', monospace; font-size:0.72rem; padding:4px 10px; border:1px solid var(--hair); border-radius:var(--r-pill); }
+  .key-status .badge.readonly{ color:var(--current); }
+  .key-status .badge.armed{ color:var(--aurum); }
+
+  .toggle-row{ display:flex; align-items:center; justify-content:space-between; padding:4px 0; }
+  .toggle-row .t-label{ font-size:0.86rem; color:var(--marble); }
+  .toggle-row .t-desc{ font-size:0.78rem; color:var(--ash); margin-top:4px; max-width:36ch; }
+  .switch{ position:relative; width:40px; height:22px; flex-shrink:0; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .switch .track{ position:absolute; inset:0; background:rgba(255,255,255,0.08); border:1px solid var(--hair); border-radius:var(--r-pill); cursor:pointer; transition:.25s; }
+  .switch .knob{ position:absolute; width:14px; height:14px; left:3px; top:50%; transform:translateY(-50%); background:var(--ash); border-radius:50%; transition:.25s; }
+  .switch input:checked + .track{ border-color:var(--aurum); background:rgba(201,169,97,0.14); }
+  .switch input:checked + .track .knob{ left:21px; background:var(--aurum); }
+
+  .settings-footer{ display:flex; justify-content:flex-end; gap:14px; margin-top:32px; }
+
+  /* ================= SIMULATE VIEW ================= */
+  .sim-intro{ display:flex; align-items:center; justify-content:space-between; gap:30px; flex-wrap:wrap; }
+  .sim-intro code{ background:rgba(255,255,255,0.04); padding:1px 6px; border-radius:5px; font-family:'IBM Plex Mono', monospace; }
+
+  .timeline{ display:flex; align-items:flex-start; justify-content:space-between; margin-top:10px; position:relative; }
+  .timeline::before{
+    content:""; position:absolute; top:7px; left:22px; right:22px; height:1px;
+    background:var(--hair);
+  }
+  .tl-step{ position:relative; display:flex; flex-direction:column; align-items:center; gap:9px; flex:1; z-index:1; }
+  .tl-dot{ width:15px; height:15px; border-radius:50%; background:var(--void-2); border:1px solid var(--hair); transition:all .35s ease; }
+  .tl-label{ font-size:0.78rem; color:var(--ash); text-align:center; transition:color .35s ease; font-family:'IBM Plex Mono', monospace; }
+  .tl-time{ font-size:0.68rem; color:var(--ash); font-family:'IBM Plex Mono', monospace; min-height:14px; }
+  .tl-step.active .tl-dot{ background:var(--aurum); border-color:var(--aurum); box-shadow:0 0 0 5px rgba(201,169,97,0.16); animation:tlPulse 1.4s ease-in-out infinite; }
+  .tl-step.active .tl-label{ color:var(--marble); }
+  .tl-step.done .tl-dot{ background:var(--aurum); border-color:var(--aurum); }
+  .tl-step.done .tl-label{ color:var(--marble-dim); }
+  .tl-step.gapped .tl-dot{ background:var(--ember); border-color:var(--ember); }
+  .tl-step.gapped .tl-label{ color:var(--marble); }
+  @keyframes tlPulse{ 0%,100%{ box-shadow:0 0 0 5px rgba(201,169,97,0.16); } 50%{ box-shadow:0 0 0 8px rgba(201,169,97,0.06); } }
+
+  .sim-tx-table{ margin-top:10px; }
+  .sim-tx-row{
+    display:grid; grid-template-columns:70px 1fr 150px 130px;
+    gap:16px; padding:12px 10px; border-radius:var(--r-sm);
+    font-family:'IBM Plex Mono', monospace; font-size:0.8rem; color:var(--marble-dim);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  .sim-tx-head{ color:var(--ash); font-size:0.72rem; text-transform:uppercase; letter-spacing:.04em; }
+  .tx-status{ display:inline-flex; align-items:center; gap:7px; padding:3px 10px; border-radius:var(--r-pill); border:1px solid var(--hair); font-size:0.74rem; width:fit-content; }
+  .tx-status .dot{ width:5px; height:5px; border-radius:50%; }
+  .tx-status.pending .dot{ background:var(--current); }
+  .tx-status.confirmed .dot{ background:var(--aurum); }
+  .tx-status.gap .dot{ background:var(--ember); }
+  .tx-status.resubmitted .dot{ background:var(--current); }
+  .tx-status.pending{ color:var(--current); }
+  .tx-status.confirmed{ color:var(--aurum); }
+  .tx-status.gap{ color:var(--ember); border-color:rgba(217,83,47,0.4); }
+  .tx-status.resubmitted{ color:var(--current); }
+
+  /* ================= METRICS VIEW ================= */
+  .metrics-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  .stat-card{ background:var(--panel); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid var(--hair); border-radius:var(--r-lg); box-shadow:var(--shadow-card); padding:26px 26px; }
+  .stat-card .label{ font-size:0.78rem; color:var(--ash); margin-bottom:12px; font-family:'IBM Plex Mono', monospace; }
+  .stat-card .big{ font-family:'Fraunces', serif; font-size:2rem; color:var(--marble); margin-bottom:8px; font-variant-numeric:tabular-nums; }
+  .stat-card .sub{ font-size:0.76rem; color:var(--marble-dim); }
+
+  .chart-svg{ width:100%; height:auto; margin-top:6px; overflow:visible; }
+  .grid-line{ stroke:rgba(255,255,255,0.05); stroke-width:1; }
+  .chart-line{ fill:none; stroke-width:2; }
+  .chart-line.gold{ stroke:var(--aurum); }
+  .chart-line.current{ stroke:var(--current); }
+  .chart-fill{ opacity:0.12; stroke:none; }
+  .chart-fill.gold{ fill:var(--aurum); }
+  .chart-fill.current{ fill:var(--current); }
+  .hist-bars rect{ fill:var(--aurum); opacity:0.85; rx:3; }
+  .hist-labels{ display:flex; justify-content:space-between; font-size:0.72rem; color:var(--ash); margin-top:10px; font-family:'IBM Plex Mono', monospace; }
+
+  @media (max-width: 980px){
+    .metrics-stats{ grid-template-columns:1fr 1fr; }
+    .timeline{ flex-wrap:wrap; gap:16px; }
+    .timeline::before{ display:none; }
+    .sim-tx-row{ grid-template-columns:1fr; gap:4px; }
+  }
+
+  /* ================= TOASTS ================= */
+  .toast-stack{ position:fixed; bottom:26px; right:26px; display:flex; flex-direction:column; gap:10px; z-index:100; }
+  .toast{
+    background:rgba(16,18,24,0.96);
+    border:1px solid var(--hair);
+    border-left:3px solid var(--aurum);
+    border-radius:var(--r-md);
+    padding:14px 18px;
+    font-size:0.82rem;
+    color:var(--marble-dim);
+    max-width:320px;
+    font-family:'IBM Plex Mono', monospace;
+    backdrop-filter:blur(14px);
+    box-shadow:var(--shadow-card);
+    animation:toastIn .35s ease forwards, toastOut .4s ease forwards 3.6s;
+  }
+  .toast strong{ color:var(--marble); font-family:'IBM Plex Sans', sans-serif; font-weight:500; }
+  @keyframes toastIn{ from{ opacity:0; transform:translateX(16px); } to{ opacity:1; transform:translateX(0); } }
+  @keyframes toastOut{ to{ opacity:0; transform:translateX(16px); } }
+
+  @media (max-width: 980px){
+    .sidebar{ display:none; }
+    .topbar, .view{ padding-left:22px; padding-right:22px; }
+    .panel-grid, .diag-panel, .settings-grid{ grid-template-columns:1fr; }
+    .stat-row{ gap:26px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .pulse-dot::after, .wallet-pill .dot::after{ animation:none; }
+    .ledger-row, .toast{ animation:none; opacity:1; transform:none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <a href="/" class="brand" title="Return to Sentinel Website">
+      <div class="seal">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="18" rx="1.5"/><rect x="13" y="3" width="8" height="10" rx="1.5"/></svg>
+      </div>
+      <span class="brand-title">SENTINEL</span>
+    </a>
+
+    <nav class="nav-group">
+      <button class="nav-item disabled" data-view="dashboard">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1"><rect x="1.5" y="1.5" width="6" height="6"/><rect x="8.5" y="1.5" width="6" height="6"/><rect x="1.5" y="8.5" width="6" height="6"/><rect x="8.5" y="8.5" width="6" height="6"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item disabled" data-view="ledger">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1"><path d="M2 2h12v12H2z"/><path d="M4.5 5.5h7M4.5 8h7M4.5 10.5h4"/></svg>
+        Ledger
+      </button>
+      <button class="nav-item disabled" data-view="simulate">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1"><path d="M4 2.5v11l9-5.5-9-5.5z"/></svg>
+        Simulate
+      </button>
+      <button class="nav-item disabled" data-view="metrics">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1"><path d="M2 13.5V2M2 13.5h12"/><path d="M4.5 11V7.5M8 11V4.5M11.5 11V6"/></svg>
+        Metrics
+      </button>
+      <button class="nav-item disabled" data-view="settings">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="8" cy="8" r="2.3"/><path d="M8 1.5v2M8 12.5v2M14.5 8h-2M3.5 8h-2M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4M12.6 12.6l-1.4-1.4M4.8 4.8L3.4 3.4"/></svg>
+        Settings
+      </button>
+    </nav>
+
+    <a href="/" class="back-home-link" title="Return to Sentinel Overview">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      <span>Website Overview</span>
+    </a>
+
+    <div class="sidebar-foot">
+      <div class="network-pill"><span class="dot"></span>Base Sepolia</div>
+      <div class="sentinel-subtag">Autonomous Nonce Watchdog</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <h2 id="topbarTitle">Connect</h2>
+      <div class="topbar-right" id="topbarRight">
+        <button class="btn-primary btn" id="connectBtn">Connect Wallet</button>
+      </div>
+    </header>
+
+    <!-- ============ CONNECT VIEW ============ -->
+    <div class="view" id="view-connect">
+      <div class="connect-screen">
+        <div class="glyph">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#C9A961" stroke-width="1.3"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 3.2"/></svg>
+        </div>
+        <h1>Connect a wallet to begin watching.</h1>
+        <p>Sentinel monitors the wallet you connect for stalled transactions on Base, diagnoses why, and resolves them inside limits you control.</p>
+        <button class="btn-primary btn" id="connectBtn2">Connect Wallet</button>
+        <ul class="trust-notes">
+          <li><span class="mark">i.</span> Read-only until you add a signing key in Settings : it can watch and diagnose without ever touching funds.</li>
+          <li><span class="mark">ii.</span> Dry-run mode lets you see real detection and diagnosis with no broadcast at all.</li>
+          <li><span class="mark">iii.</span> Every clamp, fallback and resolution is written to the ledger : nothing acts silently.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ============ DASHBOARD VIEW ============ -->
+    <div class="view" id="view-dashboard" hidden>
+      <div class="panel-grid">
+        <div class="panel">
+          <div class="panel-eyebrow">Nonce state</div>
+          <div class="stat-row">
+            <div class="stat"><div class="label">Latest</div><div class="num" id="latestNum">127</div></div>
+            <div class="stat"><div class="label">Pending</div><div class="num" id="pendingNum">127</div></div>
+          </div>
+          <div class="gap-flag" id="gapFlag"><span class="dot"></span><span id="gapText">No gap — sequence clear</span></div>
+        </div>
+        <div class="panel">
+          <div class="panel-eyebrow">Circuit breaker</div>
+          <div class="breaker-status" id="breakerStatus">Armed</div>
+          <div class="breaker-meta" id="breakerMeta">0 failures in the last 5 minutes</div>
+          <div class="breaker-bar-track"><div class="breaker-bar-fill" id="breakerBar"></div></div>
+        </div>
+      </div>
+
+      <div class="diag-panel">
+        <div>
+          <div class="panel-eyebrow">Latest diagnosis</div>
+          <div class="diag-category" id="diagCategory">— waiting for activity —</div>
+          <div class="diag-explain" id="diagExplain">Nothing to diagnose yet. The Sentinel is watching for a gap.</div>
+        </div>
+        <div>
+          <div class="gauge-labels"><span>10%</span><span>Requested vs. clamped bump</span><span>50%</span></div>
+          <div class="gauge-track">
+            <div class="gauge-requested" id="gaugeRequested" style="left:0%"></div>
+            <div class="gauge-clamped" id="gaugeClamped" style="left:0%"></div>
+          </div>
+          <div class="gauge-readout"><span class="req" id="reqReadout">requested —</span><span class="clamp" id="clampReadout">clamped —</span></div>
+        </div>
+      </div>
+
+      <div class="ledger-panel">
+        <div class="panel-eyebrow"><span class="pulse-dot"></span>Ledger — streaming</div>
+        <div class="ledger-feed" id="ledgerFeedDash"></div>
+      </div>
+    </div>
+
+    <!-- ============ LEDGER VIEW ============ -->
+    <div class="view" id="view-ledger" hidden>
+      <div class="ledger-tabs" id="ledgerTabs">
+        <button class="ledger-tab active" data-tag="all">All</button>
+        <button class="ledger-tab" data-tag="gap_detected">Detected</button>
+        <button class="ledger-tab" data-tag="diagnosis">Diagnosis</button>
+        <button class="ledger-tab" data-tag="gap_resolved">Resolved</button>
+        <button class="ledger-tab" data-tag="circuit_breaker">Breaker</button>
+      </div>
+      <input class="ledger-search" id="ledgerSearch" placeholder="Filter by nonce, hash, or wallet…">
+      <div class="ledger-table">
+        <div class="ledger-feed" id="ledgerFeedFull"></div>
+      </div>
+    </div>
+
+    <!-- ============ SIMULATE VIEW ============ -->
+    <div class="view" id="view-simulate" hidden>
+      <div class="sim-intro panel">
+        <div>
+          <div class="panel-eyebrow">Simulation playground</div>
+          <h2 style="font-size:1.3rem; margin-bottom:10px;">Watch the Sentinel work, on demand.</h2>
+          <p style="color:var(--marble-dim); font-size:0.92rem; max-width:56ch; line-height:1.6;">
+            This submits three transactions in quick succession, one with deliberately underpriced gas.
+            Watch detection, diagnosis, and resolution happen in real time — the same pipeline that runs
+            on <code>npm run watch</code>, triggered from here instead of a terminal.
+          </p>
+        </div>
+        <button class="btn-primary btn" id="simulateBtn">Simulate Nonce Gap</button>
+      </div>
+
+      <div class="panel" style="margin-top:20px;">
+        <div class="panel-eyebrow">Lifecycle</div>
+        <div class="timeline" id="timeline">
+          <div class="tl-step" data-step="submitted"><span class="tl-dot"></span><span class="tl-label">Submitted</span><span class="tl-time"></span></div>
+          <div class="tl-step" data-step="pending"><span class="tl-dot"></span><span class="tl-label">Pending</span><span class="tl-time"></span></div>
+          <div class="tl-step" data-step="gap"><span class="tl-dot"></span><span class="tl-label">Gap detected</span><span class="tl-time"></span></div>
+          <div class="tl-step" data-step="diagnosed"><span class="tl-dot"></span><span class="tl-label">Diagnosed</span><span class="tl-time"></span></div>
+          <div class="tl-step" data-step="resubmitted"><span class="tl-dot"></span><span class="tl-label">Resubmitted</span><span class="tl-time"></span></div>
+          <div class="tl-step" data-step="confirmed"><span class="tl-dot"></span><span class="tl-label">Confirmed</span><span class="tl-time"></span></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:20px;">
+        <div class="panel-eyebrow">Transactions in this run</div>
+        <div class="sim-tx-table" id="simTxTable">
+          <div class="sim-tx-row sim-tx-head"><span>Nonce</span><span>Hash</span><span>Status</span><span>Gas price</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ METRICS VIEW ============ -->
+    <div class="view" id="view-metrics" hidden>
+      <div class="metrics-stats">
+        <div class="stat-card">
+          <div class="label">Success rate</div>
+          <div class="big">98.4%</div>
+          <div class="sub">124 of 126 gaps resolved</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Gaps detected</div>
+          <div class="big">126</div>
+          <div class="sub">since Sept 14</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Avg. resolution time</div>
+          <div class="big">3.8s</div>
+          <div class="sub">detection to confirmation</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Est. value saved</div>
+          <div class="big">$412</div>
+          <div class="sub">trades that would've missed their window</div>
+        </div>
+      </div>
+
+      <div class="panel-grid" style="margin-top:20px;">
+        <div class="panel chart-card">
+          <div class="panel-eyebrow">Gaps detected over time</div>
+          <svg viewBox="0 0 420 160" class="chart-svg">
+            <line x1="0" y1="40" x2="420" y2="40" class="grid-line"/>
+            <line x1="0" y1="80" x2="420" y2="80" class="grid-line"/>
+            <line x1="0" y1="120" x2="420" y2="120" class="grid-line"/>
+            <path d="M0,120 L60,110 L120,96 L180,100 L240,68 L300,74 L360,42 L420,50" class="chart-line gold"/>
+            <path d="M0,120 L60,110 L120,96 L180,100 L240,68 L300,74 L360,42 L420,50 L420,160 L0,160 Z" class="chart-fill gold"/>
+          </svg>
+        </div>
+        <div class="panel chart-card">
+          <div class="panel-eyebrow">Average resolution time (s)</div>
+          <svg viewBox="0 0 420 160" class="chart-svg">
+            <line x1="0" y1="40" x2="420" y2="40" class="grid-line"/>
+            <line x1="0" y1="80" x2="420" y2="80" class="grid-line"/>
+            <line x1="0" y1="120" x2="420" y2="120" class="grid-line"/>
+            <path d="M0,60 L60,72 L120,50 L180,64 L240,86 L300,78 L360,96 L420,90" class="chart-line current"/>
+            <path d="M0,60 L60,72 L120,50 L180,64 L240,86 L300,78 L360,96 L420,90 L420,160 L0,160 Z" class="chart-fill current"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:1px;">
+        <div class="panel-eyebrow">Gas price increase distribution</div>
+        <svg viewBox="0 0 640 140" class="chart-svg hist">
+          <g class="hist-bars">
+            <rect x="10" y="90" width="42" height="50"/>
+            <rect x="62" y="60" width="42" height="80"/>
+            <rect x="114" y="30" width="42" height="110"/>
+            <rect x="166" y="20" width="42" height="120"/>
+            <rect x="218" y="45" width="42" height="95"/>
+            <rect x="270" y="70" width="42" height="70"/>
+            <rect x="322" y="95" width="42" height="45"/>
+            <rect x="374" y="105" width="42" height="35"/>
+            <rect x="426" y="115" width="42" height="25"/>
+            <rect x="478" y="122" width="42" height="18"/>
+            <rect x="530" y="128" width="42" height="12"/>
+            <rect x="582" y="132" width="42" height="8"/>
+          </g>
+        </svg>
+        <div class="hist-labels"><span>10%</span><span>bump size</span><span>50%</span></div>
+      </div>
+    </div>
+
+    <!-- ============ SETTINGS VIEW ============ -->
+    <div class="view" id="view-settings" hidden>
+      <div class="settings-grid">
+
+        <div class="settings-card">
+          <h3>Connection</h3>
+          <div class="desc">Where the Sentinel watches and which wallet it watches on your behalf.</div>
+          <div class="field">
+            <label for="rpcUrl">RPC URL</label>
+            <input type="url" id="rpcUrl" value="https://sepolia.base.org">
+            <div class="hint">Base mainnet and Sepolia are both supported.</div>
+          </div>
+          <div class="field">
+            <label for="walletAddr">Wallet address</label>
+            <input type="text" id="walletAddr" value="0x7a3fB2c9E14d5a8f0C6b9D2e1A4f7c8B9e0D3f21">
+          </div>
+          <div class="field">
+            <label>Signing key</label>
+            <div class="key-status unset" id="keyStatus">
+              <span>Not set — running read-only</span>
+              <span class="badge readonly">read-only</span>
+            </div>
+            <div class="hint">Add a key to let the Sentinel actually resubmit stuck transactions. Without one, it still detects and diagnoses.</div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3>Safety limits</h3>
+          <div class="desc">The clamp every AI-recommended gas bump must pass through — this cannot be bypassed.</div>
+          <div class="field-row">
+            <div class="field">
+              <label for="minBump">Minimum bump</label>
+              <input type="number" id="minBump" value="10" min="1" max="100">
+            </div>
+            <div class="field">
+              <label for="maxBump">Maximum bump</label>
+              <input type="number" id="maxBump" value="50" min="1" max="200">
+            </div>
+          </div>
+          <div class="field">
+            <label for="breakerThreshold">Circuit breaker threshold</label>
+            <input type="number" id="breakerThreshold" value="10">
+            <div class="hint">Failed resolutions (not successful ones) allowed before the loop halts itself.</div>
+          </div>
+          <div class="field">
+            <label for="breakerWindow">Rolling window (minutes)</label>
+            <input type="number" id="breakerWindow" value="5">
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3>Diagnosis</h3>
+          <div class="desc">The reasoning layer — it can recommend, never set fees directly or bypass the clamp above.</div>
+          <div class="field">
+            <label for="modelSelect">Model</label>
+            <select id="modelSelect">
+              <option>claude-sonnet-5</option>
+              <option>claude-opus-5</option>
+              <option>claude-haiku-4-5</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="webhookUrl">Alert webhook (optional)</label>
+            <input type="url" id="webhookUrl" placeholder="https://discord.com/api/webhooks/…">
+            <div class="hint">Pinged only when the circuit breaker trips.</div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3>Mode</h3>
+          <div class="desc">How much the Sentinel is allowed to actually do.</div>
+          <div class="toggle-row" style="margin-bottom:22px;">
+            <div>
+              <div class="t-label">Dry run</div>
+              <div class="t-desc">Detect and diagnose real gaps, never broadcast. No signing key required.</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="dryRunToggle" checked><span class="track"><span class="knob"></span></span></label>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="t-label">AI diagnosis</div>
+              <div class="t-desc">Off falls back to always using the minimum safe bump.</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="aiToggle" checked><span class="track"><span class="knob"></span></span></label>
+          </div>
+        </div>
+
+      </div>
+      <div class="settings-footer">
+        <button class="btn" id="resetBtn">Reset to defaults</button>
+        <button class="btn-primary btn" id="saveBtn">Save settings</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script>
+(function(){
+  "use strict";
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ============ LIVING BACKGROUND ============ */
+  var canvas = document.getElementById('bg');
+  var ctx = canvas.getContext('2d');
+  var W, H, DPR = Math.min(window.devicePixelRatio || 1, 2);
+  function resize(){
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W*DPR; canvas.height = H*DPR;
+    canvas.style.width = W+'px'; canvas.style.height = H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  var GOLD=[201,169,97], BLUE=[74,122,153];
+  var lines=[0.15,0.9].map(function(yf,i){ return { yFrac:yf, amp:16, freq:0.0028, phase:Math.random()*6, speed:0.00012, color:i?BLUE:GOLD }; });
+  function yOn(line,x,t){ return H*line.yFrac + Math.sin(x*line.freq+line.phase+t*line.speed)*line.amp; }
+  function drawBg(t){
+    ctx.fillStyle='rgba(8,9,12,0.45)'; ctx.fillRect(0,0,W,H);
+    lines.forEach(function(line){
+      ctx.beginPath(); ctx.strokeStyle='rgba('+line.color.join(',')+',0.08)'; ctx.lineWidth=1;
+      for(var x=0;x<=W;x+=10){ var yy=yOn(line,x,t); if(x===0) ctx.moveTo(x,yy); else ctx.lineTo(x,yy); }
+      ctx.stroke();
+    });
+    if(!reduceMotion) requestAnimationFrame(drawBg);
+  }
+  if(reduceMotion){ ctx.fillStyle='#08090C'; ctx.fillRect(0,0,W,H); } else { requestAnimationFrame(drawBg); }
+
+  /* ============ VIEW ROUTING ============ */
+  var views = { dashboard: document.getElementById('view-dashboard'), ledger: document.getElementById('view-ledger'), simulate: document.getElementById('view-simulate'), metrics: document.getElementById('view-metrics'), settings: document.getElementById('view-settings'), connect: document.getElementById('view-connect') };
+  var navItems = document.querySelectorAll('.nav-item');
+  var topbarTitle = document.getElementById('topbarTitle');
+  var titles = { dashboard:'Dashboard', ledger:'Ledger', simulate:'Simulation Playground', metrics:'Metrics & Analytics', settings:'Settings' };
+
+  function showView(name){
+    Object.keys(views).forEach(function(k){ views[k].hidden = (k !== name); });
+    navItems.forEach(function(el){ el.classList.toggle('active', el.dataset.view === name); });
+    if(titles[name]) topbarTitle.textContent = titles[name];
+  }
+
+  navItems.forEach(function(el){
+    el.addEventListener('click', function(){
+      if(el.classList.contains('disabled')) return;
+      showView(el.dataset.view);
+    });
+  });
+
+  /* ============ WALLET CONNECT ============ */
+  var connected = false;
+  var fakeAddr = '0x7a3fB2c9E14d5a8f0C6b9D2e1A4f7c8B9e0D3f21';
+  function shortAddr(a){ return a.slice(0,6) + '…' + a.slice(-4); }
+
+  function doConnect(btn){
+    if(connected) return;
+    btn.textContent = 'Connecting…';
+    btn.classList.add('connecting');
+    btn.disabled = true;
+    setTimeout(function(){
+      connected = true;
+      navItems.forEach(function(el){ el.classList.remove('disabled'); });
+      var topbarRight = document.getElementById('topbarRight');
+      topbarRight.innerHTML =
+        '<div class="chain-badge"><span></span>Base Sepolia</div>' +
+        '<div class="wallet-pill" id="walletPill"><span class="dot"></span>' + shortAddr(fakeAddr) + '</div>';
+      showView('dashboard');
+      pushToast('Connected', 'Watching ' + shortAddr(fakeAddr) + ' on Base Sepolia.');
+      startFeed();
+    }, 800);
+  }
+
+  document.getElementById('connectBtn').addEventListener('click', function(e){ doConnect(e.target); });
+  document.getElementById('connectBtn2').addEventListener('click', function(e){ doConnect(e.target); });
+
+  /* ============ TOASTS ============ */
+  var toastStack = document.getElementById('toasts');
+  function pushToast(title, body){
+    var t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = '<strong>' + title + '</strong><br>' + body;
+    toastStack.appendChild(t);
+    setTimeout(function(){ t.remove(); }, 4000);
+  }
+
+  /* ============ SETTINGS INTERACTIONS ============ */
+  var keyStatus = document.getElementById('keyStatus');
+  document.getElementById('dryRunToggle').addEventListener('change', function(e){
+    if(!e.target.checked){
+      keyStatus.className = 'key-status set';
+      keyStatus.innerHTML = '<span>Configured</span><span class="badge armed">armed</span>';
+    } else {
+      keyStatus.className = 'key-status unset';
+      keyStatus.innerHTML = '<span>Not set — running read-only</span><span class="badge readonly">read-only</span>';
+    }
+  });
+  document.getElementById('saveBtn').addEventListener('click', function(){
+    pushToast('Settings saved', 'Safety limits and connection details updated.');
+  });
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    document.getElementById('minBump').value = 10;
+    document.getElementById('maxBump').value = 50;
+    document.getElementById('breakerThreshold').value = 10;
+    document.getElementById('breakerWindow').value = 5;
+    pushToast('Reset', 'Safety limits restored to defaults.');
+  });
+
+  /* ============ LEDGER TABS + SEARCH (full view) ============ */
+  var activeTag = 'all';
+  var allEntries = [];
+  document.querySelectorAll('.ledger-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.ledger-tab').forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      activeTag = tab.dataset.tag;
+      renderFullLedger();
+    });
+  });
+  document.getElementById('ledgerSearch').addEventListener('input', renderFullLedger);
+
+  function renderFullLedger(){
+    var q = document.getElementById('ledgerSearch').value.toLowerCase();
+    var target = document.getElementById('ledgerFeedFull');
+    target.innerHTML = '';
+    allEntries
+      .filter(function(e){ return activeTag === 'all' || e.tag === activeTag; })
+      .filter(function(e){ return !q || e.text.toLowerCase().indexOf(q) !== -1; })
+      .slice(0, 60)
+      .forEach(function(e){ target.appendChild(buildRow(e)); });
+  }
+
+  /* ============ SIMULATED LIVE FEED ============ */
+  var latest = 127, pending = 127, failuresInWindow = 0, tripped = false;
+  var latestEl, pendingEl, gapFlag, gapText, breakerStatus, breakerMeta, breakerBar, diagCategory, diagExplain, gaugeRequested, gaugeClamped, reqReadout, clampReadout;
+
+  function bindDashboardRefs(){
+    latestEl = document.getElementById('latestNum');
+    pendingEl = document.getElementById('pendingNum');
+    gapFlag = document.getElementById('gapFlag');
+    gapText = document.getElementById('gapText');
+    breakerStatus = document.getElementById('breakerStatus');
+    breakerMeta = document.getElementById('breakerMeta');
+    breakerBar = document.getElementById('breakerBar');
+    diagCategory = document.getElementById('diagCategory');
+    diagExplain = document.getElementById('diagExplain');
+    gaugeRequested = document.getElementById('gaugeRequested');
+    gaugeClamped = document.getElementById('gaugeClamped');
+    reqReadout = document.getElementById('reqReadout');
+    clampReadout = document.getElementById('clampReadout');
+  }
+
+  function flash(el){ if(!el) return; el.classList.add('flash'); setTimeout(function(){ el.classList.remove('flash'); }, 500); }
+  function pad(n){ return n<10 ? '0'+n : ''+n; }
+  function timeNow(){ var d=new Date(); return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds()); }
+  function rndHash(){ var c='abcdef0123456789', s=''; for(var i=0;i<6;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
+
+  function buildRow(e){
+    var row = document.createElement('div');
+    row.className = 'ledger-row';
+    row.innerHTML = '<span class="time">'+e.time+'</span><span class="tag '+e.tag+'">'+e.tag+'</span><span>'+e.text+'</span><span>'+(e.extra||'')+'</span>';
+    return row;
+  }
+
+  function addLedgerRow(tag, text, extra){
+    var entry = { time: timeNow(), tag: tag, text: text, extra: extra||'' };
+    allEntries.unshift(entry);
+    if(allEntries.length > 200) allEntries.pop();
+
+    var dashFeed = document.getElementById('ledgerFeedDash');
+    if(dashFeed){
+      dashFeed.insertBefore(buildRow(entry), dashFeed.firstChild);
+      while(dashFeed.children.length > 12) dashFeed.removeChild(dashFeed.lastChild);
+    }
+    if(!views.ledger.hidden) renderFullLedger();
+
+    if(tag === 'gap_detected') pushToast('Gap detected', text);
+    if(tag === 'gap_resolved' && extra === 'success') pushToast('Resolved', text);
+    if(tag === 'circuit_breaker') pushToast('Circuit breaker', text);
+  }
+
+  function setGap(active, n){
+    if(!gapFlag) return;
+    if(active){ gapFlag.classList.add('active'); gapText.textContent = 'Gap at nonce ' + n; }
+    else { gapFlag.classList.remove('active'); gapText.textContent = 'No gap — sequence clear'; }
+  }
+  function pctToLeft(pct){ var c = Math.max(10, Math.min(50, pct)); return ((c-10)/(50-10))*100 + '%'; }
+
+  var categories = [
+    { cat:'underpriced', text:'Priority fee sits well below current network conditions.' },
+    { cat:'cache_desync', text:'The pending-nonce cache looks briefly out of step with the confirmed chain state.' },
+    { cat:'eviction', text:'This transaction dropped from the mempool rather than merely stalling.' }
+  ];
+
+  function updateBreaker(){
+    if(!breakerBar) return;
+    var pct = (failuresInWindow/10)*100;
+    breakerBar.style.width = pct+'%';
+    breakerMeta.textContent = failuresInWindow + ' failure' + (failuresInWindow===1?'':'s') + ' in the last 5 minutes';
+    if(failuresInWindow >= 10 && !tripped){
+      tripped = true; breakerStatus.textContent = 'Tripped'; breakerStatus.classList.add('tripped'); breakerBar.classList.add('danger');
+      addLedgerRow('circuit_breaker', 'threshold exceeded — halting resolution', 'tripped');
+    } else if(tripped && failuresInWindow < 10){
+      tripped = false; breakerStatus.textContent = 'Armed'; breakerStatus.classList.remove('tripped'); breakerBar.classList.remove('danger');
+    }
+    setTimeout(function(){ if(failuresInWindow > 0){ failuresInWindow -= 1; updateBreaker(); } }, 9000);
+  }
+
+  function runGapCycle(){
+    var gapNonce = latest;
+    pending += 1; if(pendingEl){ pendingEl.textContent = pending; flash(pendingEl); }
+    setGap(true, gapNonce);
+    addLedgerRow('gap_detected', 'nonce '+gapNonce+' stalled behind '+(pending-latest)+' queued transaction'+((pending-latest)===1?'':'s'));
+
+    setTimeout(function(){
+      var c = categories[Math.floor(Math.random()*categories.length)];
+      var requested = Math.round(15 + Math.random()*45);
+      var clamped = Math.max(10, Math.min(50, requested));
+      if(diagCategory){
+        diagCategory.textContent = c.cat.replace('_',' ');
+        diagExplain.textContent = c.text;
+        gaugeRequested.style.left = pctToLeft(requested);
+        gaugeClamped.style.left = pctToLeft(clamped);
+        reqReadout.textContent = 'requested ' + requested + '%';
+        clampReadout.textContent = 'clamped ' + clamped + '%';
+      }
+      addLedgerRow('diagnosis', c.cat + ' — recommending a ' + requested + '% bump' + (requested!==clamped ? ' (clamped to '+clamped+'%)' : ''));
+
+      setTimeout(function(){
+        var willFail = Math.random() < 0.1;
+        if(willFail){
+          failuresInWindow = Math.min(10, failuresInWindow+1);
+          updateBreaker();
+          addLedgerRow('gap_detected', 'resubmission failed for nonce '+gapNonce, 'retrying');
+          setTimeout(function(){
+            latest = gapNonce + 1; if(latestEl){ latestEl.textContent = latest; flash(latestEl); }
+            setGap(false);
+            addLedgerRow('gap_resolved', '0x'+rndHash()+'… → 0x'+rndHash()+'…', 'success');
+          }, 1400);
+        } else {
+          latest = gapNonce + 1; if(latestEl){ latestEl.textContent = latest; flash(latestEl); }
+          setGap(false);
+          addLedgerRow('gap_resolved', '0x'+rndHash()+'… → 0x'+rndHash()+'…', 'success');
+        }
+      }, 1600);
+    }, 1000);
+  }
+
+  function ordinaryTick(){
+    pending += 1; if(pendingEl){ pendingEl.textContent = pending; flash(pendingEl); }
+    latest += 1; if(latestEl){ latestEl.textContent = latest; flash(latestEl); }
+    addLedgerRow('gap_resolved', 'nonce '+latest+' confirmed on schedule', 'success');
+  }
+
+  var feedStarted = false;
+  function startFeed(){
+    if(feedStarted) return;
+    feedStarted = true;
+    bindDashboardRefs();
+    addLedgerRow('gap_resolved', 'Sentinel started — watching wallet ' + shortAddr(fakeAddr), '');
+    (function loop(){
+      var roll = Math.random();
+      if(roll < 0.35) runGapCycle(); else ordinaryTick();
+      setTimeout(loop, 3200 + Math.random()*2600);
+    })();
+  }
+
+  /* ============ SIMULATION PLAYGROUND ============ */
+  var simRunning = false;
+  var simBtn = document.getElementById('simulateBtn');
+  var simTable = document.getElementById('simTxTable');
+
+  function setTlStep(step, state, time){
+    var el = document.querySelector('.tl-step[data-step="'+step+'"]');
+    if(!el) return;
+    el.classList.remove('active','done','gapped');
+    if(state) el.classList.add(state);
+    if(time) el.querySelector('.tl-time').textContent = time;
+  }
+  function resetTimeline(){
+    document.querySelectorAll('.tl-step').forEach(function(el){
+      el.classList.remove('active','done','gapped');
+      el.querySelector('.tl-time').textContent = '';
+    });
+  }
+
+  function addSimTxRow(nonce, hash, status, gas){
+    var row = document.createElement('div');
+    row.className = 'sim-tx-row';
+    row.dataset.nonce = nonce;
+    row.innerHTML = '<span>'+nonce+'</span><span>0x'+hash+'…</span><span class="tx-status '+status.cls+'"><span class="dot"></span>'+status.label+'</span><span>'+gas+'</span>';
+    simTable.appendChild(row);
+    return row;
+  }
+  function updateSimTxRow(nonce, status, gas){
+    var row = simTable.querySelector('.sim-tx-row[data-nonce="'+nonce+'"]');
+    if(!row) return;
+    var statusEl = row.querySelector('.tx-status');
+    statusEl.className = 'tx-status ' + status.cls;
+    statusEl.innerHTML = '<span class="dot"></span>' + status.label;
+    if(gas) row.children[3].textContent = gas;
+  }
+
+  var STATUS = {
+    pending: { cls:'pending', label:'pending' },
+    confirmed: { cls:'confirmed', label:'confirmed' },
+    gap: { cls:'gap', label:'gap' },
+    resubmitted: { cls:'resubmitted', label:'resubmitted' }
+  };
+
+  function runSimulation(){
+    if(simRunning) return;
+    simRunning = true;
+    simBtn.textContent = 'Running…';
+    simBtn.disabled = true;
+    resetTimeline();
+    simTable.innerHTML = '<div class="sim-tx-row sim-tx-head"><span>Nonce</span><span>Hash</span><span>Status</span><span>Gas price</span></div>';
+
+    var baseNonce = latest + 40;
+    var h1 = rndHash(), h2 = rndHash(), h3 = rndHash();
+
+    setTlStep('submitted', 'active', timeNow());
+    addSimTxRow(baseNonce, h1, STATUS.pending, '1.00 gwei');
+
+    setTimeout(function(){
+      setTlStep('submitted', 'done');
+      setTlStep('pending', 'active', timeNow());
+      addSimTxRow(baseNonce+1, h2, STATUS.pending, '0.42 gwei — underpriced');
+      addSimTxRow(baseNonce+2, h3, STATUS.pending, '1.05 gwei');
+    }, 700);
+
+    setTimeout(function(){
+      setTlStep('pending', 'done');
+      setTlStep('gap', 'gapped', timeNow());
+      updateSimTxRow(baseNonce+1, STATUS.gap, '0.42 gwei — underpriced');
+      updateSimTxRow(baseNonce+2, STATUS.gap, 'queued behind gap');
+      pushToast('Gap detected', 'nonce '+(baseNonce+1)+' stalled — priority fee too low');
+    }, 1700);
+
+    setTimeout(function(){
+      setTlStep('diagnosed', 'active', timeNow());
+      pushToast('Diagnosis', 'underpriced — recommending a 24% bump (clamped)');
+    }, 2900);
+
+    setTimeout(function(){
+      setTlStep('diagnosed', 'done');
+      setTlStep('resubmitted', 'active', timeNow());
+      updateSimTxRow(baseNonce+1, STATUS.resubmitted, '1.24 gwei');
+    }, 3900);
+
+    setTimeout(function(){
+      setTlStep('resubmitted', 'done');
+      setTlStep('confirmed', 'active', timeNow());
+      updateSimTxRow(baseNonce+1, STATUS.confirmed, '1.24 gwei');
+      updateSimTxRow(baseNonce+2, STATUS.confirmed, '1.05 gwei');
+      updateSimTxRow(baseNonce, STATUS.confirmed, '1.00 gwei');
+    }, 5000);
+
+    setTimeout(function(){
+      setTlStep('confirmed', 'done');
+      pushToast('Resolved', 'All three transactions confirmed in order.');
+      simBtn.textContent = 'Run again';
+      simBtn.disabled = false;
+      simRunning = false;
+    }, 5600);
+  }
+
+  if(simBtn) simBtn.addEventListener('click', runSimulation);
+})();
+</script>
+</body>
+</html>
