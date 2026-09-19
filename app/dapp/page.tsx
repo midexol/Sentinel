@@ -35,10 +35,11 @@ export default function DappPage() {
   // View state
   const [currentView, setCurrentView] = useState<
     "connect" | "dashboard" | "ledger" | "simulate" | "metrics" | "settings"
-  >("connect");
+  >("dashboard");
 
   // Wallet state
-  const [connected, setConnected] = useState(false);
+  const [connected, setConnected] = useState(true);
+  const [isDemoMode, setIsDemoMode] = useState(true);
   const [connecting, setConnecting] = useState(false);
   const [walletAddress, setWalletAddress] = useState("0x742d35Cc6634C0532925a3b844Bc454e4438BaEa");
   const [balanceEth, setBalanceEth] = useState("0.0000");
@@ -206,9 +207,10 @@ export default function DappPage() {
 
   // Connect wallet handler
   const doConnect = async () => {
-    if (connected || connecting) return;
+    if (connecting) return;
     setConnecting(true);
-    let target = "0x742d35Cc6634C0532925a3b844Bc454e4438BaEa";
+    let target = walletAddress;
+    let switchedToReal = false;
     try {
       if (
         typeof window !== "undefined" &&
@@ -218,13 +220,17 @@ export default function DappPage() {
         const accounts = await ethereum.request({ method: "eth_requestAccounts" });
         if (accounts && accounts.length > 0) {
           target = accounts[0];
+          switchedToReal = true;
         }
       }
     } catch {
-      // User cancelled or no web3 injected, fall back to default
+      // User cancelled or no web3 injected, fall back cleanly
     }
 
     setWalletAddress(target);
+    if (switchedToReal) {
+      setIsDemoMode(false);
+    }
 
     try {
       const res = await fetch(`/api/state?address=${target}`);
@@ -244,8 +250,18 @@ export default function DappPage() {
     setConnected(true);
     setConnecting(false);
     setCurrentView("dashboard");
-    pushToast("Connected", `Watching ${shortAddr(target)} on Base Sepolia.`);
+    pushToast(
+      switchedToReal ? "Connected" : "Demo Mode Active",
+      `Watching ${shortAddr(target)} on Base Sepolia.`
+    );
     addLedgerRow("gap_resolved", `Sentinel started: watching wallet ${shortAddr(target)}`);
+  };
+
+  const enterDemoMode = () => {
+    setIsDemoMode(true);
+    setConnected(true);
+    setCurrentView("dashboard");
+    pushToast("Demo Mode Active", "Exploring Sentinel with live Base Sepolia telemetry.");
   };
 
   // Live feed simulation loop and onchain sync
@@ -544,10 +560,8 @@ export default function DappPage() {
           {/* Nav Group */}
           <nav className="nav-group">
             <button
-              className={`nav-item ${!connected ? "disabled" : ""} ${
-                currentView === "dashboard" ? "active" : ""
-              }`}
-              onClick={() => connected && setCurrentView("dashboard")}
+              className={`nav-item ${currentView === "dashboard" ? "active" : ""}`}
+              onClick={() => setCurrentView("dashboard")}
             >
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
                 <rect x="1.5" y="1.5" width="6" height="6" />
@@ -559,10 +573,8 @@ export default function DappPage() {
             </button>
 
             <button
-              className={`nav-item ${!connected ? "disabled" : ""} ${
-                currentView === "ledger" ? "active" : ""
-              }`}
-              onClick={() => connected && setCurrentView("ledger")}
+              className={`nav-item ${currentView === "ledger" ? "active" : ""}`}
+              onClick={() => setCurrentView("ledger")}
             >
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
                 <path d="M2 2h12v12H2z" />
@@ -572,10 +584,8 @@ export default function DappPage() {
             </button>
 
             <button
-              className={`nav-item ${!connected ? "disabled" : ""} ${
-                currentView === "simulate" ? "active" : ""
-              }`}
-              onClick={() => connected && setCurrentView("simulate")}
+              className={`nav-item ${currentView === "simulate" ? "active" : ""}`}
+              onClick={() => setCurrentView("simulate")}
             >
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
                 <path d="M4 2.5v11l9-5.5-9-5.5z" />
@@ -584,10 +594,8 @@ export default function DappPage() {
             </button>
 
             <button
-              className={`nav-item ${!connected ? "disabled" : ""} ${
-                currentView === "metrics" ? "active" : ""
-              }`}
-              onClick={() => connected && setCurrentView("metrics")}
+              className={`nav-item ${currentView === "metrics" ? "active" : ""}`}
+              onClick={() => setCurrentView("metrics")}
             >
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
                 <path d="M2 13.5V2M2 13.5h12" />
@@ -597,10 +605,8 @@ export default function DappPage() {
             </button>
 
             <button
-              className={`nav-item ${!connected ? "disabled" : ""} ${
-                currentView === "settings" ? "active" : ""
-              }`}
-              onClick={() => connected && setCurrentView("settings")}
+              className={`nav-item ${currentView === "settings" ? "active" : ""}`}
+              onClick={() => setCurrentView("settings")}
             >
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
                 <circle cx="8" cy="8" r="2.3" />
@@ -625,26 +631,38 @@ export default function DappPage() {
           {/* Topbar */}
           <header className="topbar">
             <h2>{titles[currentView]}</h2>
-            <div className="topbar-right">
-              {connected ? (
+            <div className="topbar-right flex items-center gap-2.5">
+              <div className="chain-badge">
+                <span />
+                Base Sepolia
+              </div>
+              {isDemoMode ? (
                 <>
-                  <div className="chain-badge">
-                    <span />
-                    Base Sepolia
+                  <div
+                    className="px-2.5 py-1 rounded-full text-[11px] font-mono border border-[#C9A961]/40 text-[#C9A961] bg-[#C9A961]/10 flex items-center gap-1.5 cursor-pointer hover:bg-[#C9A961]/20 transition-all"
+                    onClick={() => setCurrentView("settings")}
+                    title="Live Demo Observer on Base Sepolia"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C9A961] animate-pulse" />
+                    <span>Demo Observer</span>
                   </div>
-                  <div className="wallet-pill" onClick={() => setCurrentView("settings")}>
-                    <span className="dot" />
-                    {shortAddr(fakeAddr)}
-                  </div>
+                  <button
+                    className={`btn-primary btn text-xs py-1.5 px-3.5 ${connecting ? "connecting" : ""}`}
+                    onClick={doConnect}
+                    disabled={connecting}
+                  >
+                    {connecting ? "Connecting…" : "Connect Wallet"}
+                  </button>
                 </>
               ) : (
-                <button
-                  className={`btn-primary btn ${connecting ? "connecting" : ""}`}
-                  onClick={doConnect}
-                  disabled={connecting}
+                <div
+                  className="wallet-pill"
+                  onClick={() => setCurrentView("settings")}
+                  title="Connected Web3 Keystore"
                 >
-                  {connecting ? "Connecting…" : "Connect Wallet"}
-                </button>
+                  <span className="dot" />
+                  {shortAddr(walletAddress)}
+                </div>
               )}
             </div>
           </header>
@@ -666,19 +684,27 @@ export default function DappPage() {
                     <path d="M12 7v5l3.2 3.2" />
                   </svg>
                 </div>
-                <h1>Connect a wallet to begin watching.</h1>
+                <h1>Connect a wallet or explore live demo.</h1>
                 <p>
                   Sentinel monitors the wallet you connect for stalled
                   transactions on Base, diagnoses why, and resolves them inside limits
                   you control.
                 </p>
-                <button
-                  className={`btn-primary btn ${connecting ? "connecting" : ""}`}
-                  onClick={doConnect}
-                  disabled={connecting}
-                >
-                  {connecting ? "Connecting…" : "Connect Wallet"}
-                </button>
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+                  <button
+                    className={`btn-primary btn ${connecting ? "connecting" : ""}`}
+                    onClick={doConnect}
+                    disabled={connecting}
+                  >
+                    {connecting ? "Connecting…" : "Connect Wallet"}
+                  </button>
+                  <button
+                    className="px-5 py-2 rounded-full border border-[#C9A961]/40 hover:border-[#C9A961] text-[#C9A961] hover:bg-[#C9A961]/10 text-xs font-mono transition-all"
+                    onClick={enterDemoMode}
+                  >
+                    Enter Live Demo Mode
+                  </button>
+                </div>
                 <ul className="trust-notes">
                   <li>
                     <span className="mark">i.</span> Read-only until you add a
@@ -701,6 +727,22 @@ export default function DappPage() {
           {/* VIEW: DASHBOARD */}
           {currentView === "dashboard" && (
             <div className="view space-y-5">
+              {isDemoMode && (
+                <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#C9A961]/10 border border-[#C9A961]/25 text-xs font-mono text-[#C9A961]">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#C9A961] animate-pulse" />
+                    <span>
+                      Demo Mode Active: All features, tabs, simulations, and settings are unlocked for exploration.
+                    </span>
+                  </div>
+                  <button
+                    className="underline text-[#F5F3EF] hover:text-[#C9A961] text-[11px] transition-colors"
+                    onClick={doConnect}
+                  >
+                    Connect Personal Wallet
+                  </button>
+                </div>
+              )}
               {/* Real on-chain telemetry bar */}
               <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 rounded-xl bg-[#101216] border border-[#C9A961]/20 text-xs font-mono shadow-sm">
                 <div className="flex items-center gap-2">
