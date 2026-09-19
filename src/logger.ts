@@ -22,15 +22,18 @@ export interface AuditEntryBase {
 
 export type AuditEntry = AuditEntryBase & { timestamp: string } & Record<string, unknown>;
 
-function redactSensitiveData(obj: unknown): unknown {
+function redactSensitiveData(obj: unknown, keyName?: string): unknown {
   if (typeof obj === "string") {
-    // Redact 32-byte hex keys (64 hex characters preceded by 0x)
-    const withoutKey = obj.replace(/0x[a-fA-F0-9]{64}/g, "0x[REDACTED_KEY]");
-    // Redact webhook secrets or tokens
-    return withoutKey.replace(/(token|secret|key|password)=([^\s&]+)/gi, "$1=[REDACTED]");
+    // Redact webhook secrets or tokens in query strings or payloads
+    const scrubbed = obj.replace(/(token|secret|key|password)=([^\s&]+)/gi, "$1=[REDACTED]");
+    // Scrub 64-character hex if keyName indicates a private key, but preserve transaction hashes
+    if (keyName && keyName.toLowerCase().includes("key") && !keyName.toLowerCase().includes("hash")) {
+      return scrubbed.replace(/0x[a-fA-F0-9]{64}/g, "0x[REDACTED_KEY]");
+    }
+    return scrubbed;
   }
   if (Array.isArray(obj)) {
-    return obj.map(redactSensitiveData);
+    return obj.map((item) => redactSensitiveData(item, keyName));
   }
   if (obj !== null && typeof obj === "object") {
     const sanitized: Record<string, unknown> = {};
@@ -45,7 +48,7 @@ function redactSensitiveData(obj: unknown): unknown {
       ) {
         sanitized[key] = "[REDACTED]";
       } else {
-        sanitized[key] = redactSensitiveData(val);
+        sanitized[key] = redactSensitiveData(val, key);
       }
     }
     return sanitized;
