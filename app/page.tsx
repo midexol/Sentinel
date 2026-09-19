@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Terminal, Copy, Check, Play, Cpu, ShieldCheck } from "lucide-react";
+import { Terminal, Copy, Check, Play, Cpu, ShieldCheck, Radio, Activity } from "lucide-react";
 
 export default function LandingPage() {
   const [condensed, setCondensed] = useState(false);
@@ -759,7 +759,7 @@ export default function LandingPage() {
                 </p>
                 <p className="text-ash/70">[2026-09-19T14:00:02.635Z] Latest: 43, Pending: 44, Gap: none</p>
                 <p className="text-ash/70">[2026-09-19T14:00:03.140Z] Latest: 44, Pending: 44, Gap: none</p>
-                <p className="text-[#C9A961] animate-pulse">_</p>
+                <p className="text-[#C9A961]/80 font-mono">_</p>
               </div>
             )}
 
@@ -896,7 +896,7 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
           <div className="p-5 rounded-2xl bg-[#101216] border border-white/[0.08] space-y-2">
             <div className="text-emerald-400 font-semibold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <Radio className="w-4 h-4 text-emerald-400" />
               <span>Real-Time SSE Stream</span>
             </div>
             <p className="text-ash text-[11px] leading-relaxed">
@@ -930,9 +930,9 @@ export default function LandingPage() {
       <section id="dapp-preview" className="max-w-7xl mx-auto px-6 py-20 border-t border-white/5">
         <div className="rounded-[28px] bg-gradient-to-b from-[#171A20] to-[#101216] border border-[#C9A961]/20 p-8 sm:p-14 text-center space-y-8 relative overflow-hidden shadow-[0_0_45px_-12px_rgba(201,169,97,0.3)]">
           <div className="w-full max-w-xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A961]/10 text-[#C9A961] text-xs font-mono">
-              <span className="w-2 h-2 rounded-full bg-[#C9A961] animate-pulse" />
-              REAL-TIME OBSERVATORY INTERFACE
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961] text-xs font-mono">
+              <Activity className="w-3.5 h-3.5 text-[#C9A961]" />
+              <span>REAL-TIME OBSERVATORY INTERFACE</span>
             </div>
             <h2 className="text-3xl sm:text-5xl font-serif text-white">
               Enter the Live Observatory.

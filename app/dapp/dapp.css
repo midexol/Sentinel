@@ -158,11 +158,11 @@
   background: rgba(201, 169, 97, 0.04);
 }
 .network-pill .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  transform: rotate(45deg);
   background: var(--aurum);
-  box-shadow: 0 0 6px var(--aurum);
 }
 .sentinel-subtag {
   font-size: 0.72rem;
@@ -259,29 +259,11 @@
   border-color: var(--aurum);
 }
 .wallet-pill .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  transform: rotate(45deg);
   background: var(--aurum);
-  position: relative;
-}
-.wallet-pill .dot::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px solid var(--aurum);
-  animation: pulse 2.2s ease-out infinite;
-}
-@keyframes pulse {
-  0% {
-    transform: scale(0.6);
-    opacity: 0.9;
-  }
-  100% {
-    transform: scale(2.1);
-    opacity: 0;
-  }
 }
 .chain-badge {
   font-size: 0.76rem;
@@ -383,20 +365,12 @@
 }
 .pulse-dot {
   display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  transform: rotate(45deg);
   background: var(--aurum);
   margin-right: 10px;
-  position: relative;
-}
-.pulse-dot::after {
-  content: "";
-  position: absolute;
-  inset: -5px;
-  border-radius: 50%;
-  border: 1px solid var(--aurum);
-  animation: pulse 2.2s ease-out infinite;
 }
 
 .stat-row {
@@ -432,9 +406,10 @@
   font-family: 'IBM Plex Mono', monospace;
 }
 .gap-flag .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  transform: rotate(45deg);
   background: var(--ash);
 }
 .gap-flag.active {
@@ -444,7 +419,6 @@
 }
 .gap-flag.active .dot {
   background: var(--ember);
-  box-shadow: 0 0 8px rgba(217, 83, 47, 0.8);
 }
 
 .breaker-status {
@@ -908,8 +882,7 @@
 .tl-step.active .tl-dot {
   background: var(--aurum);
   border-color: var(--aurum);
-  box-shadow: 0 0 0 5px rgba(201, 169, 97, 0.16);
-  animation: tlPulse 1.4s ease-in-out infinite;
+  box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.2);
 }
 .tl-step.active .tl-label {
   color: var(--marble);
@@ -927,14 +900,6 @@
 }
 .tl-step.gapped .tl-label {
   color: var(--marble);
-}
-@keyframes tlPulse {
-  0%, 100% {
-    box-shadow: 0 0 0 5px rgba(201, 169, 97, 0.16);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(201, 169, 97, 0.06);
-  }
 }
 
 .sim-tx-table {

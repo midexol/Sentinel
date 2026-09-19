@@ -126,12 +126,9 @@ export default function SimulationRunner() {
                 {isDone ? (
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 ) : isCurrent ? (
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-aurum opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-aurum"></span>
-                  </span>
+                  <span className="w-2 h-2 rounded-sm bg-aurum rotate-45 inline-block" />
                 ) : (
-                  <div className="w-2 h-2 rounded-full bg-white/[0.1]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/[0.15]" />
                 )}
               </div>
 

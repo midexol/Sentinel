@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import {
   Copy,
   Check,
+  CheckCircle2,
   Lock,
   AlertTriangle,
   Radio,
@@ -325,8 +326,8 @@ export default function DappSettings({
               SETTINGS
             </span>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-medium border border-emerald-500/40 bg-emerald-500/10 text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium border border-emerald-500/40 bg-emerald-500/10 text-emerald-400">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
             <span>{rpcStatus === "Connected" ? "Connected" : rpcStatus}</span>
           </div>
         </div>

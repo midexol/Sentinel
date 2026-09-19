@@ -18,7 +18,7 @@ export default function StatusPage() {
       <main className="pt-36 md:pt-44 pb-24 px-6 max-w-7xl mx-auto space-y-12">
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-void-2 border border-aurum/30 text-xs font-mono mb-4 text-aurum">
-            <Activity className="w-3.5 h-3.5 animate-pulse" />
+            <Activity className="w-3.5 h-3.5 text-aurum" />
             <span>Telemetry & Uptime</span>
           </div>
           <h1 className="font-cinzel text-3xl sm:text-5xl font-bold tracking-wide text-marble">
@@ -32,10 +32,7 @@ export default function StatusPage() {
         {/* Global Banner */}
         <div className="bg-[#0C0E14] border border-aurum/20 rounded-2xl p-6 shadow-xl flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
-            </span>
+            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
             <div>
               <div className="font-cinzel text-base font-semibold text-marble">
                 ALL SYSTEMS OPERATIONAL

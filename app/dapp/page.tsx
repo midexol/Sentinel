@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { CheckCircle2, AlertTriangle, Radio, Box, Activity, Terminal, Eye } from "lucide-react";
 import DappSettings from "@/components/dapp-settings";
 import "./dapp.css";
 
@@ -884,11 +885,11 @@ export default function DappPage() {
               {isDemoMode ? (
                 <>
                   <div
-                    className="px-2.5 py-1 rounded-full text-[11px] font-mono border border-[#C9A961]/40 text-[#C9A961] bg-[#C9A961]/10 flex items-center gap-1.5 cursor-pointer hover:bg-[#C9A961]/20 transition-all"
+                    className="px-2.5 py-1 rounded-full text-[11px] font-mono border border-[#C9A961]/30 text-[#C9A961] bg-[#C9A961]/5 flex items-center gap-1.5 cursor-pointer hover:border-[#C9A961]/60 transition-all"
                     onClick={() => setCurrentView("settings")}
                     title="Live Demo Observer on Base Sepolia"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#C9A961] animate-pulse" />
+                    <Eye className="w-3.5 h-3.5 text-[#C9A961]/80" />
                     <span>Demo Observer</span>
                   </div>
                   <button
@@ -973,15 +974,17 @@ export default function DappPage() {
           {currentView === "dashboard" && (
             <div className="view space-y-5">
               {isDemoMode && (
-                <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#C9A961]/10 border border-[#C9A961]/25 text-xs font-mono text-[#C9A961]">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#C9A961] animate-pulse" />
-                    <span>
-                      Demo Mode Active: All features, tabs, simulations, and settings are unlocked for exploration.
+                <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#121418] border border-[#C9A961]/25 text-xs font-mono">
+                  <div className="flex items-center gap-2.5">
+                    <span className="px-2 py-0.5 rounded border border-[#C9A961]/40 bg-[#C9A961]/10 text-[10px] font-bold text-[#C9A961] tracking-wider uppercase">
+                      DEMO MODE
+                    </span>
+                    <span className="text-[#C2BEB4]">
+                      All features, tabs, simulations, and settings are unlocked for exploration.
                     </span>
                   </div>
                   <button
-                    className="underline text-[#F5F3EF] hover:text-[#C9A961] text-[11px] transition-colors"
+                    className="underline text-[#C9A961] hover:text-white text-[11px] transition-colors"
                     onClick={doConnect}
                   >
                     Connect Personal Wallet
@@ -989,11 +992,11 @@ export default function DappPage() {
                 </div>
               )}
               {/* Real on-chain telemetry bar */}
-              <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 rounded-xl bg-[#101216] border border-[#C9A961]/20 text-xs font-mono shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 rounded-xl bg-[#101216] border border-white/[0.08] text-xs font-mono shadow-sm">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <Box className="w-3.5 h-3.5 text-[#C9A961]" />
                   <span className="text-[#686660]">Base Sepolia Block:</span>
-                  <span className="text-[#F5F3EF] font-semibold">#{currentBlock.toLocaleString()}</span>
+                  <span className="text-[#F5F3EF] font-semibold tracking-wide">#{currentBlock.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[#686660]">Monitored Keystore:</span>
@@ -1005,7 +1008,10 @@ export default function DappPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[#686660]">Sync:</span>
-                  <span className="text-emerald-400">Live SSE</span>
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[11px]">
+                    <Radio className="w-3 h-3 text-emerald-400" />
+                    <span>Live SSE</span>
+                  </div>
                 </div>
               </div>
 
@@ -1027,7 +1033,11 @@ export default function DappPage() {
                     </div>
                   </div>
                   <div className={`gap-flag ${hasGap ? "active" : ""}`}>
-                    <span className="dot" />
+                    {hasGap ? (
+                      <AlertTriangle className="w-3.5 h-3.5 text-ember shrink-0" />
+                    ) : (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400/90 shrink-0" />
+                    )}
                     <span>
                       {hasGap
                         ? `Gap at nonce ${gapNonce}`
@@ -1088,7 +1098,7 @@ export default function DappPage() {
               <div className="ledger-panel">
                 <div className="flex items-center justify-between panel-eyebrow">
                   <div className="flex items-center gap-2">
-                    <span className={isFeedPaused ? "w-2 h-2 rounded-full bg-amber-400" : "pulse-dot"} />
+                    <Activity className={`w-3.5 h-3.5 ${isFeedPaused ? "text-amber-400" : "text-[#C9A961]"}`} />
                     <span>Ledger: {isFeedPaused ? "Frozen" : "Streaming"}</span>
                     {isFeedPaused && (
                       <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">
@@ -1347,7 +1357,7 @@ export default function DappPage() {
               <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl bg-[#101216] border border-[#C9A961]/25 shadow-sm">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-xs font-mono text-[#C9A961]">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <Terminal className="w-3.5 h-3.5 text-[#C9A961]" />
                     <span>AUTONOMOUS DAEMON & IN-LINE INTERCEPTOR</span>
                   </div>
                   <h2 className="font-serif text-2xl text-white">Bot Integration & Daemon Control</h2>
@@ -1363,7 +1373,7 @@ export default function DappPage() {
                     rel="noreferrer"
                     className="px-3.5 py-2 rounded-xl bg-[#08090C] border border-white/10 hover:border-[#C9A961]/40 text-emerald-400 transition-colors flex items-center gap-2"
                   >
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    <Radio className="w-3.5 h-3.5 text-emerald-400" />
                     <span>Open SSE Telemetry Stream</span>
                   </a>
                 </div>
