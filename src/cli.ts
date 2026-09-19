@@ -45,13 +45,13 @@ async function handleGap(
   recordEvent(recentEvents, "gap");
 
   if (!config.privateKey && !config.dryRun) {
-    console.log("  -> Gap detected but no PRIVATE_KEY configured. Running read-only; not resolving.");
+    console.log("  [INFO] Gap detected but no PRIVATE_KEY configured. Running read-only; not resolving.");
     return;
   }
 
   const diagnosis = await diagnostician.diagnose(gap, state, recentEvents);
   console.log(
-    `  -> Diagnosis: ${diagnosis.category} - "${diagnosis.explanation}" (recommended bump: ${diagnosis.recommendedBumpPct}%${
+    `  [DIAGNOSIS] ${diagnosis.category}: "${diagnosis.explanation}" (recommended bump: ${diagnosis.recommendedBumpPct}%${
       diagnosis.rawRequestedBumpPct !== diagnosis.recommendedBumpPct
         ? `, model asked for ${diagnosis.rawRequestedBumpPct}% but was clamped`
         : ""
@@ -61,12 +61,12 @@ async function handleGap(
   try {
     const result = await resolver.resolveGap(gap.gapNonce, diagnosis.recommendedBumpPct);
     recordEvent(recentEvents, "resolved");
-    console.log(`  -> Resolved (${result.outcome})${result.newHash ? `: new tx ${result.newHash}` : ""}`);
+    console.log(`  [RESOLVED] (${result.outcome})${result.newHash ? `: new tx ${result.newHash}` : ""}`);
   } catch (err) {
     if (err instanceof NoPrivateKeyError) throw err;
     recordEvent(recentEvents, "failed");
     await breaker.recordFailure();
-    console.error("  -> Failed to resolve gap:", err instanceof Error ? err.message : err);
+    console.error("  [ERROR] Failed to resolve gap:", err instanceof Error ? err.message : err);
   }
 }
 
