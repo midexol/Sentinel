@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void: #08090C;
+  --void-2: #111318;
+  --void-3: #181B22;
+  --panel: rgba(19, 21, 26, 0.75);
+  --marble: #EDE9E1;
+  --marble-dim: #C9C4B8;
+  --aurum: #C9A961;
+  --aurum-light: #E0BE70;
+  --current: #3E6E8E;
+  --ash: #6B6862;
+  --ember: #B4532A;
+  --hair: rgba(201, 169, 97, 0.18);
+  --hair-bright: rgba(201, 169, 97, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #08090C;
+  color: #EDE9E1;
+}
+
+body {
+  background-color: #08090C;
+  color: #EDE9E1;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #08090C;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 169, 97, 0.25);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 169, 97, 0.5);
+}
+
+.font-cinzel {
+  font-family: var(--font-cinzel), 'Cinzel', serif;
+}
+
+.font-fraunces {
+  font-family: var(--font-fraunces), 'Fraunces', Georgia, serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+}
+
+.glass-card {
+  background: linear-gradient(135deg, rgba(25, 27, 34, 0.65) 0%, rgba(14, 16, 20, 0.75) 100%);
+  border: 1px solid rgba(201, 169, 97, 0.18);
+  box-shadow: 0 16px 40px -15px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(16px);
+}
+
+.glass-card-hover:hover {
+  border-color: rgba(201, 169, 97, 0.4);
+  box-shadow: 0 20px 48px -12px rgba(201, 169, 97, 0.12);
+}
+
+.gold-glow {
+  box-shadow: 0 0 25px rgba(201, 169, 97, 0.25);
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.65; transform: scale(0.98); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
