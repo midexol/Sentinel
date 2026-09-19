@@ -152,7 +152,7 @@ export default function DappPage() {
 
   // View state
   const [currentView, setCurrentView] = useState<
-    "connect" | "dashboard" | "ledger" | "simulate" | "metrics" | "settings"
+    "connect" | "dashboard" | "ledger" | "simulate" | "cli" | "metrics" | "settings"
   >("dashboard");
 
   // Wallet state
@@ -761,6 +761,7 @@ export default function DappPage() {
     dashboard: "Dashboard",
     ledger: "Ledger",
     simulate: "Simulation Playground",
+    cli: "Autonomous CLI Daemon",
     metrics: "Metrics & Analytics",
     settings: "Settings",
   };
@@ -824,6 +825,17 @@ export default function DappPage() {
                 <path d="M4 2.5v11l9-5.5-9-5.5z" />
               </svg>
               Simulate
+            </button>
+
+            <button
+              className={`nav-item ${currentView === "cli" ? "active" : ""}`}
+              onClick={() => setCurrentView("cli")}
+            >
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
+                <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
+                <path d="M4 6l2.5 2L4 10M8.5 10H12" />
+              </svg>
+              CLI Daemon
             </button>
 
             <button
@@ -1324,6 +1336,135 @@ export default function DappPage() {
                       <span>{tx.gas}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW: CLI & BOT SDK INTEGRATION */}
+          {currentView === "cli" && (
+            <div className="view space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl bg-[#101216] border border-[#C9A961]/25 shadow-sm">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-xs font-mono text-[#C9A961]">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>AUTONOMOUS DAEMON & IN-LINE INTERCEPTOR</span>
+                  </div>
+                  <h2 className="font-serif text-2xl text-white">Bot Integration & Daemon Control</h2>
+                  <p className="text-xs text-[#C2BEB4] font-mono leading-relaxed max-w-2xl">
+                    Deploy Sentinel directly into algorithmic trading clusters. Choose between an in-line SDK interceptor or an out-of-band headless daemon watching via 500ms Flashblocks polling.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 font-mono text-xs">
+                  <a
+                    href="/api/stream"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-2 rounded-xl bg-[#08090C] border border-white/10 hover:border-[#C9A961]/40 text-emerald-400 transition-colors flex items-center gap-2"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    <span>Open SSE Telemetry Stream</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Integration Cards Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Option A: In-Line Bot Interceptor */}
+                <div className="panel space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-[11px] font-semibold">
+                      RECOMMENDED FOR HFT BOTS
+                    </span>
+                    <span className="font-mono text-xs text-ash">src/interceptor.ts</span>
+                  </div>
+                  <h3 className="font-serif text-lg text-white">Mode 1: The Drop-In Bot Interceptor</h3>
+                  <p className="text-xs text-marble-dim/80 font-mono leading-relaxed">
+                    Instead of sending transactions directly to the RPC, wrap your broadcast call. If a nonce gap exists behind your transaction, Sentinel heals it first and then passes your trade through.
+                  </p>
+
+                  <div className="p-4 rounded-xl bg-[#08090C] border border-white/[0.08] font-mono text-xs space-y-2 text-marble-dim/90 overflow-x-auto">
+                    <p className="text-ash">// 1. Import from Sentinel core</p>
+                    <p className="text-sky-300">import <span className="text-white">&#123; TransactionInterceptor &#125;</span> from <span className="text-emerald-300">&quot;sentinel&quot;</span>;</p>
+                    <p className="text-ash pt-1">// 2. Replace client.sendRawTransaction(signedTx)</p>
+                    <p className="text-[#C9A961] font-semibold">const hash = await interceptor.submitTransaction(signedTx);</p>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs font-mono text-ash pt-2 border-t border-white/[0.06]">
+                    <span>Eliminates head-of-line blocking</span>
+                    <span className="text-emerald-400">Zero nonce management</span>
+                  </div>
+                </div>
+
+                {/* Option B: Headless Watchdog Daemon */}
+                <div className="panel space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20 text-sky-400 font-mono text-[11px] font-semibold">
+                      OUT-OF-BAND WATCHER
+                    </span>
+                    <span className="font-mono text-xs text-ash">src/cli.ts</span>
+                  </div>
+                  <h3 className="font-serif text-lg text-white">Mode 2: Autonomous CLI Daemon</h3>
+                  <p className="text-xs text-marble-dim/80 font-mono leading-relaxed">
+                    Keep trading bot code 100% untouched. Run Sentinel in a background container or tmux session watching your wallet address on Base Sepolia.
+                  </p>
+
+                  <div className="p-4 rounded-xl bg-[#08090C] border border-white/[0.08] font-mono text-xs space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-ash"># Continuous 500ms watch loop</span>
+                      <button
+                        onClick={() => copyToClipboard("npm run cli:watch", "Daemon Command")}
+                        className="text-[11px] text-[#C9A961] hover:underline"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                    <p className="text-emerald-400 font-semibold">$ npm run cli:watch</p>
+                    <div className="flex items-center justify-between pt-1 border-t border-white/[0.06]">
+                      <span className="text-ash"># Single state scan</span>
+                      <button
+                        onClick={() => copyToClipboard("npm run cli", "Scan Command")}
+                        className="text-[11px] text-[#C9A961] hover:underline"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                    <p className="text-marble">$ npm run cli</p>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs font-mono text-ash pt-2 border-t border-white/[0.06]">
+                    <span>Includes Eviction Monitor</span>
+                    <span className="text-sky-300">Zero bot code modification</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Operational Invariants & Reliability Summary */}
+              <div className="panel space-y-4">
+                <div className="panel-eyebrow">Guaranteed Invariants & Bounds</div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
+                  <div className="p-4 rounded-xl bg-[#08090C] border border-white/[0.06] space-y-1">
+                    <div className="text-ash text-[10px] uppercase">Invariant INV-02</div>
+                    <div className="text-white font-semibold">Model Proposes, Code Decides</div>
+                    <p className="text-ash text-[11px] leading-relaxed">
+                      Gas bumps are hard-clamped to [10%, 50%]. A simulated 200% ask is bounded to 50% max.
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-[#08090C] border border-white/[0.06] space-y-1">
+                    <div className="text-ash text-[10px] uppercase">Eviction Watchdog</div>
+                    <div className="text-white font-semibold">Silent Drop Recovery</div>
+                    <p className="text-ash text-[11px] leading-relaxed">
+                      Tracks vanished mempool transactions past EVICTION_TIMEOUT_MS and autonomously resubmits.
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-[#08090C] border border-white/[0.06] space-y-1">
+                    <div className="text-ash text-[10px] uppercase">Circuit Breaker</div>
+                    <div className="text-white font-semibold">Triple-Strike Trip Wire</div>
+                    <p className="text-ash text-[11px] leading-relaxed">
+                      Halts autonomous writes if 10 consecutive failures occur in 5 minutes; alerts Discord/Telegram.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

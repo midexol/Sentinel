@@ -23,6 +23,27 @@ Because EVM account nonces are strictly sequential, a single delayed transaction
 
 ---
 
+## Core Thesis: &ldquo;Model Proposes, Code Decides&rdquo;
+
+> **&ldquo;The AI reasons, it never touches a gas fee directly.&rdquo;**
+
+Most Web3 AI agent implementations blindly execute whatever prompt completion an LLM returns. In high-frequency blockchain trading, this is a catastrophic anti-pattern that leads to gas depletion loops and drained capital.
+
+Sentinel enforces a strict separation of concerns:
+1. **The AI Proposes**: Claude 3.5 Sonnet diagnoses why the transaction stalled (silent eviction, network gas spike, or Flashblocks sequencer desync) and suggests an optimal gas bump percentage.
+2. **Code Decides**: Hard mathematical safety clamps (`INV-02`) bound every recommendation between `[10%, 50%]`.
+3. **Tested to Fail Safely**: In automated tests (`test/sentinel.test.ts`), a simulated 200% bump request gets strictly clamped to 50%. If the LLM times out or returns malformed JSON, Sentinel automatically falls back to the safety-floor bump (+10%) without halting execution. Both the raw proposal and the clamped execution are cryptographically committed to append-only JSONL receipts for BaseScan auditability.
+
+---
+
+## A Real, Documented Problem (Not Self-Justified)
+
+Most hackathon projects invent artificial problems. Sentinel solves a documented, independently verifiable race condition published in Base's official engineering blog:
+- **Base Flashblocks Sub-Second Sequencing**: Base streams partial blocks every ~200ms. If a trading bot's local sequence falls out of sync with the sequencer by even one sub-block, every subsequent submission errors with `NONCE_TOO_LOW` or halts in `QUEUED` deadlock.
+- **Base's Silent Eviction Quirk**: When sequencer queues fill under load, Base drops underpriced transactions **without emitting an eviction event or error callback**. The bot assumes the transaction is pending forever. Sentinel infers silent evictions using consecutive propagation timeouts and autonomously resubmits.
+
+---
+
 ## System Architecture
 
 ```mermaid
@@ -232,21 +253,33 @@ MAX_GAS_BUMP_PCT=50
 CIRCUIT_BREAKER_THRESHOLD=10
 ```
 
-### 4. Running the Autonomous Daemon
+### 4. Two Integration Options
+
+#### Option A: In-Line Bot Interceptor (Drop-in SDK)
+Wrap your trading bot's transaction broadcast. If a nonce gap exists behind your transaction, Sentinel heals it before passing your order through:
+```typescript
+import { TransactionInterceptor } from "sentinel";
+
+// Replace client.sendRawTransaction(signedTx)
+const txHash = await interceptor.submitTransaction(signedTx);
+```
+
+#### Option B: Headless Watchdog Daemon (CLI)
+Keep your trading bot 100% untouched. Run Sentinel in a background container or tmux session:
 ```bash
 # Single scan
-npm run dev
+npm run cli
 
-# Continuous autonomous monitoring loop
-npm run watch
+# Continuous autonomous sub-second loop
+npm run cli:watch
+
+# Standalone compiled binary
+npm run build:cli && node dist/cli.js
 ```
 
 ### 5. Running the Web Command Center
 ```bash
-# Development mode
-npm run next:dev
-
-# Optimized production build
+# Optimized production build & start
 npm run build
 npm start
 ```

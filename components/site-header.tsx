@@ -20,6 +20,7 @@ export default function SiteHeader() {
 
   const navLinks = [
     { label: "Assets", href: "/assets" },
+    { label: "CLI Daemon", href: "/#cli" },
     { label: "Simulate", href: "/simulate" },
     { label: "Security", href: "/security" },
     { label: "Status", href: "/status" },
