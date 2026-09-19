@@ -1,0 +1,54 @@
+{
+  "system": {
+    "walletAddress": "0x742d35Cc6634C0532925a3b844Bc454e4438BaEa",
+    "privateKeyLoaded": true,
+    "rpcUrl": "https://sepolia.base.org",
+    "chainId": 84532,
+    "version": "1.0.0"
+  },
+  "nonceTracking": {
+    "gapDetectionInterval": 500,
+    "pendingNonceTag": "pending",
+    "maxPendingTransactions": 50,
+    "gapResolutionStrategy": "replace"
+  },
+  "gasStrategy": {
+    "minGasIncreasePct": 10,
+    "maxFeeMultiplier": 2.0,
+    "priorityFeeStrategy": "max",
+    "customPriorityFeeGwei": 0.001,
+    "maxGasPriceCapGwei": 100,
+    "gasPriceRefreshInterval": 2000
+  },
+  "evictionMonitoring": {
+    "evictionTimeout": 30000,
+    "evictionCheckInterval": 5000,
+    "maxEvictionResubmissions": 3,
+    "evictionBackoffMultiplier": 1.5
+  },
+  "circuitBreaker": {
+    "enabled": true,
+    "failureThreshold": 10,
+    "failureWindow": 300000,
+    "cooldownPeriod": 60000,
+    "autoRecovery": true
+  },
+  "alerts": {
+    "telegramWebhookUrl": "",
+    "discordWebhookUrl": "",
+    "alertOnGapDetected": true,
+    "alertOnGapResolved": true,
+    "alertOnGapResolutionFailed": true,
+    "alertOnEviction": true,
+    "alertOnCircuitBreaker": true,
+    "alertCooldown": 30000
+  },
+  "audit": {
+    "logLevel": "info",
+    "logFormat": "jsonl",
+    "logFilePath": "./nonce-sentinel.log",
+    "maxLogSizeMb": 100,
+    "logRetentionDays": 7,
+    "logRotation": true
+  }
+}
