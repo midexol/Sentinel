@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
+import { timingSafeEqual } from "node:crypto";
 
 const settingsPath = path.join(process.cwd(), "settings.json");
 
@@ -102,13 +103,64 @@ export async function GET() {
   });
 }
 
+function safeCompare(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
+
+function hasPrototypePollution(obj: unknown): boolean {
+  if (!obj || typeof obj !== "object") return false;
+  for (const key of Object.keys(obj)) {
+    if (key === "__proto__" || key === "constructor" || key === "prototype") {
+      return true;
+    }
+    if (typeof (obj as Record<string, unknown>)[key] === "object") {
+      if (hasPrototypePollution((obj as Record<string, unknown>)[key])) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 export async function POST(req: Request) {
   try {
+    const contentLength = req.headers.get("content-length");
+    if (contentLength && parseInt(contentLength, 10) > 102400) {
+      return NextResponse.json(
+        { error: "Payload exceeds 100KB limit." },
+        { status: 413 }
+      );
+    }
+
     const body = await req.json();
+
+    // Prototype pollution prevention
+    if (hasPrototypePollution(body)) {
+      return NextResponse.json(
+        { error: "Invalid payload: forbidden prototype property detected." },
+        { status: 400 }
+      );
+    }
 
     // Action dispatch
     if (body.action === "test_alert") {
       const { telegramUrl, discordUrl } = body;
+      if (telegramUrl && !telegramUrl.startsWith("https://")) {
+        return NextResponse.json(
+          { error: "Telegram webhook URL must use HTTPS." },
+          { status: 400 }
+        );
+      }
+      if (discordUrl && !discordUrl.startsWith("https://")) {
+        return NextResponse.json(
+          { error: "Discord webhook URL must use HTTPS." },
+          { status: 400 }
+        );
+      }
+
       const results: { telegram: boolean; discord: boolean; message: string } = {
         telegram: false,
         discord: false,
@@ -136,12 +188,68 @@ export async function POST(req: Request) {
 
     if (body.action === "save_settings") {
       const newSettings = body.settings;
+      if (!newSettings || typeof newSettings !== "object") {
+        return NextResponse.json(
+          { error: "Invalid settings object." },
+          { status: 400 }
+        );
+      }
+
+      // Input boundary validation
+      if (newSettings.nonceTracking) {
+        const interval = Number(newSettings.nonceTracking.gapDetectionInterval);
+        if (isNaN(interval) || interval < 100 || interval > 5000) {
+          return NextResponse.json(
+            { error: "gapDetectionInterval must be an integer between 100ms and 5000ms." },
+            { status: 400 }
+          );
+        }
+      }
+
+      if (newSettings.gasStrategy) {
+        const minGas = Number(newSettings.gasStrategy.minGasIncreasePct);
+        if (isNaN(minGas) || minGas < 10) {
+          return NextResponse.json(
+            { error: "minGasIncreasePct must be at least 10% per Base protocol rules." },
+            { status: 400 }
+          );
+        }
+      }
+
+      if (newSettings.circuitBreaker) {
+        const threshold = Number(newSettings.circuitBreaker.failureThreshold);
+        if (isNaN(threshold) || threshold < 1 || threshold > 100) {
+          return NextResponse.json(
+            { error: "circuitBreaker failureThreshold must be between 1 and 100." },
+            { status: 400 }
+          );
+        }
+      }
+
+      if (newSettings.alerts?.telegramWebhookUrl) {
+        if (!newSettings.alerts.telegramWebhookUrl.startsWith("https://")) {
+          return NextResponse.json(
+            { error: "Telegram webhook must use HTTPS." },
+            { status: 400 }
+          );
+        }
+      }
+
+      if (newSettings.alerts?.discordWebhookUrl) {
+        if (!newSettings.alerts.discordWebhookUrl.startsWith("https://")) {
+          return NextResponse.json(
+            { error: "Discord webhook must use HTTPS." },
+            { status: 400 }
+          );
+        }
+      }
+
       fs.writeFileSync(settingsPath, JSON.stringify(newSettings, null, 2), "utf-8");
       return NextResponse.json({ success: true, message: "Settings saved successfully." });
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update settings" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Failed to process settings request" }, { status: 500 });
   }
 }
