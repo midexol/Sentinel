@@ -38,7 +38,7 @@ Sentinel enforces a strict separation of concerns:
 
 ## A Real, Documented Problem (Not Self-Justified)
 
-Most hackathon projects invent artificial problems. Sentinel solves a documented, independently verifiable race condition published in Base's official engineering blog:
+Sentinel solves a documented, independently verifiable race condition published in Base's official engineering blog:
 - **Base Flashblocks Sub-Second Sequencing**: Base streams partial blocks every ~200ms. If a trading bot's local sequence falls out of sync with the sequencer by even one sub-block, every subsequent submission errors with `NONCE_TOO_LOW` or halts in `QUEUED` deadlock.
 - **Base's Silent Eviction Quirk**: When sequencer queues fill under load, Base drops underpriced transactions **without emitting an eviction event or error callback**. The bot assumes the transaction is pending forever. Sentinel infers silent evictions using consecutive propagation timeouts and autonomously resubmits.
 
