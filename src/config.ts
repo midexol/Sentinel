@@ -51,7 +51,7 @@ export function loadConfig(): SentinelConfig {
     evictionTimeoutMs: Number(process.env.EVICTION_TIMEOUT_MS ?? 30_000),
     circuitBreakerThreshold: Number(process.env.CIRCUIT_BREAKER_THRESHOLD ?? 10),
     circuitBreakerWindowMs: Number(process.env.CIRCUIT_BREAKER_WINDOW_MS ?? 300_000),
-    logFile: process.env.LOG_FILE ?? "./nonce-sentinel.log",
+    logFile: process.env.LOG_FILE ?? "./sentinel.log",
     alertWebhookUrl: process.env.ALERT_WEBHOOK_URL ?? null,
     minGasBumpPct: Number(process.env.MIN_GAS_BUMP_PCT ?? 10), // Base's documented minimum
     maxGasBumpPct: Number(process.env.MAX_GAS_BUMP_PCT ?? 50), // hard ceiling regardless of AI suggestion

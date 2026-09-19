@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function LandingPage() {
   const [condensed, setCondensed] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  // Scroll handler for condensing header
   useEffect(() => {
     const handleScroll = () => {
       setCondensed(window.scrollY > 20);
@@ -16,11 +19,164 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Mouse position tracker for interactive aura & canvas repulsion
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  // Living interactive background canvas: flowing harmonic waves + mempool constellation nodes
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+    const resize = () => {
+      if (!canvas) return;
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * DPR;
+      canvas.height = H * DPR;
+      canvas.style.width = W + "px";
+      canvas.style.height = H + "px";
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Particle nodes representing in-flight mempool transactions
+    const nodeCount = Math.min(55, Math.floor(W / 24));
+    const nodes = Array.from({ length: nodeCount }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.45,
+      vy: (Math.random() - 0.5) * 0.45,
+      radius: Math.random() * 2 + 1,
+      baseAlpha: Math.random() * 0.5 + 0.25,
+      pulse: Math.random() * Math.PI * 2,
+    }));
+
+    // Multi-harmonic sine waves (gold & cyan-blue)
+    const waves = [
+      { yFrac: 0.28, amp: 26, freq: 0.0022, speed: 0.00015, color: [201, 169, 97], alpha: 0.08 },
+      { yFrac: 0.52, amp: 38, freq: 0.0018, speed: 0.00012, color: [74, 122, 153], alpha: 0.07 },
+      { yFrac: 0.78, amp: 32, freq: 0.0024, speed: 0.00018, color: [201, 169, 97], alpha: 0.09 },
+    ];
+
+    let t = 0;
+    const render = () => {
+      t += 1;
+      ctx.clearRect(0, 0, W, H);
+
+      // 1. Draw flowing undulating harmonic sine waves
+      waves.forEach((w) => {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(${w.color.join(",")}, ${w.alpha})`;
+        ctx.lineWidth = 1.2;
+
+        for (let x = 0; x <= W; x += 12) {
+          const y =
+            H * w.yFrac +
+            Math.sin(x * w.freq + t * w.speed * 8) * w.amp +
+            Math.cos(x * w.freq * 0.6 + t * w.speed * 5) * (w.amp * 0.4);
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      });
+
+      // 2. Update and draw interactive nodes
+      nodes.forEach((node, i) => {
+        node.x += node.vx;
+        node.y += node.vy;
+
+        // Wrap edges
+        if (node.x < -10) node.x = W + 10;
+        if (node.x > W + 10) node.x = -10;
+        if (node.y < -10) node.y = H + 10;
+        if (node.y > H + 10) node.y = -10;
+
+        // Interactive mouse interaction: gentle repulsion / attraction
+        const dx = node.x - mousePos.x;
+        const dy = node.y - mousePos.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 180 && dist > 0) {
+          const force = (180 - dist) / 180;
+          node.x += (dx / dist) * force * 1.5;
+          node.y += (dy / dist) * force * 1.5;
+        }
+
+        // Draw particle dot with gentle pulse
+        const pulseAlpha =
+          node.baseAlpha + Math.sin(t * 0.03 + node.pulse) * 0.15;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(201, 169, 97, ${Math.max(0.1, pulseAlpha)})`;
+        ctx.fill();
+
+        // Connect nearby nodes with delicate constellation lines
+        for (let j = i + 1; j < nodes.length; j++) {
+          const other = nodes[j];
+          const ndx = node.x - other.x;
+          const ndy = node.y - other.y;
+          const nDist = Math.sqrt(ndx * ndx + ndy * ndy);
+          if (nDist < 125) {
+            const lineAlpha = (1 - nDist / 125) * 0.16;
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(201, 169, 97, ${lineAlpha})`;
+            ctx.lineWidth = 0.8;
+            ctx.moveTo(node.x, node.y);
+            ctx.lineTo(other.x, other.y);
+            ctx.stroke();
+          }
+        }
+      });
+
+      animId = requestAnimationFrame(render);
+    };
+
+    animId = requestAnimationFrame(render);
+    return () => {
+      window.removeEventListener("resize", resize);
+      cancelAnimationFrame(animId);
+    };
+  }, [mousePos]);
+
   return (
-    <div className="min-h-screen bg-[#08090C] relative text-[#F5F3EF] selection:bg-[#C9A961] selection:text-black font-sans">
+    <div className="min-h-screen bg-[#08090C] relative text-[#F5F3EF] selection:bg-[#C9A961] selection:text-black font-sans overflow-hidden">
+      {/* Interactive Living Background Canvas */}
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 pointer-events-none -z-10"
+        aria-hidden="true"
+      />
+
+      {/* Interactive Trailing Cursor Spotlight Aura */}
+      <div
+        className="fixed pointer-events-none -z-10 rounded-full blur-3xl transition-opacity duration-500"
+        style={{
+          left: mousePos.x - 260,
+          top: mousePos.y - 260,
+          width: 520,
+          height: 520,
+          background:
+            "radial-gradient(circle, rgba(201,169,97,0.13) 0%, rgba(74,122,153,0.06) 45%, transparent 70%)",
+          opacity: mousePos.x > 0 ? 1 : 0,
+        }}
+      />
+
       {/* Ambient Golden Spotlight Gradients */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] bg-gradient-to-b from-[#C9A961]/12 via-transparent to-transparent blur-3xl pointer-events-none -z-10" />
-      <div className="fixed bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-t from-[#4A7A99]/8 via-transparent to-transparent blur-3xl pointer-events-none -z-10" />
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] bg-gradient-to-b from-[#C9A961]/12 via-transparent to-transparent blur-3xl pointer-events-none -z-20" />
+      <div className="fixed bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-t from-[#4A7A99]/8 via-transparent to-transparent blur-3xl pointer-events-none -z-20" />
 
       {/* Usance Dynamic Condensing Header Island */}
       <header
@@ -38,17 +194,17 @@ export default function LandingPage() {
         >
           {/* Clickable Brand Logo & Title */}
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="relative w-6 h-6 rounded-full overflow-hidden border border-[#C9A961]/40 shadow-[0_0_10px_rgba(201,169,97,0.3)] group-hover:scale-110 transition-transform duration-300">
+            <div className="relative w-7 h-7 rounded-full overflow-hidden border border-[#C9A961]/40 shadow-[0_0_10px_rgba(201,169,97,0.3)] group-hover:scale-110 transition-transform duration-300">
               <Image
-                src="/assets/logo.jpg"
-                alt="Sentinel"
+                src="/assets/logo-transparent.png"
+                alt="Sentinel Logo"
                 fill
-                className="object-cover"
+                className="object-contain"
                 priority
               />
             </div>
-            <span className="font-cinzel text-sm font-bold tracking-[0.16em] text-white">
-              SENTINEL
+            <span className="font-script text-xl text-white tracking-wide">
+              Sentinel
             </span>
           </Link>
 
@@ -443,21 +599,30 @@ export default function LandingPage() {
       <footer className="border-t border-white/10 py-12 px-6 bg-[#08090C] text-[#686660] text-xs font-mono">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="relative w-5 h-5 rounded-full overflow-hidden border border-[#C9A961]/40">
+            <div className="relative w-6 h-6 rounded-full overflow-hidden border border-[#C9A961]/40">
               <Image
-                src="/assets/logo.jpg"
-                alt="Sentinel"
+                src="/assets/logo-transparent.png"
+                alt="Sentinel Logo"
                 fill
-                className="object-cover"
+                className="object-contain"
               />
             </div>
-            <span className="font-cinzel text-white text-xs tracking-[0.16em]">
-              SENTINEL
+            <span className="font-script text-white text-base tracking-wide">
+              Sentinel
             </span>
             <span>•</span>
-            <span>High-Frequency Nonce Watchdog for Base</span>
+            <span>High-Frequency Nonce Watchdog for Base L2</span>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-5 text-[11.5px]">
+            <Link href="/privacy" className="hover:text-[#F5F3EF] transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-[#F5F3EF] transition-colors">
+              Terms of Service
+            </Link>
+            <Link href="/security" className="hover:text-[#F5F3EF] transition-colors">
+              Security
+            </Link>
             <a
               href="https://sepolia.basescan.org"
               target="_blank"
@@ -466,7 +631,7 @@ export default function LandingPage() {
             >
               Base Sepolia
             </a>
-            <Link href="/dapp" className="text-[#C9A961] hover:underline">
+            <Link href="/dapp" className="text-[#C9A961] hover:underline font-semibold">
               Observatory Console
             </Link>
           </div>

@@ -56,7 +56,7 @@ async function runSimulation() {
     evictionTimeoutMs: 30000,
     circuitBreakerThreshold: 5,
     circuitBreakerWindowMs: 60000,
-    logFile: "./nonce-sentinel.log",
+    logFile: "./sentinel.log",
     alertWebhookUrl: null,
     minGasBumpPct: 10,
     maxGasBumpPct: 50,
@@ -144,7 +144,7 @@ async function runSimulation() {
   console.log(`   Resolution outcome: ${res.outcome}`);
   console.log(`   Generated replacement tx hash: ${res.newHash}\n`);
 
-  console.log("5. Audit log updated in ./nonce-sentinel.log. Verification complete!\n");
+  console.log("5. Audit log updated in ./sentinel.log. Verification complete!\n");
 }
 
 async function runLive(mode: "raw" | "interceptor") {

@@ -45,15 +45,15 @@ export default function SiteHeader() {
         >
           <div className="relative w-8 h-8 rounded-full overflow-hidden border border-aurum/40 shadow-[0_0_12px_rgba(201,169,97,0.25)] group-hover:border-aurum transition-colors">
             <Image
-              src="/assets/logo.jpg"
-              alt="Sentinel Concept B Logo"
+              src="/assets/logo-transparent.png"
+              alt="Sentinel Logo"
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
           </div>
-          <span className="font-cinzel text-base md:text-lg tracking-[0.24em] font-medium text-marble group-hover:text-aurum-light transition-colors">
-            SENTINEL
+          <span className="font-script text-2xl text-marble group-hover:text-aurum-light transition-colors tracking-wide">
+            Sentinel
           </span>
         </Link>
 

@@ -90,7 +90,7 @@ export default function DappSettings({
     audit: {
       logLevel: "info",
       logFormat: "jsonl",
-      logFilePath: "./nonce-sentinel.log",
+      logFilePath: "./sentinel.log",
       maxLogSizeMb: 100,
       logRetentionDays: 7,
       logRotation: true,
@@ -274,10 +274,10 @@ export default function DappSettings({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "nonce-sentinel.log";
+    a.download = "sentinel.log";
     a.click();
     URL.revokeObjectURL(url);
-    onPushToast("Log Downloaded", "nonce-sentinel.log exported.");
+    onPushToast("Log Downloaded", "sentinel.log exported.");
   };
 
   const handleResetCircuitBreaker = () => {

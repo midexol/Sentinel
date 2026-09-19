@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cinzel, Fraunces, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Cinzel, Fraunces, IBM_Plex_Sans, IBM_Plex_Mono, Pacifico } from "next/font/google";
 import Providers from "@/components/providers";
 import "./globals.css";
 
@@ -29,12 +29,21 @@ const ibmMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const brandScript = Pacifico({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-brand-script",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Sentinel : Autonomous Nonce Gap Watchdog on Base L2",
   description:
     "Institutional autonomous nonce gap detector and resolver protecting high-frequency market makers and trading agents on Base L2.",
   icons: {
-    icon: "/assets/logo.jpg",
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
   },
 };
 
@@ -46,10 +55,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cinzel.variable} ${fraunces.variable} ${ibmSans.variable} ${ibmMono.variable}`}
+      className={`${cinzel.variable} ${fraunces.variable} ${ibmSans.variable} ${ibmMono.variable} ${brandScript.variable}`}
     >
       <head>
-        <link rel="icon" type="image/jpeg" href="/assets/logo.jpg" />
+        <link rel="icon" type="image/png" href="/icon.png" />
       </head>
       <body className="bg-void text-marble font-sans antialiased min-h-screen selection:bg-aurum/20 selection:text-aurum-light">
         <Providers>{children}</Providers>

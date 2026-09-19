@@ -6,13 +6,131 @@ import Image from "next/image";
 import DappSettings from "@/components/dapp-settings";
 import "./dapp.css";
 
+export interface TxDetails {
+  nonce: number;
+  originalHash: string;
+  replacementHash?: string;
+  to: string;
+  valueEth: string;
+  originalGasGwei: string;
+  replacementGasGwei?: string;
+  bumpPct?: number;
+  cause?: string;
+  durationSec?: number;
+  status: "submitted" | "pending" | "gap" | "resubmitted" | "confirmed";
+  submittedTime: string;
+  confirmedTime?: string;
+  blockNumber?: number;
+}
+
 interface LedgerEntry {
   id: string;
   time: string;
   tag: "gap_detected" | "diagnosis" | "gap_resolved" | "circuit_breaker";
   text: string;
   extra?: string;
+  txDetails?: TxDetails;
 }
+
+const initialMockEntries: LedgerEntry[] = [
+  {
+    id: "init-1",
+    time: "12:34:18",
+    tag: "gap_resolved",
+    text: "0x8f2a9c1e… to 0x3d1c4b8f… (24% bump)",
+    extra: "success",
+    txDetails: {
+      nonce: 127,
+      originalHash: "0x8f2a9c1e7d4a5b6c3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d",
+      replacementHash: "0x3d1c4b8f9e0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c",
+      to: "0x388C818CA8B9251b393131C08a73683246A11274",
+      valueEth: "0.1500",
+      originalGasGwei: "0.0010",
+      replacementGasGwei: "0.00124",
+      bumpPct: 24,
+      cause: "underpriced: Priority fee sits well below current network conditions",
+      durationSec: 3.2,
+      status: "confirmed",
+      submittedTime: "12:34:14",
+      confirmedTime: "12:34:18",
+      blockNumber: 47023466,
+    },
+  },
+  {
+    id: "init-2",
+    time: "12:34:15",
+    tag: "diagnosis",
+    text: "underpriced: recommending a 24% bump (clamped)",
+    txDetails: {
+      nonce: 127,
+      originalHash: "0x8f2a9c1e7d4a5b6c3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d",
+      to: "0x388C818CA8B9251b393131C08a73683246A11274",
+      valueEth: "0.1500",
+      originalGasGwei: "0.0010",
+      bumpPct: 24,
+      cause: "underpriced: Priority fee sits well below current network conditions",
+      status: "resubmitted",
+      submittedTime: "12:34:14",
+    },
+  },
+  {
+    id: "init-3",
+    time: "12:34:14",
+    tag: "gap_detected",
+    text: "nonce 127 stalled behind queued transaction",
+    txDetails: {
+      nonce: 127,
+      originalHash: "0x8f2a9c1e7d4a5b6c3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d",
+      to: "0x388C818CA8B9251b393131C08a73683246A11274",
+      valueEth: "0.1500",
+      originalGasGwei: "0.0010",
+      cause: "underpriced: Priority fee sits well below current network conditions",
+      status: "gap",
+      submittedTime: "12:34:14",
+    },
+  },
+  {
+    id: "init-4",
+    time: "12:33:50",
+    tag: "gap_resolved",
+    text: "nonce 126 confirmed on schedule",
+    extra: "success",
+    txDetails: {
+      nonce: 126,
+      originalHash: "0x5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c",
+      to: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      valueEth: "0.0250",
+      originalGasGwei: "0.0012",
+      status: "confirmed",
+      submittedTime: "12:33:48",
+      confirmedTime: "12:33:50",
+      blockNumber: 47023464,
+    },
+  },
+  {
+    id: "init-5",
+    time: "12:33:12",
+    tag: "gap_resolved",
+    text: "0x1e49c7a2… to 0x7b5a8f3d… (18% bump)",
+    extra: "success",
+    txDetails: {
+      nonce: 125,
+      originalHash: "0x1e49c7a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0",
+      replacementHash: "0x7b5a8f3d2e1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a",
+      to: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+      valueEth: "0.5000",
+      originalGasGwei: "0.0009",
+      replacementGasGwei: "0.00106",
+      bumpPct: 18,
+      cause: "cache_desync: Pending-nonce cache briefly out of step with confirmed chain state",
+      durationSec: 2.8,
+      status: "confirmed",
+      submittedTime: "12:33:08",
+      confirmedTime: "12:33:12",
+      blockNumber: 47023458,
+    },
+  },
+];
 
 interface ToastItem {
   id: string;
@@ -68,13 +186,15 @@ export default function DappPage() {
   const [reqReadout, setReqReadout] = useState("requested -");
   const [clampReadout, setClampReadout] = useState("clamped -");
 
-  // Ledger state
-  const [allEntries, setAllEntries] = useState<LedgerEntry[]>([]);
+  // Ledger state & Feed controls
+  const [allEntries, setAllEntries] = useState<LedgerEntry[]>(initialMockEntries);
   const [activeLedgerTag, setActiveLedgerTag] = useState("all");
   const [ledgerSearch, setLedgerSearch] = useState("");
+  const [isFeedPaused, setIsFeedPaused] = useState(false);
+  const [selectedTx, setSelectedTx] = useState<TxDetails | null>(null);
 
-  // Toasts
-  const [toasts, setToasts] = useState<ToastItem[]>([]);
+  // Popping toast notification system disabled per user request
+  const pushToast = (_title?: string, _body?: string) => {};
 
   // Simulation playground state
   const [simRunning, setSimRunning] = useState(false);
@@ -91,7 +211,6 @@ export default function DappPage() {
   });
   const [simTxs, setSimTxs] = useState<SimTx[]>([]);
 
-
   // Utilities
   const shortAddr = (a: string) => a.slice(0, 6) + "…" + a.slice(-4);
   const timeNow = () => {
@@ -105,23 +224,63 @@ export default function DappPage() {
     for (let i = 0; i < 6; i++) s += c[Math.floor(Math.random() * c.length)];
     return s;
   };
+  const rndFullHash = () => {
+    const c = "abcdef0123456789";
+    let s = "0x";
+    for (let i = 0; i < 64; i++) s += c[Math.floor(Math.random() * c.length)];
+    return s;
+  };
   const pctToLeft = (pct: number) => {
     const c = Math.max(10, Math.min(50, pct));
     return `${((c - 10) / (50 - 10)) * 100}%`;
   };
 
-  const pushToast = (title: string, body: string) => {
-    const id = `${Date.now()}-${Math.random()}`;
-    setToasts((prev) => [...prev, { id, title, body }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
+  const copyToClipboard = (text: string, label: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      pushToast("Copied to Clipboard", `${label} copied: ${text.slice(0, 10)}…`);
+    }
+  };
+
+  const exportCsv = () => {
+    const headers = [
+      "Timestamp",
+      "Tag",
+      "EventDescription",
+      "Nonce",
+      "OriginalHash",
+      "ReplacementHash",
+      "BumpPct",
+      "Status",
+      "BlockNumber",
+    ];
+    const rows = allEntries.map((e) => [
+      e.time,
+      e.tag,
+      `"${e.text.replace(/"/g, '""')}"`,
+      e.txDetails?.nonce ?? "",
+      e.txDetails?.originalHash ?? "",
+      e.txDetails?.replacementHash ?? "",
+      e.txDetails?.bumpPct ? `${e.txDetails.bumpPct}%` : "",
+      e.txDetails?.status ?? e.extra ?? "",
+      e.txDetails?.blockNumber ?? "",
+    ]);
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sentinel-ledger-events.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    pushToast("CSV Exported", `Saved ${allEntries.length} ledger events to CSV.`);
   };
 
   const addLedgerRow = (
     tag: "gap_detected" | "diagnosis" | "gap_resolved" | "circuit_breaker",
     text: string,
-    extra = ""
+    extra = "",
+    txDetails?: TxDetails
   ) => {
     const entry: LedgerEntry = {
       id: `${Date.now()}-${Math.random()}`,
@@ -129,6 +288,7 @@ export default function DappPage() {
       tag,
       text,
       extra,
+      txDetails,
     };
     setAllEntries((prev) => [entry, ...prev.slice(0, 199)]);
 
@@ -292,6 +452,10 @@ export default function DappPage() {
     ];
 
     const runGapCycle = () => {
+      if (isFeedPaused) return;
+      const origHash = rndFullHash();
+      const replHash = rndFullHash();
+
       setPending((prev) => {
         const nextPending = prev + 1;
         setFlashPending(true);
@@ -303,9 +467,19 @@ export default function DappPage() {
         const gapNum = currLatest;
         setHasGap(true);
         setGapNonce(gapNum);
-        addLedgerRow("gap_detected", `nonce ${gapNum} stalled behind queued transaction`);
+        const subTime = timeNow();
+        addLedgerRow("gap_detected", `nonce ${gapNum} stalled behind queued transaction`, "", {
+          nonce: gapNum,
+          originalHash: origHash,
+          to: "0x388C818CA8B9251b393131C08a73683246A11274",
+          valueEth: "0.1500",
+          originalGasGwei: "0.0010",
+          status: "gap",
+          submittedTime: subTime,
+        });
 
         setTimeout(() => {
+          if (isFeedPaused) return;
           const c = categories[Math.floor(Math.random() * categories.length)];
           const requested = Math.round(15 + Math.random() * 45);
           const clamped = Math.max(10, Math.min(50, requested));
@@ -319,21 +493,50 @@ export default function DappPage() {
 
           addLedgerRow(
             "diagnosis",
-            `${c.cat}: recommending a ${requested}% bump${requested !== clamped ? ` (clamped to ${clamped}%)` : ""}`
+            `${c.cat}: recommending a ${requested}% bump${requested !== clamped ? ` (clamped to ${clamped}%)` : ""}`,
+            "",
+            {
+              nonce: gapNum,
+              originalHash: origHash,
+              to: "0x388C818CA8B9251b393131C08a73683246A11274",
+              valueEth: "0.1500",
+              originalGasGwei: "0.0010",
+              bumpPct: clamped,
+              cause: `${c.cat}: ${c.text}`,
+              status: "resubmitted",
+              submittedTime: subTime,
+            }
           );
 
           setTimeout(() => {
+            if (isFeedPaused) return;
             const willFail = Math.random() < 0.1;
             if (willFail) {
               setFailuresInWindow((f) => Math.min(10, f + 1));
               addLedgerRow("gap_detected", `resubmission failed for nonce ${gapNum}`, "retrying");
               setTimeout(() => {
+                if (isFeedPaused) return;
                 setLatest((l) => l + 1);
                 setFlashLatest(true);
                 setTimeout(() => setFlashLatest(false), 500);
                 setHasGap(false);
                 setGapNonce(null);
-                addLedgerRow("gap_resolved", `0x${rndHash()}… to 0x${rndHash()}…`, "success");
+                addLedgerRow("gap_resolved", `0x${origHash.slice(2, 8)}… to 0x${replHash.slice(2, 8)}…`, "success", {
+                  nonce: gapNum,
+                  originalHash: origHash,
+                  replacementHash: replHash,
+                  to: "0x388C818CA8B9251b393131C08a73683246A11274",
+                  valueEth: "0.1500",
+                  originalGasGwei: "0.0010",
+                  replacementGasGwei: (0.001 * (1 + clamped / 100)).toFixed(5),
+                  bumpPct: clamped,
+                  cause: `${c.cat}: ${c.text}`,
+                  durationSec: 3.4,
+                  status: "confirmed",
+                  submittedTime: subTime,
+                  confirmedTime: timeNow(),
+                  blockNumber: currentBlock,
+                });
               }, 1400);
             } else {
               setLatest((l) => l + 1);
@@ -341,7 +544,22 @@ export default function DappPage() {
               setTimeout(() => setFlashLatest(false), 500);
               setHasGap(false);
               setGapNonce(null);
-              addLedgerRow("gap_resolved", `0x${rndHash()}… to 0x${rndHash()}…`, "success");
+              addLedgerRow("gap_resolved", `0x${origHash.slice(2, 8)}… to 0x${replHash.slice(2, 8)}…`, "success", {
+                nonce: gapNum,
+                originalHash: origHash,
+                replacementHash: replHash,
+                to: "0x388C818CA8B9251b393131C08a73683246A11274",
+                valueEth: "0.1500",
+                originalGasGwei: "0.0010",
+                replacementGasGwei: (0.001 * (1 + clamped / 100)).toFixed(5),
+                bumpPct: clamped,
+                cause: `${c.cat}: ${c.text}`,
+                durationSec: 3.4,
+                status: "confirmed",
+                submittedTime: subTime,
+                confirmedTime: timeNow(),
+                blockNumber: currentBlock,
+              });
             }
           }, 1600);
         }, 1000);
@@ -351,6 +569,9 @@ export default function DappPage() {
     };
 
     const ordinaryTick = () => {
+      if (isFeedPaused) return;
+      const ordHash = rndFullHash();
+      const subTime = timeNow();
       setPending((p) => {
         setFlashPending(true);
         setTimeout(() => setFlashPending(false), 500);
@@ -360,20 +581,32 @@ export default function DappPage() {
         const nextL = l + 1;
         setFlashLatest(true);
         setTimeout(() => setFlashLatest(false), 500);
-        addLedgerRow("gap_resolved", `nonce ${nextL} confirmed on schedule`, "success");
+        addLedgerRow("gap_resolved", `nonce ${nextL} confirmed on schedule`, "success", {
+          nonce: nextL,
+          originalHash: ordHash,
+          to: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+          valueEth: "0.0500",
+          originalGasGwei: "0.0012",
+          status: "confirmed",
+          submittedTime: subTime,
+          confirmedTime: timeNow(),
+          blockNumber: currentBlock,
+        });
         return nextL;
       });
     };
 
     const loop = () => {
-      if (Math.random() < 0.35) runGapCycle();
-      else ordinaryTick();
+      if (!isFeedPaused) {
+        if (Math.random() < 0.35) runGapCycle();
+        else ordinaryTick();
+      }
       timeoutId = setTimeout(loop, 3200 + Math.random() * 2600);
     };
 
     timeoutId = setTimeout(loop, 2500);
     return () => clearTimeout(timeoutId);
-  }, [connected]);
+  }, [connected, isFeedPaused, currentBlock]);
 
   // Circuit breaker watcher
   useEffect(() => {
@@ -547,14 +780,14 @@ export default function DappPage() {
           {/* Clickable Concept B logo & dramatic Cinzel brand title returning to "/" */}
           <Link href="/" className="brand" title="Return to Sentinel Website">
             <Image
-              src="/assets/logo.jpg"
+              src="/assets/logo-transparent.png"
               alt="Sentinel"
               width={32}
               height={32}
-              className="seal-img"
+              className="seal-img object-contain"
               priority
             />
-            <span className="brand-title">SENTINEL</span>
+            <span className="font-script text-2xl text-white tracking-wide">Sentinel</span>
           </Link>
 
           {/* Nav Group */}
@@ -841,17 +1074,57 @@ export default function DappPage() {
 
               {/* Live Streaming Ledger */}
               <div className="ledger-panel">
-                <div className="panel-eyebrow">
-                  <span className="pulse-dot" />
-                  Ledger: streaming
+                <div className="flex items-center justify-between panel-eyebrow">
+                  <div className="flex items-center gap-2">
+                    <span className={isFeedPaused ? "w-2 h-2 rounded-full bg-amber-400" : "pulse-dot"} />
+                    <span>Ledger: {isFeedPaused ? "Frozen" : "Streaming"}</span>
+                    {isFeedPaused && (
+                      <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">
+                        PAUSED
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setIsFeedPaused(!isFeedPaused)}
+                    className="text-xs px-2.5 py-1 rounded-lg border border-[#C9A961]/40 hover:border-[#C9A961] text-[#C9A961] bg-[#101216] transition-all font-mono"
+                    title={isFeedPaused ? "Resume live transaction stream" : "Freeze live feed to inspect rows"}
+                  >
+                    {isFeedPaused ? "Resume Feed" : "Pause Feed"}
+                  </button>
                 </div>
                 <div className="ledger-feed">
                   {allEntries.slice(0, 12).map((e) => (
-                    <div key={e.id} className="ledger-row">
+                    <div
+                      key={e.id}
+                      className={`ledger-row cursor-pointer transition-colors hover:bg-[#C9A961]/10 ${
+                        selectedTx?.originalHash === e.txDetails?.originalHash ? "bg-[#C9A961]/15" : ""
+                      }`}
+                      onClick={() => {
+                        if (e.txDetails) {
+                          setSelectedTx(e.txDetails);
+                        } else {
+                          setSelectedTx({
+                            nonce: latest,
+                            originalHash: rndFullHash(),
+                            to: walletAddress,
+                            valueEth: "0.0500",
+                            originalGasGwei: "0.0010",
+                            cause: e.text,
+                            status: "confirmed",
+                            submittedTime: e.time,
+                            confirmedTime: e.time,
+                            blockNumber: currentBlock,
+                          });
+                        }
+                      }}
+                      title="Click to inspect full transaction lifecycle"
+                    >
                       <span className="time">{e.time}</span>
                       <span className={`tag ${e.tag}`}>{e.tag}</span>
-                      <span>{e.text}</span>
-                      <span>{e.extra || ""}</span>
+                      <span className="truncate">{e.text}</span>
+                      <span className="text-[#C9A961] text-[11px] font-mono underline hover:text-[#E0BE70]">
+                        Inspect
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -861,42 +1134,87 @@ export default function DappPage() {
 
           {/* VIEW: LEDGER */}
           {currentView === "ledger" && (
-            <div className="view">
-              <div className="ledger-tabs">
-                {["all", "gap_detected", "diagnosis", "gap_resolved", "circuit_breaker"].map(
-                  (tag) => (
-                    <button
-                      key={tag}
-                      className={`ledger-tab ${activeLedgerTag === tag ? "active" : ""}`}
-                      onClick={() => setActiveLedgerTag(tag)}
-                    >
-                      {tag === "all"
-                        ? "All"
-                        : tag === "gap_detected"
-                        ? "Detected"
-                        : tag === "diagnosis"
-                        ? "Diagnosis"
-                        : tag === "gap_resolved"
-                        ? "Resolved"
-                        : "Breaker"}
-                    </button>
-                  )
-                )}
+            <div className="view space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-[#101216] border border-[#C9A961]/20">
+                <div className="ledger-tabs !mb-0">
+                  {["all", "gap_detected", "diagnosis", "gap_resolved", "circuit_breaker"].map(
+                    (tag) => (
+                      <button
+                        key={tag}
+                        className={`ledger-tab ${activeLedgerTag === tag ? "active" : ""}`}
+                        onClick={() => setActiveLedgerTag(tag)}
+                      >
+                        {tag === "all"
+                          ? "All"
+                          : tag === "gap_detected"
+                          ? "Detected"
+                          : tag === "diagnosis"
+                          ? "Diagnosis"
+                          : tag === "gap_resolved"
+                          ? "Resolved"
+                          : "Breaker"}
+                      </button>
+                    )
+                  )}
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <button
+                    onClick={() => setIsFeedPaused(!isFeedPaused)}
+                    className="text-xs px-3 py-1.5 rounded-lg border border-[#C9A961]/40 hover:border-[#C9A961] text-[#C9A961] bg-[#111318] transition-all font-mono"
+                  >
+                    {isFeedPaused ? "Resume Feed" : "Pause Feed"}
+                  </button>
+                  <button
+                    onClick={exportCsv}
+                    className="text-xs px-3 py-1.5 rounded-lg border border-[#C9A961]/40 hover:border-[#C9A961] text-[#C9A961] bg-[#111318] transition-all font-mono"
+                    title="Export ledger events to CSV"
+                  >
+                    Export CSV
+                  </button>
+                </div>
               </div>
+
               <input
                 className="ledger-search"
                 placeholder="Filter by nonce, hash, or wallet…"
                 value={ledgerSearch}
                 onChange={(e) => setLedgerSearch(e.target.value)}
               />
+
               <div className="ledger-table">
                 <div className="ledger-feed">
                   {filteredFullEntries.map((e) => (
-                    <div key={e.id} className="ledger-row">
+                    <div
+                      key={e.id}
+                      className={`ledger-row cursor-pointer transition-colors hover:bg-[#C9A961]/10 ${
+                        selectedTx?.originalHash === e.txDetails?.originalHash ? "bg-[#C9A961]/15" : ""
+                      }`}
+                      onClick={() => {
+                        if (e.txDetails) {
+                          setSelectedTx(e.txDetails);
+                        } else {
+                          setSelectedTx({
+                            nonce: latest,
+                            originalHash: rndFullHash(),
+                            to: walletAddress,
+                            valueEth: "0.0500",
+                            originalGasGwei: "0.0010",
+                            cause: e.text,
+                            status: "confirmed",
+                            submittedTime: e.time,
+                            confirmedTime: e.time,
+                            blockNumber: currentBlock,
+                          });
+                        }
+                      }}
+                      title="Click to inspect full transaction lifecycle"
+                    >
                       <span className="time">{e.time}</span>
                       <span className={`tag ${e.tag}`}>{e.tag}</span>
-                      <span>{e.text}</span>
-                      <span>{e.extra || ""}</span>
+                      <span className="truncate">{e.text}</span>
+                      <span className="text-[#C9A961] text-[11px] font-mono underline hover:text-[#E0BE70]">
+                        Inspect
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -972,7 +1290,31 @@ export default function DappPage() {
                     <span>Gas price</span>
                   </div>
                   {simTxs.map((tx) => (
-                    <div key={tx.nonce} className="sim-tx-row">
+                    <div
+                      key={tx.nonce}
+                      className="sim-tx-row cursor-pointer hover:bg-[#C9A961]/10 transition-colors"
+                      title="Click to inspect this simulated transaction"
+                      onClick={() =>
+                        setSelectedTx({
+                          nonce: tx.nonce,
+                          originalHash: `0x${tx.hash}0000000000000000000000000000000000000000000000000000000000`,
+                          replacementHash:
+                            tx.status.label === "resubmitted" || tx.status.label === "confirmed"
+                              ? rndFullHash()
+                              : undefined,
+                          to: "0x388C818CA8B9251b393131C08a73683246A11274",
+                          valueEth: "0.1000",
+                          originalGasGwei: tx.gas.split(" ")[0] || "0.0010",
+                          replacementGasGwei: "0.00124",
+                          bumpPct: 24,
+                          cause: tx.status.label === "gap" ? "underpriced: priority fee below required base fee" : undefined,
+                          status: (tx.status.cls === "confirmed" ? "confirmed" : tx.status.cls === "resubmitted" ? "resubmitted" : tx.status.cls === "gap" ? "gap" : "pending") as any,
+                          submittedTime: timeNow(),
+                          confirmedTime: tx.status.label === "confirmed" ? timeNow() : undefined,
+                          blockNumber: currentBlock,
+                        })
+                      }
+                    >
                       <span>{tx.nonce}</span>
                       <span>0x{tx.hash}…</span>
                       <span className={`tx-status ${tx.status.cls}`}>
@@ -1090,16 +1432,233 @@ export default function DappPage() {
         </div>
       </div>
 
-      {/* TOAST STACK */}
-      <div className="toast-stack">
-        {toasts.map((t) => (
-          <div key={t.id} className="toast">
-            <strong>{t.title}</strong>
-            <br />
-            {t.body}
+      {/* TRANSACTION DETAIL INSPECTOR MODAL (J7, K1-K6) */}
+      {selectedTx && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setSelectedTx(null)}
+        >
+          <div
+            className="bg-[#101216] border border-[#C9A961]/40 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5 text-left relative max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <span className="px-2.5 py-1 rounded-full text-xs font-mono font-semibold bg-[#C9A961]/15 text-[#C9A961] border border-[#C9A961]/40">
+                  Nonce #{selectedTx.nonce}
+                </span>
+                <h3 className="text-base font-semibold text-[#F5F3EF] tracking-wide">
+                  Transaction Inspector
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedTx(null)}
+                className="text-[#686660] hover:text-[#F5F3EF] px-2.5 py-1 rounded-lg hover:bg-white/5 transition-colors text-xs font-mono border border-transparent hover:border-white/10"
+              >
+                Close [✕]
+              </button>
+            </div>
+
+            {/* Lifecycle Timeline (K2) */}
+            <div>
+              <div className="text-xs uppercase tracking-wider text-[#686660] font-mono mb-2.5">
+                Lifecycle Progression
+              </div>
+              <div className="grid grid-cols-5 gap-1.5 p-3 rounded-xl bg-black/40 border border-white/5 text-center font-mono text-[11px]">
+                <div className="flex flex-col items-center gap-1">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                  <span className="text-emerald-400 font-medium">Submitted</span>
+                  <span className="text-[10px] text-[#686660]">{selectedTx.submittedTime}</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                  <span className="text-emerald-400 font-medium">Pending</span>
+                  <span className="text-[10px] text-[#686660]">Mempool</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      selectedTx.status === "gap" || selectedTx.status === "resubmitted" || selectedTx.status === "confirmed"
+                        ? selectedTx.cause ? "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]" : "bg-emerald-400"
+                        : "bg-white/20"
+                    }`}
+                  />
+                  <span className={selectedTx.cause ? "text-amber-400 font-medium" : "text-emerald-400 font-medium"}>
+                    {selectedTx.cause ? "Gap Stalled" : "Sequence Ok"}
+                  </span>
+                  <span className="text-[10px] text-[#686660]">
+                    {selectedTx.cause ? "Diagnosed" : "Normal"}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      selectedTx.replacementHash
+                        ? "bg-[#C9A961] shadow-[0_0_8px_rgba(201,169,97,0.5)]"
+                        : "bg-white/20"
+                    }`}
+                  />
+                  <span className={selectedTx.replacementHash ? "text-[#C9A961] font-medium" : "text-[#686660]"}>
+                    Resubmitted
+                  </span>
+                  <span className="text-[10px] text-[#686660]">
+                    {selectedTx.bumpPct ? `+${selectedTx.bumpPct}% bump` : "Direct"}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      selectedTx.status === "confirmed"
+                        ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
+                        : "bg-white/20"
+                    }`}
+                  />
+                  <span className={selectedTx.status === "confirmed" ? "text-emerald-400 font-medium" : "text-[#686660]"}>
+                    Confirmed
+                  </span>
+                  <span className="text-[10px] text-[#686660]">
+                    {selectedTx.confirmedTime || (selectedTx.status === "confirmed" ? "Finalized" : "Pending")}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Two Column Details: Original Tx (K1) vs Resolution Details (K3, K4) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Original Transaction Details */}
+              <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-2.5 font-mono text-xs">
+                <div className="text-[11px] uppercase tracking-wider text-[#C9A961] font-semibold">
+                  Original Transaction
+                </div>
+                <div>
+                  <div className="text-[#686660] text-[10px]">Transaction Hash</div>
+                  <div className="flex items-center justify-between gap-1 text-[#F5F3EF]">
+                    <span className="truncate">{selectedTx.originalHash}</span>
+                    <button
+                      onClick={() => copyToClipboard(selectedTx.originalHash, "Original Hash")}
+                      className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[#C9A961] transition-colors"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[#686660] text-[10px]">Recipient (To)</div>
+                  <div className="flex items-center justify-between gap-1 text-[#F5F3EF]">
+                    <span className="truncate">{selectedTx.to}</span>
+                    <button
+                      onClick={() => copyToClipboard(selectedTx.to, "Recipient Address")}
+                      className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[#C9A961] transition-colors"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <div className="text-[#686660] text-[10px]">Value</div>
+                    <div className="text-[#F5F3EF]">{selectedTx.valueEth} ETH</div>
+                  </div>
+                  <div>
+                    <div className="text-[#686660] text-[10px]">Initial Gas Price</div>
+                    <div className="text-amber-400">{selectedTx.originalGasGwei} Gwei</div>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[#686660] text-[10px]">Submitted At</div>
+                  <div className="text-[#F5F3EF]">{selectedTx.submittedTime}</div>
+                </div>
+              </div>
+
+              {/* Replacement & Autonomous Resolution */}
+              <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-2.5 font-mono text-xs">
+                <div className="text-[11px] uppercase tracking-wider text-[#C9A961] font-semibold">
+                  Autonomous Resolution
+                </div>
+                {selectedTx.replacementHash ? (
+                  <>
+                    <div>
+                      <div className="text-[#686660] text-[10px]">Replacement Hash</div>
+                      <div className="flex items-center justify-between gap-1 text-[#F5F3EF]">
+                        <span className="truncate text-emerald-400">{selectedTx.replacementHash}</span>
+                        <button
+                          onClick={() => copyToClipboard(selectedTx.replacementHash!, "Replacement Hash")}
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[#C9A961] transition-colors"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <div className="text-[#686660] text-[10px]">New Gas Price</div>
+                        <div className="text-emerald-400 font-semibold">{selectedTx.replacementGasGwei || "0.00124"} Gwei</div>
+                      </div>
+                      <div>
+                        <div className="text-[#686660] text-[10px]">Gas Bump (Clamped)</div>
+                        <div className="text-[#C9A961] font-semibold">+{selectedTx.bumpPct || 24}%</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <div className="text-[#686660] text-[10px]">Resolution Latency</div>
+                        <div className="text-[#F5F3EF]">{selectedTx.durationSec ? `${selectedTx.durationSec}s` : "3.2s"}</div>
+                      </div>
+                      <div>
+                        <div className="text-[#686660] text-[10px]">Block Mined</div>
+                        <div className="text-[#F5F3EF]">#{selectedTx.blockNumber || currentBlock}</div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[#686660] text-[10px]">Diagnosed Root Cause</div>
+                      <div className="text-amber-300/90 text-[11px] leading-tight mt-0.5">
+                        {selectedTx.cause || "underpriced: Priority fee below required base fee"}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="py-6 text-center text-[#686660]">
+                    <div>No replacement required.</div>
+                    <div className="text-[11px] mt-1 text-[#F5F3EF]">Confirmed sequentially on schedule.</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Explorer Links & Modal Actions (K5, K6) */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10 text-xs font-mono">
+              <div className="flex flex-wrap items-center gap-2">
+                <a
+                  href={`https://sepolia.basescan.org/tx/${selectedTx.originalHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[#C9A961] border border-[#C9A961]/30 transition-all inline-flex items-center gap-1.5"
+                >
+                  BaseScan (Original)
+                </a>
+                {selectedTx.replacementHash && (
+                  <a
+                    href={`https://sepolia.basescan.org/tx/${selectedTx.replacementHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-400 border border-emerald-500/40 transition-all inline-flex items-center gap-1.5"
+                  >
+                    BaseScan (Replacement)
+                  </a>
+                )}
+              </div>
+              <button
+                onClick={() => setSelectedTx(null)}
+                className="px-4 py-1.5 rounded-lg bg-[#C9A961] hover:bg-[#E0BE70] text-[#08090C] font-semibold transition-all"
+              >
+                Close Inspector
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
+
     </div>
   );
 }

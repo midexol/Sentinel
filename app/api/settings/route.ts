@@ -52,7 +52,7 @@ const defaultSettings = {
   audit: {
     logLevel: "info",
     logFormat: "jsonl",
-    logFilePath: "./nonce-sentinel.log",
+    logFilePath: "./sentinel.log",
     maxLogSizeMb: 100,
     logRetentionDays: 7,
     logRotation: true,

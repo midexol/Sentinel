@@ -44,6 +44,7 @@ const config: Config = {
         fraunces: ["Fraunces", "Georgia", "serif"],
         sans: ["IBM Plex Sans", "sans-serif"],
         mono: ["IBM Plex Mono", "monospace"],
+        script: ["var(--font-brand-script)", "cursive", "sans-serif"],
       },
     },
   },
