@@ -3,13 +3,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Terminal, Copy, Check, Play, Cpu, ShieldCheck, Radio, Activity } from "lucide-react";
+import { Terminal, Copy, Check, Play, Cpu, ShieldCheck, Radio, Activity , Menu, X } from "lucide-react";
 
 export default function LandingPage() {
   const [condensed, setCondensed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
   const [cliTab, setCliTab] = useState<"watch" | "scan" | "compile" | "demo">("watch");
   const [copiedCli, setCopiedCli] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Scroll handler for condensing header
@@ -184,20 +185,20 @@ export default function LandingPage() {
       {/* Usance Dynamic Condensing Header Island */}
       <header
         id="site-header"
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 pointer-events-none ${
-          condensed ? "py-2.5" : "py-4"
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          condensed ? "py-2 px-3 sm:px-4" : "py-3 sm:py-4 px-4 sm:px-6"
         }`}
       >
         <div
-          className={`pointer-events-auto mx-auto flex items-center gap-4 py-2 pl-5 pr-2 rounded-full transition-all duration-300 ${
+          className={`mx-auto flex items-center justify-between gap-3 py-2 px-3.5 sm:px-5 rounded-full transition-all duration-300 ${
             condensed
-              ? "max-w-[820px] w-[calc(100%-32px)] bg-[#0E1016]/95 backdrop-blur-xl border border-white/10 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.85)]"
-              : "max-w-[1200px] w-[calc(100%-48px)] bg-transparent border border-transparent"
+              ? "max-w-[860px] w-full bg-[#000000]/90 backdrop-blur-xl border border-aurum/25 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.85)]"
+              : "max-w-[1200px] w-full bg-[#000000]/60 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border border-white/[0.08] sm:border-transparent"
           }`}
         >
           {/* Clickable Brand Logo & Title */}
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="relative w-7 h-7 rounded-full overflow-hidden border border-[#C9A961]/40  group-hover:scale-110 transition-transform duration-300">
+            <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-[#C9A961]/40 group-hover:border-[#C9A961] transition-colors shrink-0">
               <Image
                 src="/assets/logo-transparent.png"
                 alt="Sentinel Logo"
@@ -206,77 +207,126 @@ export default function LandingPage() {
                 priority
               />
             </div>
-            <span className="font-script text-xl text-white tracking-wide">
+            <span className="font-script text-xl sm:text-2xl text-white tracking-wide">
               Sentinel
             </span>
           </Link>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 ml-auto" aria-label="Site">
+          {/* Navigation Links (Desktop) */}
+          <nav className="hidden md:flex items-center gap-1 ml-auto" aria-label="Site Navigation">
             <Link
               href="/assets"
-              className="px-3.5 py-1.5 rounded-full text-[13.5px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
+              className="px-3 py-1.5 rounded-full text-[13px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
             >
               Pipelines
             </Link>
             <a
               href="#cli"
-              className="px-3.5 py-1.5 rounded-full text-[13.5px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
+              className="px-3 py-1.5 rounded-full text-[13px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
             >
               CLI Daemon
             </a>
             <a
               href="#integration"
-              className="px-3.5 py-1.5 rounded-full text-[13.5px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
+              className="px-3 py-1.5 rounded-full text-[13px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
             >
               Bot SDK
             </a>
             <Link
               href="/simulate"
-              className="px-3.5 py-1.5 rounded-full text-[13.5px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
+              className="px-3 py-1.5 rounded-full text-[13px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
             >
               Simulation
             </Link>
             <Link
               href="/security"
-              className="px-3.5 py-1.5 rounded-full text-[13.5px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
+              className="px-3 py-1.5 rounded-full text-[13px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
             >
               Security
             </Link>
             <Link
               href="/status"
-              className="px-3.5 py-1.5 rounded-full text-[13.5px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
+              className="px-3 py-1.5 rounded-full text-[13px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
             >
               Status
             </Link>
-            <a
-              href="https://docs.basescan.org"
-              target="_blank"
-              rel="noreferrer"
-              className="px-3.5 py-1.5 rounded-full text-[13.5px] text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08] transition-all"
-            >
-              Docs
-            </a>
           </nav>
 
-          {/* Launch Observatory CTA */}
-          <Link
-            href="/dapp"
-            className={`inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all shrink-0 ${
-              condensed
-                ? "bg-[#F5F3EF] text-[#08090C] font-semibold hover:bg-white hover:border-white/30 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
-                : "bg-[#090A0D] text-[#F5F3EF] border border-white/[0.14] hover:bg-[#20242D] hover:border-white/30"
-            }`}
-          >
-            <span>Launch Observatory</span>
-          </Link>
+          {/* Right Action & Mobile Toggle */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Link
+              href="/dapp"
+              className="inline-flex items-center px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs font-mono font-medium transition-all bg-gradient-to-b from-[#ECD79B] to-[#C9A961] hover:from-[#F3E5AB] hover:to-[#D4B574] text-[#07080B] shadow-md hover:-translate-y-0.5 active:translate-y-0 shrink-0"
+            >
+              <span className="sm:hidden">Observatory</span>
+              <span className="hidden sm:inline">Launch Observatory</span>
+            </Link>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden w-8 h-8 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 flex items-center justify-center text-[#C2BEB4] hover:text-white transition-colors"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden mx-auto mt-2 max-w-[calc(100%-24px)] bg-[#07080A]/95 backdrop-blur-2xl border border-aurum/30 rounded-2xl p-4 shadow-2xl space-y-2.5">
+            <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+              <Link
+                href="/assets"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-[#C2BEB4] hover:text-white transition-colors"
+              >
+                Pipelines
+              </Link>
+              <a
+                href="#cli"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-[#C2BEB4] hover:text-white transition-colors"
+              >
+                CLI Daemon
+              </a>
+              <Link
+                href="/simulate"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-[#C2BEB4] hover:text-white transition-colors"
+              >
+                Simulation
+              </Link>
+              <Link
+                href="/security"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-[#C2BEB4] hover:text-white transition-colors"
+              >
+                Security
+              </Link>
+              <Link
+                href="/status"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-[#C2BEB4] hover:text-white transition-colors"
+              >
+                Status
+              </Link>
+              <a
+                href="#integration"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-[#C2BEB4] hover:text-white transition-colors"
+              >
+                Bot SDK
+              </a>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-6 pt-32 pb-20 space-y-12">
         <div className="text-center max-w-4xl mx-auto space-y-6">
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-normal tracking-tight leading-[1.08] text-white">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-normal tracking-tight leading-[1.08] text-white">
             The Nonce Gap Watchdog for Autonomous Agents on Base.
           </h1>
 
@@ -302,7 +352,7 @@ export default function LandingPage() {
 
         {/* Grand Hero Visual Showcase */}
         <div className="relative rounded-[28px] overflow-hidden border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors bg-[#07080A] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.85)] max-w-5xl mx-auto">
-          <div className="aspect-[16/9] sm:aspect-[21/9] relative">
+          <div className="aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] relative">
             <Image
               src="/assets/david_cyborg.jpg"
               alt="Autonomous Sentinel Intelligence"
@@ -314,7 +364,7 @@ export default function LandingPage() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#000000]/80 via-transparent to-[#000000]/80" />
 
             {/* Floating Telemetry Badges */}
-            <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-end justify-between gap-4">
+            <div className="absolute bottom-3 left-3 right-3 sm:bottom-6 sm:left-6 sm:right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2.5 sm:gap-4">
               <div className="space-y-1">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-[#C9A961]">
                   Autonomous Guardian
