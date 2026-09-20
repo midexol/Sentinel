@@ -35,16 +35,16 @@ export default function SiteHeader() {
       <div
         className={`transition-all duration-500 ease-out flex items-center justify-between ${
           scrolled
-            ? "w-full max-w-4xl bg-void-2/80 backdrop-blur-xl border border-aurum/25 rounded-full px-5 py-2.5 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.85)]"
+            ? "w-full max-w-4xl bg-[#000000]/85 backdrop-blur-xl border border-aurum/25 rounded-full px-5 py-2.5 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.85)]"
             : "w-full max-w-7xl bg-transparent border-b border-white/[0.06] pb-4"
         }`}
       >
         {/* Clickable Brand Logo & Name */}
         <Link
           href="/"
-          className="flex items-center gap-3 group transition-transform duration-300 hover:scale-[1.01]"
+          className="flex items-center gap-3 group transition-transform duration-300 "
         >
-          <div className="relative w-8 h-8 rounded-full overflow-hidden border border-aurum/40 shadow-[0_0_12px_rgba(201,169,97,0.25)] group-hover:border-aurum transition-colors">
+          <div className="relative w-8 h-8 rounded-full overflow-hidden border border-aurum/40  group-hover:border-aurum transition-colors">
             <Image
               src="/assets/logo-transparent.png"
               alt="Sentinel Logo"
@@ -78,13 +78,13 @@ export default function SiteHeader() {
           })}
         </nav>
 
-        {/* Action Button: Launch dApp */}
+        {/* Action Button: Launch Observatory */}
         <div className="flex items-center gap-3">
           <Link
             href="/dapp"
-            className="flex items-center text-xs uppercase tracking-[0.16em] font-medium px-4 py-2 rounded-full transition-all duration-300 bg-gradient-to-r from-aurum to-aurum-light text-void font-semibold shadow-[0_4px_18px_rgba(201,169,97,0.35)] hover:shadow-[0_4px_24px_rgba(201,169,97,0.55)] hover:scale-[1.02] active:scale-[0.98]"
+            className="flex items-center text-xs uppercase tracking-[0.16em] font-medium px-4 py-2 rounded-full transition-all duration-300 bg-gradient-to-b from-[#ECD79B] to-[#C9A961] hover:from-[#F3E5AB] hover:to-[#D4B574] text-[#07080B] font-medium shadow-md transition-all"
           >
-            <span>Launch dApp</span>
+            <span>Launch Observatory</span>
           </Link>
         </div>
       </div>

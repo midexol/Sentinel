@@ -32,7 +32,7 @@ export default function SimulatePage() {
 
         {/* Failure Scenarios */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-          <div className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 transition-all shadow-sm space-y-3">
+          <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 transition-all shadow-sm space-y-3">
             <div className="flex items-center gap-3 text-[#C9A961]">
               <Zap className="w-5 h-5" />
               <h3 className="font-serif text-lg font-medium text-white">Scenario A: Flash Surge</h3>
@@ -42,7 +42,7 @@ export default function SimulatePage() {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 transition-all shadow-sm space-y-3">
+          <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 transition-all shadow-sm space-y-3">
             <div className="flex items-center gap-3 text-[#C9A961]">
               <ShieldAlert className="w-5 h-5" />
               <h3 className="font-serif text-lg font-medium text-white">Scenario B: RPC Node Eviction</h3>
@@ -52,7 +52,7 @@ export default function SimulatePage() {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 transition-all shadow-sm space-y-3">
+          <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 transition-all shadow-sm space-y-3">
             <div className="flex items-center gap-3 text-[#C9A961]">
               <Cpu className="w-5 h-5" />
               <h3 className="font-serif text-lg font-medium text-white">Scenario C: Sequencer Reorg</h3>

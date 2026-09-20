@@ -62,11 +62,11 @@ export default function AssetsPage() {
           {keystores.map((k) => (
             <div
               key={k.address}
-              className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 shadow-sm flex flex-col justify-between transition-all group"
+              className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 shadow-sm flex flex-col justify-between transition-all group"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase bg-[#8FAF92]/10 text-[#8FAF92] border border-[#8FAF92]/25">
                     {k.status}
                   </span>
                   <a

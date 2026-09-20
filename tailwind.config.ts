@@ -10,10 +10,10 @@ const config: Config = {
     extend: {
       colors: {
         void: {
-          DEFAULT: "#08090C",
-          2: "#111318",
-          3: "#181B22",
-          surface: "rgba(17, 19, 24, 0.72)",
+          DEFAULT: "#000000",
+          2: "#07080A",
+          3: "#0D0E12",
+          surface: "rgba(7, 8, 10, 0.85)",
         },
         aurum: {
           DEFAULT: "#C9A961",

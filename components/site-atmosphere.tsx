@@ -50,9 +50,9 @@ export default function SiteAtmosphere() {
     }));
 
     const waves = [
-      { yFrac: 0.3, amp: 24, freq: 0.002, speed: 0.00015, color: [201, 169, 97], alpha: 0.06 },
-      { yFrac: 0.55, amp: 34, freq: 0.0016, speed: 0.00012, color: [74, 122, 153], alpha: 0.05 },
-      { yFrac: 0.8, amp: 28, freq: 0.0022, speed: 0.00018, color: [201, 169, 97], alpha: 0.06 },
+      { yFrac: 0.3, amp: 24, freq: 0.002, speed: 0.00015, color: [201, 169, 97], alpha: 0.04 },
+      { yFrac: 0.55, amp: 30, freq: 0.0016, speed: 0.00012, color: [175, 162, 145], alpha: 0.035 },
+      { yFrac: 0.8, amp: 28, freq: 0.0022, speed: 0.00018, color: [201, 169, 97], alpha: 0.04 },
     ];
 
     let t = 0;
@@ -136,10 +136,10 @@ export default function SiteAtmosphere() {
       <div
         className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-500"
         style={{
-          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(201, 169, 97, 0.04), transparent 80%)`,
+          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(201, 169, 97, 0.03), transparent 80%)`,
         }}
       />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(201,169,97,0.10),rgba(8,9,12,0))] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(201,169,97,0.04),rgba(0,0,0,0))] pointer-events-none z-0" />
     </>
   );
 }

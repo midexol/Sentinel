@@ -1008,8 +1008,8 @@ export default function DappPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[#686660]">Sync:</span>
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[11px]">
-                    <Radio className="w-3 h-3 text-emerald-400" />
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-[#8FAF92]/30 bg-[#8FAF92]/10 text-[#8FAF92] text-[11px]">
+                    <Radio className="w-3 h-3 text-[#8FAF92]" />
                     <span>Live SSE</span>
                   </div>
                 </div>
@@ -1036,7 +1036,7 @@ export default function DappPage() {
                     {hasGap ? (
                       <AlertTriangle className="w-3.5 h-3.5 text-ember shrink-0" />
                     ) : (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400/90 shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8FAF92] shrink-0" />
                     )}
                     <span>
                       {hasGap
@@ -1098,10 +1098,10 @@ export default function DappPage() {
               <div className="ledger-panel">
                 <div className="flex items-center justify-between panel-eyebrow">
                   <div className="flex items-center gap-2">
-                    <Activity className={`w-3.5 h-3.5 ${isFeedPaused ? "text-amber-400" : "text-[#C9A961]"}`} />
+                    <Activity className={`w-3.5 h-3.5 ${isFeedPaused ? "text-[#D4A359]" : "text-[#C9A961]"}`} />
                     <span>Ledger: {isFeedPaused ? "Frozen" : "Streaming"}</span>
                     {isFeedPaused && (
-                      <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">
+                      <span className="px-2 py-0.5 rounded text-[10px] bg-[#D4A359]/10 text-[#D4A359] border border-[#D4A359]/25 font-mono">
                         PAUSED
                       </span>
                     )}
@@ -1371,9 +1371,9 @@ export default function DappPage() {
                     href="/api/stream"
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 rounded-xl bg-[#08090C] border border-white/10 hover:border-[#C9A961]/40 text-emerald-400 transition-colors flex items-center gap-2"
+                    className="px-3.5 py-2 rounded-xl bg-[#08090C] border border-white/10 hover:border-[#C9A961]/40 text-[#8FAF92] transition-colors flex items-center gap-2"
                   >
-                    <Radio className="w-3.5 h-3.5 text-emerald-400" />
+                    <Radio className="w-3.5 h-3.5 text-[#8FAF92]" />
                     <span>Open SSE Telemetry Stream</span>
                   </a>
                 </div>
@@ -1384,7 +1384,7 @@ export default function DappPage() {
                 {/* Option A: In-Line Bot Interceptor */}
                 <div className="panel space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-[11px] font-semibold">
+                    <span className="px-2.5 py-0.5 rounded bg-[#8FAF92]/10 border border-[#8FAF92]/25 text-[#8FAF92] font-mono text-[11px] font-semibold">
                       RECOMMENDED FOR HFT BOTS
                     </span>
                     <span className="font-mono text-xs text-ash">src/interceptor.ts</span>
@@ -1396,21 +1396,21 @@ export default function DappPage() {
 
                   <div className="p-4 rounded-xl bg-[#08090C] border border-white/[0.08] font-mono text-xs space-y-2 text-marble-dim/90 overflow-x-auto">
                     <p className="text-ash">// 1. Import from Sentinel core</p>
-                    <p className="text-sky-300">import <span className="text-white">&#123; TransactionInterceptor &#125;</span> from <span className="text-emerald-300">&quot;sentinel&quot;</span>;</p>
+                    <p className="text-[#C9A961]">import <span className="text-white">&#123; TransactionInterceptor &#125;</span> from <span className="text-[#C2BEB4]">&quot;sentinel&quot;</span>;</p>
                     <p className="text-ash pt-1">// 2. Replace client.sendRawTransaction(signedTx)</p>
                     <p className="text-[#C9A961] font-semibold">const hash = await interceptor.submitTransaction(signedTx);</p>
                   </div>
 
                   <div className="flex items-center justify-between text-xs font-mono text-ash pt-2 border-t border-white/[0.06]">
                     <span>Eliminates head-of-line blocking</span>
-                    <span className="text-emerald-400">Zero nonce management</span>
+                    <span className="text-[#8FAF92]">Zero nonce management</span>
                   </div>
                 </div>
 
                 {/* Option B: Headless Watchdog Daemon */}
                 <div className="panel space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20 text-sky-400 font-mono text-[11px] font-semibold">
+                    <span className="px-2.5 py-0.5 rounded bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961] font-mono text-[11px] font-semibold">
                       OUT-OF-BAND WATCHER
                     </span>
                     <span className="font-mono text-xs text-ash">src/cli.ts</span>
@@ -1430,7 +1430,7 @@ export default function DappPage() {
                         Copy
                       </button>
                     </div>
-                    <p className="text-emerald-400 font-semibold">$ npm run cli:watch</p>
+                    <p className="text-[#8FAF92] font-semibold">$ npm run cli:watch</p>
                     <div className="flex items-center justify-between pt-1 border-t border-white/[0.06]">
                       <span className="text-ash"># Single state scan</span>
                       <button
@@ -1445,7 +1445,7 @@ export default function DappPage() {
 
                   <div className="flex items-center justify-between text-xs font-mono text-ash pt-2 border-t border-white/[0.06]">
                     <span>Includes Eviction Monitor</span>
-                    <span className="text-sky-300">Zero bot code modification</span>
+                    <span className="text-[#C9A961]">Zero bot code modification</span>
                   </div>
                 </div>
               </div>
@@ -1618,24 +1618,24 @@ export default function DappPage() {
               </div>
               <div className="grid grid-cols-5 gap-1.5 p-3 rounded-xl bg-black/40 border border-white/5 text-center font-mono text-[11px]">
                 <div className="flex flex-col items-center gap-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
-                  <span className="text-emerald-400 font-medium">Submitted</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#8FAF92] " />
+                  <span className="text-[#8FAF92] font-medium">Submitted</span>
                   <span className="text-[10px] text-[#686660]">{selectedTx.submittedTime}</span>
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
-                  <span className="text-emerald-400 font-medium">Pending</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#8FAF92] " />
+                  <span className="text-[#8FAF92] font-medium">Pending</span>
                   <span className="text-[10px] text-[#686660]">Mempool</span>
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <span
                     className={`w-2.5 h-2.5 rounded-full ${
                       selectedTx.status === "gap" || selectedTx.status === "resubmitted" || selectedTx.status === "confirmed"
-                        ? selectedTx.cause ? "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]" : "bg-emerald-400"
+                        ? selectedTx.cause ? "bg-[#D4A359] " : "bg-[#8FAF92]"
                         : "bg-white/20"
                     }`}
                   />
-                  <span className={selectedTx.cause ? "text-amber-400 font-medium" : "text-emerald-400 font-medium"}>
+                  <span className={selectedTx.cause ? "text-[#D4A359] font-medium" : "text-[#8FAF92] font-medium"}>
                     {selectedTx.cause ? "Gap Stalled" : "Sequence Ok"}
                   </span>
                   <span className="text-[10px] text-[#686660]">
@@ -1646,7 +1646,7 @@ export default function DappPage() {
                   <span
                     className={`w-2.5 h-2.5 rounded-full ${
                       selectedTx.replacementHash
-                        ? "bg-[#C9A961] shadow-[0_0_8px_rgba(201,169,97,0.5)]"
+                        ? "bg-[#C9A961] "
                         : "bg-white/20"
                     }`}
                   />
@@ -1661,11 +1661,11 @@ export default function DappPage() {
                   <span
                     className={`w-2.5 h-2.5 rounded-full ${
                       selectedTx.status === "confirmed"
-                        ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
+                        ? "bg-[#8FAF92] "
                         : "bg-white/20"
                     }`}
                   />
-                  <span className={selectedTx.status === "confirmed" ? "text-emerald-400 font-medium" : "text-[#686660]"}>
+                  <span className={selectedTx.status === "confirmed" ? "text-[#8FAF92] font-medium" : "text-[#686660]"}>
                     Confirmed
                   </span>
                   <span className="text-[10px] text-[#686660]">
@@ -1713,7 +1713,7 @@ export default function DappPage() {
                   </div>
                   <div>
                     <div className="text-[#686660] text-[10px]">Initial Gas Price</div>
-                    <div className="text-amber-400">{selectedTx.originalGasGwei} Gwei</div>
+                    <div className="text-[#D4A359]">{selectedTx.originalGasGwei} Gwei</div>
                   </div>
                 </div>
                 <div>
@@ -1732,7 +1732,7 @@ export default function DappPage() {
                     <div>
                       <div className="text-[#686660] text-[10px]">Replacement Hash</div>
                       <div className="flex items-center justify-between gap-1 text-[#F5F3EF]">
-                        <span className="truncate text-emerald-400">{selectedTx.replacementHash}</span>
+                        <span className="truncate text-[#8FAF92]">{selectedTx.replacementHash}</span>
                         <button
                           onClick={() => copyToClipboard(selectedTx.replacementHash!, "Replacement Hash")}
                           className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[#C9A961] transition-colors"
@@ -1744,7 +1744,7 @@ export default function DappPage() {
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <div className="text-[#686660] text-[10px]">New Gas Price</div>
-                        <div className="text-emerald-400 font-semibold">{selectedTx.replacementGasGwei || "0.00124"} Gwei</div>
+                        <div className="text-[#8FAF92] font-semibold">{selectedTx.replacementGasGwei || "0.00124"} Gwei</div>
                       </div>
                       <div>
                         <div className="text-[#686660] text-[10px]">Gas Bump (Clamped)</div>
@@ -1763,7 +1763,7 @@ export default function DappPage() {
                     </div>
                     <div>
                       <div className="text-[#686660] text-[10px]">Diagnosed Root Cause</div>
-                      <div className="text-amber-300/90 text-[11px] leading-tight mt-0.5">
+                      <div className="text-[#D4A359] text-[11px] leading-tight mt-0.5">
                         {selectedTx.cause || "underpriced: Priority fee below required base fee"}
                       </div>
                     </div>
@@ -1793,7 +1793,7 @@ export default function DappPage() {
                     href={`https://sepolia.basescan.org/tx/${selectedTx.replacementHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-1.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-400 border border-emerald-500/40 transition-all inline-flex items-center gap-1.5"
+                    className="px-3 py-1.5 rounded-lg bg-[#101412] hover:bg-[#161D19] text-[#8FAF92] border border-[#8FAF92]/30 transition-all inline-flex items-center gap-1.5"
                   >
                     BaseScan (Replacement)
                   </a>

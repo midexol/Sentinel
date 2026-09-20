@@ -45,13 +45,13 @@ export default function TermsOfServicePage() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#07080B] text-marble selection:bg-aurum/20 selection:text-aurum-light font-sans overflow-x-hidden flex flex-col justify-between">
+    <div className="relative min-h-screen bg-[#000000] text-marble selection:bg-aurum/20 selection:text-aurum-light font-sans overflow-x-hidden flex flex-col justify-between">
       <SiteAtmosphere />
       <SiteHeader />
 
       <main className="relative z-10 pt-36 md:pt-44 pb-24 px-6 max-w-5xl mx-auto w-full space-y-12">
         <div className="space-y-4 text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#141820]/90 border border-aurum/30 text-xs font-mono text-aurum shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B0D11]/90 border border-aurum/30 text-xs font-mono text-aurum shadow-sm">
             <Scale className="w-3.5 h-3.5" />
             <span>Legal Framework</span>
           </div>
@@ -69,7 +69,7 @@ export default function TermsOfServicePage() {
             return (
               <div
                 key={idx}
-                className="bg-[#101216]/95 border border-white/[0.08] hover:border-aurum/30 transition-all rounded-2xl p-6 md:p-8 shadow-xl space-y-3 backdrop-blur-xl"
+                className="bg-[#07080A]/95 border border-white/[0.08] hover:border-aurum/30 transition-all rounded-2xl p-6 md:p-8 shadow-xl space-y-3 backdrop-blur-xl"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-aurum/10 border border-aurum/30 flex items-center justify-center text-aurum shrink-0">
@@ -87,7 +87,7 @@ export default function TermsOfServicePage() {
           })}
         </div>
 
-        <div className="p-8 rounded-2xl bg-[#101216]/95 border border-aurum/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl backdrop-blur-xl">
+        <div className="p-8 rounded-2xl bg-[#07080A]/95 border border-aurum/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl backdrop-blur-xl">
           <div>
             <h3 className="font-serif text-xl font-medium text-marble">
               Ready to Deploy on Base L2?

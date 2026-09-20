@@ -246,7 +246,7 @@ export default function SecurityPage() {
 
         {/* Security posture summary stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
+          <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
             <div className="p-3 rounded-xl bg-aurum/10 border border-aurum/20 text-aurum">
               <KeyRound className="w-5 h-5" />
             </div>
@@ -256,8 +256,8 @@ export default function SecurityPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
+            <div className="p-3 rounded-xl bg-[#8FAF92]/10 border border-[#8FAF92]/25 text-[#8FAF92]">
               <Globe className="w-5 h-5" />
             </div>
             <div>
@@ -266,8 +266,8 @@ export default function SecurityPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
-            <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400">
+          <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
+            <div className="p-3 rounded-xl bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961]">
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
@@ -276,7 +276,7 @@ export default function SecurityPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
+          <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
             <div className="p-3 rounded-xl bg-aurum/10 border border-aurum/20 text-aurum">
               <CheckCircle2 className="w-5 h-5" />
             </div>
@@ -338,7 +338,7 @@ export default function SecurityPage() {
           <div className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Layer 1 */}
-              <div className="bg-[#101216] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
+              <div className="bg-[#07080A] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <KeyRound className="w-24 h-24 text-aurum" />
                 </div>
@@ -352,30 +352,30 @@ export default function SecurityPage() {
                 </p>
                 <div className="space-y-3 pt-2 text-xs font-mono text-ash">
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>Loaded only via process.env.PRIVATE_KEY</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>Dedicated operational wallet with minimum gas budget</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>Zero UI exposure (status masked as [Loaded])</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>Support for KMS / HashiCorp Vault key rotation</span>
                   </div>
                 </div>
               </div>
 
               {/* Layer 2 */}
-              <div className="bg-[#101216] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
+              <div className="bg-[#07080A] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Globe className="w-24 h-24 text-aurum" />
                 </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-emerald-400">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8FAF92]/10 border border-[#8FAF92]/25 text-xs font-mono text-[#8FAF92]">
                   <Server className="w-3.5 h-3.5" />
                   <span>Layer 2: Gateway Defense</span>
                 </div>
@@ -385,52 +385,52 @@ export default function SecurityPage() {
                 </p>
                 <div className="space-y-3 pt-2 text-xs font-mono text-ash">
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>Zero RPC keys embedded in client-side bundle</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>Backend proxy for state queries and stream feeds</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>Mandatory HTTPS transport for all endpoints</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>Constant-time timingSafeEqual token verification</span>
                   </div>
                 </div>
               </div>
 
               {/* Layer 3 */}
-              <div className="bg-[#101216] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
+              <div className="bg-[#07080A] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Cpu className="w-24 h-24 text-aurum" />
                 </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-xs font-mono text-sky-400">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-xs font-mono text-[#C9A961]">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Layer 3: Application Defense</span>
                 </div>
-                <h2 className="font-cinzel text-xl font-bold text-marble">Daemon & Node.js Hygiene</h2>
+                <h2 className="font-serif text-xl font-medium text-marble">Daemon & Node.js Hygiene</h2>
                 <p className="text-sm font-sans text-marble-dim/80 leading-relaxed">
                   The autonomous Sentinel daemon and its Next.js runtime enforce strict perimeter controls, boundary input schemas, and payload throttling.
                 </p>
                 <div className="space-y-3 pt-2 text-xs font-mono text-ash">
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>OWASP security headers (HSTS, nosniff, DENY)</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>Recursive prototype pollution rejection</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>100KB payload limit on all JSON inputs</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
                     <span>Automatic regex scrubbing in audit log receipts</span>
                   </div>
                 </div>
@@ -438,7 +438,7 @@ export default function SecurityPage() {
             </div>
 
             {/* Architecture diagram description */}
-            <div className="rounded-2xl bg-[#101216] border border-white/[0.08] p-6 sm:p-8 space-y-4">
+            <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] p-6 sm:p-8 space-y-4">
               <div className="flex items-center gap-2 text-xs font-mono text-aurum">
                 <Terminal className="w-4 h-4" />
                 <span>Zero-Trust Gateway Architecture</span>
@@ -460,7 +460,7 @@ export default function SecurityPage() {
         {/* Tab 2: Interactive Pre-Launch Checklist */}
         {activeTab === "checklist" && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-[#101216] border border-white/[0.08] p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-[#07080A] border border-white/[0.08] p-6">
               <div>
                 <h2 className="font-cinzel text-xl font-bold text-marble">Pre-Launch Security Audit Checklist</h2>
                 <p className="text-xs font-mono text-ash mt-1">
@@ -487,8 +487,8 @@ export default function SecurityPage() {
                   onClick={() => toggleCheck(item.id)}
                   className={`cursor-pointer p-5 rounded-xl border transition-all duration-200 space-y-2 ${
                     item.verified
-                      ? "bg-[#101216] border-aurum/30 hover:border-aurum/60"
-                      : "bg-[#101216]/60 border-white/[0.06] hover:border-white/[0.15] opacity-60"
+                      ? "bg-[#07080A] border-aurum/30 hover:border-aurum/60"
+                      : "bg-[#07080A]/60 border-white/[0.06] hover:border-white/[0.15] opacity-60"
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -497,11 +497,11 @@ export default function SecurityPage() {
                     </span>
                     <div className="flex items-center gap-1.5 text-xs font-mono">
                       {item.verified ? (
-                        <span className="text-emerald-400 flex items-center gap-1 font-semibold">
+                        <span className="text-[#8FAF92] flex items-center gap-1 font-semibold">
                           <CheckCircle2 className="w-4 h-4" /> PASS
                         </span>
                       ) : (
-                        <span className="text-rose-400 flex items-center gap-1 font-semibold">
+                        <span className="text-[#C86A58] flex items-center gap-1 font-semibold">
                           <AlertOctagon className="w-4 h-4" /> PENDING
                         </span>
                       )}
@@ -520,7 +520,7 @@ export default function SecurityPage() {
         {/* Tab 3: Formal Mathematical Invariants */}
         {activeTab === "invariants" && (
           <div className="space-y-6">
-            <div className="rounded-2xl bg-[#101216] border border-white/[0.08] p-6 space-y-2">
+            <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] p-6 space-y-2">
               <h2 className="font-cinzel text-xl font-bold text-marble">Formal Safety Invariants</h2>
               <p className="text-xs font-mono text-ash">
                 These mathematical invariants are hard-enforced in code to eliminate systemic failure modes.
@@ -531,7 +531,7 @@ export default function SecurityPage() {
               {invariants.map((inv) => (
                 <div
                   key={inv.id}
-                  className="rounded-2xl bg-[#101216] border border-white/[0.08] p-6 shadow-xl space-y-4"
+                  className="rounded-2xl bg-[#07080A] border border-white/[0.08] p-6 shadow-xl space-y-4"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs text-aurum font-semibold">
@@ -560,14 +560,14 @@ export default function SecurityPage() {
         {/* Tab 4: Anti-Patterns Comparison Table */}
         {activeTab === "antipatterns" && (
           <div className="space-y-6">
-            <div className="rounded-2xl bg-[#101216] border border-white/[0.08] p-6 space-y-2">
+            <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] p-6 space-y-2">
               <h2 className="font-cinzel text-xl font-bold text-marble">Common Anti-Patterns vs Sentinel Standard</h2>
               <p className="text-xs font-mono text-ash">
                 Why standard Web3 bot implementations fail under pressure and how Sentinel resolves each vulnerability.
               </p>
             </div>
 
-            <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-[#101216]">
+            <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-[#07080A]">
               <table className="w-full text-left border-collapse text-xs font-mono">
                 <thead>
                   <tr className="border-b border-white/[0.08] bg-void-2/60 text-ash uppercase">
@@ -579,7 +579,7 @@ export default function SecurityPage() {
                 <tbody className="divide-y divide-white/[0.06]">
                   {antiPatterns.map((item, idx) => (
                     <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="p-4 text-rose-300 font-semibold align-top">{item.pattern}</td>
+                      <td className="p-4 text-[#C86A58] font-semibold align-top">{item.pattern}</td>
                       <td className="p-4 text-marble-dim/80 align-top">{item.danger}</td>
                       <td className="p-4 text-aurum-light font-medium align-top">{item.sentinelSolution}</td>
                     </tr>

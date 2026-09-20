@@ -70,9 +70,9 @@ export default function LandingPage() {
 
     // Multi-harmonic sine waves (gold & cyan-blue)
     const waves = [
-      { yFrac: 0.28, amp: 26, freq: 0.0022, speed: 0.00015, color: [201, 169, 97], alpha: 0.08 },
-      { yFrac: 0.52, amp: 38, freq: 0.0018, speed: 0.00012, color: [74, 122, 153], alpha: 0.07 },
-      { yFrac: 0.78, amp: 32, freq: 0.0024, speed: 0.00018, color: [201, 169, 97], alpha: 0.09 },
+      { yFrac: 0.28, amp: 26, freq: 0.0022, speed: 0.00015, color: [201, 169, 97], alpha: 0.05 },
+      { yFrac: 0.52, amp: 32, freq: 0.0018, speed: 0.00012, color: [175, 162, 145], alpha: 0.04 },
+      { yFrac: 0.78, amp: 32, freq: 0.0024, speed: 0.00018, color: [201, 169, 97], alpha: 0.05 },
     ];
 
     let t = 0;
@@ -155,7 +155,7 @@ export default function LandingPage() {
   }, [mousePos]);
 
   return (
-    <div className="min-h-screen bg-[#08090C] relative text-[#F5F3EF] selection:bg-[#C9A961] selection:text-black font-sans overflow-hidden">
+    <div className="min-h-screen bg-[#000000] relative text-[#F5F3EF] selection:bg-[#C9A961] selection:text-black font-sans overflow-hidden">
       {/* Interactive Living Background Canvas */}
       <canvas
         ref={canvasRef}
@@ -172,14 +172,14 @@ export default function LandingPage() {
           width: 520,
           height: 520,
           background:
-            "radial-gradient(circle, rgba(201,169,97,0.13) 0%, rgba(74,122,153,0.06) 45%, transparent 70%)",
+            "radial-gradient(circle, rgba(201,169,97,0.08) 0%, rgba(175,162,145,0.03) 45%, transparent 70%)",
           opacity: mousePos.x > 0 ? 1 : 0,
         }}
       />
 
       {/* Ambient Golden Spotlight Gradients */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] bg-gradient-to-b from-[#C9A961]/12 via-transparent to-transparent blur-3xl pointer-events-none -z-20" />
-      <div className="fixed bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-t from-[#4A7A99]/8 via-transparent to-transparent blur-3xl pointer-events-none -z-20" />
+      <div className="fixed bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-t from-[#C9A961]/4 via-transparent to-transparent blur-3xl pointer-events-none -z-20" />
 
       {/* Usance Dynamic Condensing Header Island */}
       <header
@@ -197,7 +197,7 @@ export default function LandingPage() {
         >
           {/* Clickable Brand Logo & Title */}
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="relative w-7 h-7 rounded-full overflow-hidden border border-[#C9A961]/40 shadow-[0_0_10px_rgba(201,169,97,0.3)] group-hover:scale-110 transition-transform duration-300">
+            <div className="relative w-7 h-7 rounded-full overflow-hidden border border-[#C9A961]/40  group-hover:scale-110 transition-transform duration-300">
               <Image
                 src="/assets/logo-transparent.png"
                 alt="Sentinel Logo"
@@ -264,8 +264,8 @@ export default function LandingPage() {
             href="/dapp"
             className={`inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all shrink-0 ${
               condensed
-                ? "bg-[#F5F3EF] text-[#08090C] font-semibold hover:bg-white hover:scale-105 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
-                : "bg-[#181A20] text-[#F5F3EF] border border-white/[0.14] hover:bg-[#20242D] hover:border-white/30"
+                ? "bg-[#F5F3EF] text-[#08090C] font-semibold hover:bg-white hover:border-white/30 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
+                : "bg-[#090A0D] text-[#F5F3EF] border border-white/[0.14] hover:bg-[#20242D] hover:border-white/30"
             }`}
           >
             <span>Launch Observatory</span>
@@ -287,13 +287,13 @@ export default function LandingPage() {
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
             <Link
               href="/dapp"
-              className="px-6 py-3 rounded-full bg-[#C9A961] hover:bg-[#E5C989] text-black font-medium text-xs font-mono transition-all transform hover:scale-[1.02] shadow-[0_0_25px_rgba(201,169,97,0.3)]"
+              className="px-6 py-3 rounded-full bg-[#C9A961] hover:bg-[#E5C989] text-black font-medium text-xs font-mono transition-all hover:-translate-y-0.5 shadow-lg shadow-black/60"
             >
               Launch Live Observatory
             </Link>
             <a
               href="#problem"
-              className="px-6 py-3 rounded-full bg-[#101216] border border-[#C9A961]/20 hover:bg-white/5 text-[#F5F3EF] text-xs font-mono transition-all"
+              className="px-6 py-3 rounded-full bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors hover:bg-white/5 text-[#F5F3EF] text-xs font-mono transition-all"
             >
               Explore The Nonce Gap
             </a>
@@ -301,7 +301,7 @@ export default function LandingPage() {
         </div>
 
         {/* Grand Hero Visual Showcase */}
-        <div className="relative rounded-[28px] overflow-hidden border border-[#C9A961]/20 bg-[#101216] shadow-[0_0_45px_-12px_rgba(201,169,97,0.3)] max-w-5xl mx-auto">
+        <div className="relative rounded-[28px] overflow-hidden border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors bg-[#07080A] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.85)] max-w-5xl mx-auto">
           <div className="aspect-[16/9] sm:aspect-[21/9] relative">
             <Image
               src="/assets/david_cyborg.jpg"
@@ -310,8 +310,8 @@ export default function LandingPage() {
               className="object-cover object-center filter brightness-[0.88] contrast-[1.08]"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#08090C] via-[#08090C]/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#08090C]/80 via-transparent to-[#08090C]/80" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#08090C]/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#000000]/80 via-transparent to-[#000000]/80" />
 
             {/* Floating Telemetry Badges */}
             <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-end justify-between gap-4">
@@ -327,10 +327,10 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 font-mono text-xs">
-                <div className="px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-[#C9A961]/20 text-[#C9A961]">
+                <div className="px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors text-[#C9A961]">
                   Flashblocks: ~200ms
                 </div>
-                <div className="px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-[#C9A961]/20 text-[#4A7A99]">
+                <div className="px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors text-[#C2BEB4]">
                   Desync Delta: 0.00
                 </div>
               </div>
@@ -339,7 +339,7 @@ export default function LandingPage() {
         </div>
 
         {/* The Core Thesis: Model Proposes, Code Decides */}
-        <div className="max-w-5xl mx-auto rounded-[24px] bg-gradient-to-r from-[#101216] via-[#141820] to-[#101216] border border-[#C9A961]/30 p-6 sm:p-8 shadow-[0_10px_35px_-10px_rgba(201,169,97,0.25)] space-y-6">
+        <div className="max-w-5xl mx-auto rounded-[24px] bg-gradient-to-r from-[#07080A] via-[#141820] to-[#07080A] border border-[#C9A961]/30 p-6 sm:p-8 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.8)] space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/[0.08] pb-5">
             <div className="space-y-1">
               <span className="text-[11px] font-mono uppercase tracking-widest text-[#C9A961]">
@@ -349,7 +349,7 @@ export default function LandingPage() {
                 &ldquo;Model Proposes, Code Decides&rdquo;
               </h2>
             </div>
-            <div className="flex items-center gap-2 font-mono text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-full self-start md:self-auto">
+            <div className="flex items-center gap-2 font-mono text-xs text-[#8FAF92] bg-[#8FAF92]/10 border border-[#8FAF92]/25 px-3.5 py-1.5 rounded-full self-start md:self-auto">
               <ShieldCheck className="w-4 h-4" />
               <span>Tested & Formally Clamped</span>
             </div>
@@ -373,7 +373,7 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-2 p-4 rounded-xl bg-void-2 border border-white/[0.06]">
-              <div className="text-sky-300 uppercase text-[10px]">3. Base L2 Fact Citation</div>
+              <div className="text-[#C9A961] uppercase text-[10px]">3. Base L2 Fact Citation</div>
               <div className="text-white font-serif text-base font-semibold">A Documented Problem</div>
               <p className="text-marble-dim/80 leading-relaxed font-mono text-xs">
                 Not a theoretical issue: grounded directly in Base's official Flashblocks engineering documentation and sub-second pre-confirmation race conditions.
@@ -390,7 +390,7 @@ export default function LandingPage() {
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 space-y-5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D9532F]/10 text-[#D9532F] text-[11px] font-mono uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C86A58]/10 text-[#C86A58] border border-[#C86A58]/20 text-[11px] font-mono uppercase tracking-wider">
               The Fundamental Vulnerability
             </div>
             <h2 className="text-3xl sm:text-4xl font-serif text-white leading-tight">
@@ -403,12 +403,12 @@ export default function LandingPage() {
               A sudden gas surge strands Nonce #127 below the base fee. The entire downstream pipeline (arbitrage fills, liquidation cancellations, and vault rebalances) halts indefinitely in queue deadlock.
             </p>
             <div className="pt-2">
-              <div className="p-4 rounded-[18px] bg-[#101216] border border-[#C9A961]/20 space-y-2">
+              <div className="p-4 rounded-[18px] bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors space-y-2">
                 <div className="text-xs font-mono text-[#C9A961]">
                   Flashblocks Latency Paradox:
                 </div>
                 <div className="text-xs text-[#C2BEB4] leading-relaxed">
-                  Standard block intervals are 2 seconds, but Flashblocks stream partial blocks every 200ms. If your bot’s local nonce tracker falls out of sync with the sequencer by just one sub-block, every subsequent submission errors with <code className="text-[#D9532F]">NONCE_TOO_LOW</code> or stalls forever in <code className="text-[#D9532F]">QUEUED</code> status.
+                  Standard block intervals are 2 seconds, but Flashblocks stream partial blocks every 200ms. If your bot’s local nonce tracker falls out of sync with the sequencer by just one sub-block, every subsequent submission errors with <code className="text-[#C86A58]">NONCE_TOO_LOW</code> or stalls forever in <code className="text-[#C86A58]">QUEUED</code> status.
                 </div>
               </div>
             </div>
@@ -416,7 +416,7 @@ export default function LandingPage() {
 
           {/* Framed Classical Artwork: Creation of Adam (The Nonce Gap) */}
           <div className="lg:col-span-7">
-            <div className="relative rounded-[26px] overflow-hidden border border-[#C9A961]/20 bg-[#101216] shadow-[0_0_45px_-12px_rgba(201,169,97,0.3)] transition-transform duration-500 hover:-translate-y-1">
+            <div className="relative rounded-[26px] overflow-hidden border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors bg-[#07080A] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.85)] transition-transform duration-500 hover:-translate-y-1">
               <div className="relative aspect-[16/10] w-full">
                 <Image
                   src="/assets/adam_creation_gap.jpg"
@@ -425,14 +425,14 @@ export default function LandingPage() {
                   className="object-cover filter brightness-[0.92] contrast-[1.05]"
                 />
               </div>
-              <div className="p-6 bg-[#101216] border-t border-[#C9A961]/20 flex items-center justify-between">
+              <div className="p-6 bg-[#07080A] border-t border-white/[0.08] hover:border-[#C9A961]/35 transition-colors flex items-center justify-between">
                 <div>
                   <div className="font-serif text-base text-white">The Microsecond Disconnect</div>
                   <div className="text-xs font-mono text-[#686660]">
                     Michelangelo&apos;s Creation of Adam · Symbol of the Unconfirmed Nonce Gap
                   </div>
                 </div>
-                <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#D9532F]/15 text-[#D9532F] border border-[#D9532F]/30">
+                <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#D9532F]/15 text-[#C86A58] border border-[#D9532F]/30">
                   DEADLOCK STATE
                 </span>
               </div>
@@ -442,8 +442,8 @@ export default function LandingPage() {
 
         {/* 3 Deadly Failure Modes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-[#101216] rounded-[22px] border border-[#C9A961]/20 p-6 space-y-4 hover:border-[#C9A961]/50 transition-all">
-            <div className="w-10 h-10 rounded-full bg-[#D9532F]/10 border border-[#D9532F]/30 flex items-center justify-center text-xs font-mono text-[#D9532F]">
+          <div className="bg-[#07080A] rounded-[22px] border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors p-6 space-y-4 hover:border-[#C9A961]/50 transition-all">
+            <div className="w-10 h-10 rounded-full bg-[#D9532F]/10 border border-[#D9532F]/30 flex items-center justify-center text-xs font-mono text-[#C86A58]">
               01
             </div>
             <h3 className="font-serif text-lg text-white">Underpriced Gas Stall</h3>
@@ -452,7 +452,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="bg-[#101216] rounded-[22px] border border-[#C9A961]/20 p-6 space-y-4 hover:border-[#C9A961]/50 transition-all">
+          <div className="bg-[#07080A] rounded-[22px] border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors p-6 space-y-4 hover:border-[#C9A961]/50 transition-all">
             <div className="w-10 h-10 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/30 flex items-center justify-center text-xs font-mono text-[#C9A961]">
               02
             </div>
@@ -462,13 +462,13 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="bg-[#101216] rounded-[22px] border border-[#C9A961]/20 p-6 space-y-4 hover:border-[#C9A961]/50 transition-all">
-            <div className="w-10 h-10 rounded-full bg-[#4A7A99]/10 border border-[#4A7A99]/30 flex items-center justify-center text-xs font-mono text-[#4A7A99]">
+          <div className="bg-[#07080A] rounded-[22px] border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors p-6 space-y-4 hover:border-[#C9A961]/50 transition-all">
+            <div className="w-10 h-10 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 flex items-center justify-center text-xs font-mono text-[#C2BEB4]">
               03
             </div>
             <h3 className="font-serif text-lg text-white">Micro-Fork Reorg Collision</h3>
             <p className="text-xs text-[#C2BEB4] leading-relaxed">
-              Sub-second Flashblock reorgs invalidate an assumed pre-confirmation. The agent increments its internal counter, triggering immediate <code className="text-[#4A7A99]">REPLACEMENT_UNDERPRICED</code> errors.
+              Sub-second Flashblock reorgs invalidate an assumed pre-confirmation. The agent increments its internal counter, triggering immediate <code className="text-[#C2BEB4]">REPLACEMENT_UNDERPRICED</code> errors.
             </p>
           </div>
         </div>
@@ -494,7 +494,7 @@ export default function LandingPage() {
         {/* 2 Art-Rich Architectural Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Card 1: Chronometer & In-Flight Tracking */}
-          <div className="bg-[#101216] rounded-[26px] border border-[#C9A961]/20 overflow-hidden flex flex-col justify-between transition-transform duration-500 hover:-translate-y-1">
+          <div className="bg-[#07080A] rounded-[26px] border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors overflow-hidden flex flex-col justify-between transition-transform duration-500 hover:-translate-y-1">
             <div className="aspect-[16/10] relative overflow-hidden">
               <Image
                 src="/assets/chronometer.jpg"
@@ -502,7 +502,7 @@ export default function LandingPage() {
                 fill
                 className="object-cover filter brightness-[0.9] contrast-[1.1]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#101216] via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#07080A] via-transparent to-transparent" />
             </div>
             <div className="p-8 space-y-4">
               <span className="text-[10px] font-mono uppercase tracking-widest text-[#C9A961]">
@@ -521,7 +521,7 @@ export default function LandingPage() {
           </div>
 
           {/* Card 2: Celestial Dome & Clamped Resolution */}
-          <div className="bg-[#101216] rounded-[26px] border border-[#C9A961]/20 overflow-hidden flex flex-col justify-between transition-transform duration-500 hover:-translate-y-1">
+          <div className="bg-[#07080A] rounded-[26px] border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors overflow-hidden flex flex-col justify-between transition-transform duration-500 hover:-translate-y-1">
             <div className="aspect-[16/10] relative overflow-hidden">
               <Image
                 src="/assets/celestial_dome.jpg"
@@ -529,17 +529,17 @@ export default function LandingPage() {
                 fill
                 className="object-cover filter brightness-[0.88] contrast-[1.1]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#101216] via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#07080A] via-transparent to-transparent" />
             </div>
             <div className="p-8 space-y-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#4A7A99]">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#C2BEB4]">
                 RESOLVER SUBSYSTEM
               </span>
               <h3 className="font-serif text-2xl text-white">AI Diagnostics & Clamped Gas Bumping</h3>
               <p className="text-xs text-[#C2BEB4] leading-relaxed">
-                When a gap is confirmed, <code className="text-[#4A7A99]">agent.ts</code> classifies the root cause via Claude 3.5 Sonnet or local fast heuristics. <code className="text-[#4A7A99]">resolver.ts</code> constructs a zero-value cancellation or bumped replacement, strictly clamped within user-defined percentage bounds.
+                When a gap is confirmed, <code className="text-[#C2BEB4]">agent.ts</code> classifies the root cause via Claude 3.5 Sonnet or local fast heuristics. <code className="text-[#C2BEB4]">resolver.ts</code> constructs a zero-value cancellation or bumped replacement, strictly clamped within user-defined percentage bounds.
               </p>
-              <div className="pt-2 flex items-center gap-4 text-xs font-mono text-[#4A7A99]">
+              <div className="pt-2 flex items-center gap-4 text-xs font-mono text-[#C2BEB4]">
                 <span>✓ Bounded Gas Clamp (10% to 100%)</span>
                 <span>✓ Fallback Heuristics</span>
                 <span>✓ Nonce Unblocking</span>
@@ -554,7 +554,7 @@ export default function LandingPage() {
         id="axioms"
         className="max-w-7xl mx-auto px-6 py-20 border-t border-white/5 space-y-12"
       >
-        <div className="relative rounded-[28px] overflow-hidden border border-[#C9A961]/20 bg-[#101216] shadow-[0_0_45px_-12px_rgba(201,169,97,0.3)]">
+        <div className="relative rounded-[28px] overflow-hidden border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors bg-[#07080A] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.85)]">
           <div className="aspect-[21/9] relative">
             <Image
               src="/assets/cloud_citadel.jpg"
@@ -562,8 +562,8 @@ export default function LandingPage() {
               fill
               className="object-cover filter brightness-[0.7] contrast-[1.15]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#08090C] via-[#08090C]/60 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#08090C]/90 via-transparent to-[#08090C]/90" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#08090C]/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#000000]/90 via-transparent to-[#000000]/90" />
 
             <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-end max-w-3xl space-y-3">
               <span className="text-[11px] font-mono uppercase tracking-widest text-[#C9A961]">
@@ -579,7 +579,7 @@ export default function LandingPage() {
           </div>
 
           {/* 4 Axiom Pillars */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-8 bg-[#101216] border-t border-[#C9A961]/15">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-8 bg-[#07080A] border-t border-[#C9A961]/15">
             <div className="space-y-2">
               <div className="text-xs font-mono text-[#C9A961]">AXIOM I</div>
               <div className="font-serif text-base text-white">Hard Clamped Bumping</div>
@@ -632,31 +632,31 @@ export default function LandingPage() {
           </div>
 
           <div className="flex flex-wrap gap-2.5 font-mono text-xs text-ash">
-            <span className="px-3 py-1.5 rounded-xl bg-[#101216] border border-white/10 text-[#C9A961]">
+            <span className="px-3 py-1.5 rounded-xl bg-[#07080A] border border-white/10 text-[#C9A961]">
               500ms Polling Loop
             </span>
-            <span className="px-3 py-1.5 rounded-xl bg-[#101216] border border-white/10 text-emerald-400">
+            <span className="px-3 py-1.5 rounded-xl bg-[#07080A] border border-white/10 text-[#8FAF92]">
               Claude 3.5 Diagnosis
             </span>
-            <span className="px-3 py-1.5 rounded-xl bg-[#101216] border border-white/10 text-[#F5F3EF]">
+            <span className="px-3 py-1.5 rounded-xl bg-[#07080A] border border-white/10 text-[#F5F3EF]">
               [10%, 50%] Clamped
             </span>
           </div>
         </div>
 
         {/* Interactive Terminal Window */}
-        <div className="rounded-[24px] border border-white/10 bg-[#0C0E14] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)]">
+        <div className="rounded-[24px] border border-white/10 bg-[#050608] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)]">
           {/* Terminal Titlebar */}
-          <div className="px-5 py-3.5 bg-[#12151C] border-b border-white/[0.08] flex flex-wrap items-center justify-between gap-4">
+          <div className="px-5 py-3.5 bg-[#0B0D12] border-b border-white/[0.08] flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-rose-500/80" />
-              <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-              <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
+              <div className="w-3 h-3 rounded-full bg-[#C86A58]/70" />
+              <div className="w-3 h-3 rounded-full bg-[#D4A359]/70" />
+              <div className="w-3 h-3 rounded-full bg-[#8FAF92]/70" />
               <span className="ml-3 font-mono text-xs text-ash">sentinel-daemon ~ node v20+</span>
             </div>
 
             {/* Mode Switcher Tabs */}
-            <div className="flex items-center gap-1.5 bg-[#08090C] p-1 rounded-xl border border-white/[0.06]">
+            <div className="flex items-center gap-1.5 bg-[#000000] p-1 rounded-xl border border-white/[0.06]">
               <button
                 onClick={() => setCliTab("watch")}
                 className={`px-3 py-1 rounded-lg text-xs font-mono transition-colors ${
@@ -701,9 +701,9 @@ export default function LandingPage() {
           </div>
 
           {/* Terminal Body */}
-          <div className="p-6 font-mono text-xs space-y-4 overflow-x-auto bg-[#08090C]/90">
+          <div className="p-6 font-mono text-xs space-y-4 overflow-x-auto bg-[#000000]/90">
             <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+              <div className="flex items-center gap-2 text-[#8FAF92] font-semibold">
                 <span className="text-[#C9A961]">$</span>
                 <span>
                   {cliTab === "watch" && "npm run cli:watch"}
@@ -730,8 +730,8 @@ export default function LandingPage() {
               >
                 {copiedCli ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-400">Copied</span>
+                    <Check className="w-3.5 h-3.5 text-[#8FAF92]" />
+                    <span className="text-[#8FAF92]">Copied</span>
                   </>
                 ) : (
                   <>
@@ -750,11 +750,11 @@ export default function LandingPage() {
                 </p>
                 <p className="text-ash/70">[2026-09-19T14:00:01.120Z] Latest: 42, Pending: 42, Gap: none</p>
                 <p className="text-ash/70">[2026-09-19T14:00:01.625Z] Latest: 42, Pending: 42, Gap: none</p>
-                <p className="text-amber-300 font-semibold">[2026-09-19T14:00:02.130Z] Latest: 42, Pending: 44, Gap: 43</p>
-                <p className="text-sky-300">
+                <p className="text-[#D4A359] font-medium">[2026-09-19T14:00:02.130Z] Latest: 42, Pending: 44, Gap: 43</p>
+                <p className="text-[#C9A961]">
                   {"  "}[DIAGNOSIS] underpriced: "Gas tip below priority threshold" (recommended bump: 18%)
                 </p>
-                <p className="text-emerald-400 font-semibold">
+                <p className="text-[#8FAF92] font-semibold">
                   {"  "}[RESOLVED] (resolved): new tx 0x3f7a1928bc4e8912d091a123ffaa6612bcde4451 (bump: 18%)
                 </p>
                 <p className="text-ash/70">[2026-09-19T14:00:02.635Z] Latest: 43, Pending: 44, Gap: none</p>
@@ -767,7 +767,7 @@ export default function LandingPage() {
               <div className="space-y-2 text-marble-dim/90 leading-relaxed">
                 <p className="text-ash">&gt; sentinel@0.1.0 cli</p>
                 <p className="text-ash">&gt; tsx src/cli.ts</p>
-                <p className="text-emerald-400 font-semibold">
+                <p className="text-[#8FAF92] font-semibold">
                   Latest nonce: 44, Pending nonce: 44, Gap: none
                 </p>
                 <p className="text-ash/70">Execution completed in 42ms. Zero gaps detected on Base Sepolia.</p>
@@ -778,7 +778,7 @@ export default function LandingPage() {
               <div className="space-y-2 text-marble-dim/90 leading-relaxed">
                 <p className="text-ash">&gt; sentinel@0.1.0 build:cli</p>
                 <p className="text-ash">&gt; tsc -p tsconfig.cli.json</p>
-                <p className="text-emerald-400">✓ Compiled TypeScript into dist/cli.js (Zero external dev dependencies)</p>
+                <p className="text-[#8FAF92]">✓ Compiled TypeScript into dist/cli.js (Zero external dev dependencies)</p>
                 <p className="text-ash pt-2">$ node dist/cli.js</p>
                 <p className="text-marble font-semibold">Latest nonce: 44, Pending nonce: 44, Gap: none</p>
                 <p className="text-ash/70">Standalone execution ready for Docker containerization or systemd service deployment.</p>
@@ -792,13 +792,13 @@ export default function LandingPage() {
                 <p className="text-[#C9A961] font-semibold">================================================================================</p>
                 <p className="text-ash pt-1">1. Simulating trading bot submitting rapid transactions...</p>
                 <p className="text-ash/80">   - Tx #1 (nonce 42): Confirmed</p>
-                <p className="text-rose-400">   - Tx #2 (nonce 43): Underpriced (1 wei tip) [STUCK]</p>
-                <p className="text-amber-400">   - Tx #3 (nonce 44): High fee [QUEUED behind stuck nonce 43]</p>
-                <p className="text-sky-300 pt-1">2. Sentinel detects gap at nonce 43</p>
+                <p className="text-[#C86A58]">   - Tx #2 (nonce 43): Underpriced (1 wei tip) [STUCK]</p>
+                <p className="text-[#D4A359]">   - Tx #3 (nonce 44): High fee [QUEUED behind stuck nonce 43]</p>
+                <p className="text-[#C9A961] pt-1">2. Sentinel detects gap at nonce 43</p>
                 <p className="text-ash">3. Triggering AI Diagnosis (Claude reasoning layer)...</p>
-                <p className="text-emerald-400">   - Clamped recommendation: 10%</p>
+                <p className="text-[#8FAF92]">   - Clamped recommendation: 10%</p>
                 <p className="text-ash">4. Resolving stuck transaction via GapResolver (Dry Run)...</p>
-                <p className="text-emerald-400 font-semibold">   Resolution outcome: resolved (0xdryrun002b1a0b9baeaf1)</p>
+                <p className="text-[#8FAF92] font-semibold">   Resolution outcome: resolved (0xdryrun002b1a0b9baeaf1)</p>
                 <p className="text-ash">5. Audit log updated in ./sentinel.log. Verification complete!</p>
               </div>
             )}
@@ -822,10 +822,10 @@ export default function LandingPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Card 1: In-Line Transaction Interceptor */}
-          <div className="bg-[#0C0E14] border border-[#C9A961]/25 rounded-[24px] p-7 sm:p-8 space-y-6 flex flex-col justify-between shadow-xl">
+          <div className="bg-[#050608] border border-[#C9A961]/25 rounded-[24px] p-7 sm:p-8 space-y-6 flex flex-col justify-between shadow-xl">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs font-semibold">
+                <span className="px-3 py-1 rounded-full bg-[#8FAF92]/10 border border-[#8FAF92]/25 text-[#8FAF92] font-mono text-xs font-semibold">
                   MODE 1: IN-LINE INTERCEPTOR
                 </span>
                 <span className="font-mono text-xs text-ash">src/interceptor.ts</span>
@@ -836,9 +836,9 @@ export default function LandingPage() {
               </p>
 
               {/* Code Snippet */}
-              <div className="p-4 rounded-xl bg-[#08090C] border border-white/[0.08] font-mono text-xs space-y-2 text-marble-dim/90 overflow-x-auto">
+              <div className="p-4 rounded-xl bg-[#000000] border border-white/[0.08] font-mono text-xs space-y-2 text-marble-dim/90 overflow-x-auto">
                 <p className="text-ash">// Drop-in replacement for algorithmic bots</p>
-                <p className="text-sky-300">import <span className="text-white">&#123; TransactionInterceptor &#125;</span> from <span className="text-emerald-300">&quot;sentinel&quot;</span>;</p>
+                <p className="text-[#C9A961]">import <span className="text-white">&#123; TransactionInterceptor &#125;</span> from <span className="text-[#C2BEB4]">&quot;sentinel&quot;</span>;</p>
                 <p className="text-ash">// Replace: await client.sendRawTransaction(signedTx)</p>
                 <p className="text-[#C9A961] font-semibold">const hash = await interceptor.submitTransaction(signedTx);</p>
               </div>
@@ -846,15 +846,15 @@ export default function LandingPage() {
 
             <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono text-ash">
               <span>Zero nonce management burden</span>
-              <span className="text-emerald-400">Pre-flight gap resolution</span>
+              <span className="text-[#8FAF92]">Pre-flight gap resolution</span>
             </div>
           </div>
 
           {/* Card 2: Silent Mempool Eviction Monitor */}
-          <div className="bg-[#0C0E14] border border-[#C9A961]/25 rounded-[24px] p-7 sm:p-8 space-y-6 flex flex-col justify-between shadow-xl">
+          <div className="bg-[#050608] border border-[#C9A961]/25 rounded-[24px] p-7 sm:p-8 space-y-6 flex flex-col justify-between shadow-xl">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 font-mono text-xs font-semibold">
+                <span className="px-3 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961] font-mono text-xs font-semibold">
                   MODE 2: OUT-OF-BAND WATCHDOG
                 </span>
                 <span className="font-mono text-xs text-ash">src/evictionMonitor.ts</span>
@@ -865,38 +865,38 @@ export default function LandingPage() {
               </p>
 
               {/* Eviction State Flow */}
-              <div className="p-4 rounded-xl bg-[#08090C] border border-white/[0.08] font-mono text-xs space-y-2 text-marble-dim/90">
+              <div className="p-4 rounded-xl bg-[#000000] border border-white/[0.08] font-mono text-xs space-y-2 text-marble-dim/90">
                 <div className="flex items-center justify-between text-ash text-[11px] pb-1 border-b border-white/[0.06]">
                   <span>PROPAGATION STATE</span>
                   <span>AUTONOMOUS ACTION</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-amber-300">everSeenPending: true</span>
+                  <span className="text-[#D4A359]">everSeenPending: true</span>
                   <span className="text-ash">Mempool inclusion verified</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-rose-400">status: not_found &gt; 30s</span>
-                  <span className="text-rose-400 font-semibold">Silent eviction confirmed</span>
+                  <span className="text-[#C86A58]">status: not_found &gt; 30s</span>
+                  <span className="text-[#C86A58] font-semibold">Silent eviction confirmed</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-emerald-400 font-semibold">Autonomous Recovery</span>
-                  <span className="text-emerald-400 font-semibold">Resubmit with clamped bump</span>
+                  <span className="text-[#8FAF92] font-semibold">Autonomous Recovery</span>
+                  <span className="text-[#8FAF92] font-semibold">Resubmit with clamped bump</span>
                 </div>
               </div>
             </div>
 
             <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono text-ash">
               <span>Solves Base zero-event dropouts</span>
-              <span className="text-sky-300">Continuous 500ms loop</span>
+              <span className="text-[#C9A961]">Continuous 500ms loop</span>
             </div>
           </div>
         </div>
 
         {/* Live SSE Telemetry & Dry-Run Badges */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
-          <div className="p-5 rounded-2xl bg-[#101216] border border-white/[0.08] space-y-2">
-            <div className="text-emerald-400 font-semibold flex items-center gap-2">
-              <Radio className="w-4 h-4 text-emerald-400" />
+          <div className="p-5 rounded-2xl bg-[#07080A] border border-white/[0.08] space-y-2">
+            <div className="text-[#8FAF92] font-semibold flex items-center gap-2">
+              <Radio className="w-4 h-4 text-[#8FAF92]" />
               <span>Real-Time SSE Stream</span>
             </div>
             <p className="text-ash text-[11px] leading-relaxed">
@@ -904,7 +904,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#101216] border border-white/[0.08] space-y-2">
+          <div className="p-5 rounded-2xl bg-[#07080A] border border-white/[0.08] space-y-2">
             <div className="text-[#C9A961] font-semibold flex items-center gap-2">
               <ShieldCheck className="w-4 h-4" />
               <span>Zero-Key Dry-Run Mode</span>
@@ -914,8 +914,8 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#101216] border border-white/[0.08] space-y-2">
-            <div className="text-sky-300 font-semibold flex items-center gap-2">
+          <div className="p-5 rounded-2xl bg-[#07080A] border border-white/[0.08] space-y-2">
+            <div className="text-[#C9A961] font-semibold flex items-center gap-2">
               <Cpu className="w-4 h-4" />
               <span>Triple-Strike Circuit Breaker</span>
             </div>
@@ -928,7 +928,7 @@ export default function LandingPage() {
 
       {/* Live Observatory Teaser / Call to Action */}
       <section id="dapp-preview" className="max-w-7xl mx-auto px-6 py-20 border-t border-white/5">
-        <div className="rounded-[28px] bg-gradient-to-b from-[#171A20] to-[#101216] border border-[#C9A961]/20 p-8 sm:p-14 text-center space-y-8 relative overflow-hidden shadow-[0_0_45px_-12px_rgba(201,169,97,0.3)]">
+        <div className="rounded-[28px] bg-gradient-to-b from-[#0A0B0E] to-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors p-8 sm:p-14 text-center space-y-8 relative overflow-hidden shadow-[0_24px_60px_-20px_rgba(0,0,0,0.85)]">
           <div className="w-full max-w-xl mx-auto space-y-4">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961] text-xs font-mono">
               <Activity className="w-3.5 h-3.5 text-[#C9A961]" />
@@ -945,7 +945,7 @@ export default function LandingPage() {
           <div className="flex justify-center pt-2">
             <Link
               href="/dapp"
-              className="px-8 py-4 rounded-full bg-[#C9A961] hover:bg-[#E5C989] text-black font-semibold text-sm font-mono transition-all transform hover:scale-[1.03] shadow-[0_0_35px_rgba(201,169,97,0.35)] flex items-center justify-center"
+              className="px-8 py-4 rounded-full bg-[#C9A961] hover:bg-[#E5C989] text-black font-semibold text-sm font-mono transition-all hover:-translate-y-0.5 shadow-xl shadow-black/70 flex items-center justify-center"
             >
               <span>Open Fullscreen Observatory Console</span>
             </Link>
@@ -953,7 +953,7 @@ export default function LandingPage() {
 
           {/* Artwork Accent: Oracle Waveform */}
           <div className="max-w-md mx-auto pt-6 opacity-60">
-            <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden border border-[#C9A961]/20">
+            <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors">
               <Image
                 src="/assets/oracle_waveform.jpg"
                 alt="Oracle Waveform Telemetry"
@@ -966,7 +966,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 py-12 px-6 bg-[#08090C] text-[#686660] text-xs font-mono">
+      <footer className="border-t border-white/10 py-12 px-6 bg-[#000000] text-[#686660] text-xs font-mono">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <div className="relative w-6 h-6 rounded-full overflow-hidden border border-[#C9A961]/40">

@@ -8,10 +8,10 @@
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-brand-script: 'Pacifico', cursive, sans-serif;
-  --void: #08090C;
-  --void-2: #111318;
-  --void-3: #181B22;
-  --panel: rgba(19, 21, 26, 0.75);
+  --void: #000000;
+  --void-2: #07080A;
+  --void-3: #0D0E12;
+  --panel: rgba(7, 8, 10, 0.85);
   --marble: #EDE9E1;
   --marble-dim: #C9C4B8;
   --aurum: #C9A961;
@@ -29,12 +29,12 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #08090C;
+  background-color: #000000;
   color: #EDE9E1;
 }
 
 body {
-  background-color: #08090C;
+  background-color: #000000;
   color: #EDE9E1;
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -48,7 +48,7 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #08090C;
+  background: #000000;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(201, 169, 97, 0.25);

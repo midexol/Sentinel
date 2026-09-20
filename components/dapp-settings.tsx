@@ -326,8 +326,8 @@ export default function DappSettings({
               SETTINGS
             </span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium border border-emerald-500/40 bg-emerald-500/10 text-emerald-400">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium border border-[#8FAF92]/30 bg-[#8FAF92]/10 text-[#8FAF92]">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#8FAF92]" />
             <span>{rpcStatus === "Connected" ? "Connected" : rpcStatus}</span>
           </div>
         </div>
@@ -352,13 +352,13 @@ export default function DappSettings({
                     className="text-[#686660] hover:text-[#C9A961] transition-colors p-1"
                     title="Copy full address"
                   >
-                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? <Check className="w-3.5 h-3.5 text-[#8FAF92]" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>
               <div className="flex items-center justify-between py-1">
                 <span className="text-[#686660]">Private Key:</span>
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold uppercase bg-[#8FAF92]/10 text-[#8FAF92] border border-[#8FAF92]/25">
                   Loaded
                 </span>
               </div>
@@ -384,7 +384,7 @@ export default function DappSettings({
               </div>
               <div className="flex items-center justify-between py-1">
                 <span className="text-[#686660]">Uptime:</span>
-                <span className="text-emerald-400 font-medium">{uptime}</span>
+                <span className="text-[#8FAF92] font-medium">{uptime}</span>
               </div>
             </div>
           </section>
@@ -707,7 +707,7 @@ export default function DappSettings({
               disabled={isSaving || hasBlockingErrors || !isDirty}
               className={`px-6 py-3 rounded-xl font-bold font-mono text-xs transition-all flex items-center gap-2 ${
                 isDirty && !hasBlockingErrors
-                  ? "bg-[#C9A961] hover:bg-[#E5C989] text-black shadow-[0_0_20px_rgba(201,169,97,0.35)] cursor-pointer"
+                  ? "bg-[#C9A961] hover:bg-[#E5C989] text-black shadow-lg cursor-pointer"
                   : "bg-white/10 text-[#686660] cursor-not-allowed"
               }`}
             >
@@ -751,7 +751,7 @@ export default function DappSettings({
                   onClick={handleToggleHalt}
                   className={`px-4 py-2.5 rounded-lg font-mono text-xs font-semibold transition-colors flex items-center gap-2 ${
                     isHalted
-                      ? "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                      ? "bg-[#8FAF92]/10 hover:bg-[#8FAF92]/15 text-[#8FAF92] border border-[#8FAF92]/30"
                       : "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30"
                   }`}
                 >

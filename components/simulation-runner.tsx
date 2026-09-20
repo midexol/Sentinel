@@ -91,7 +91,7 @@ export default function SimulationRunner() {
           <button
             onClick={runSimulation}
             disabled={isRunning}
-            className="flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-mono font-semibold bg-gradient-to-r from-aurum to-aurum-light text-void hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shadow-[0_4px_16px_rgba(201,169,97,0.3)]"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-mono font-medium bg-gradient-to-b from-[#ECD79B] to-[#C9A961] hover:from-[#F3E5AB] hover:to-[#D4B574] text-[#07080B] hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 shadow-md"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>{isRunning ? "Simulating…" : "Run Conformance Suite"}</span>
@@ -110,7 +110,7 @@ export default function SimulationRunner() {
               key={s.step}
               className={`p-4 rounded-xl border transition-all duration-300 relative overflow-hidden ${
                 isCurrent
-                  ? "bg-[#161410] border-aurum/70 shadow-[0_0_20px_rgba(201,169,97,0.15)]"
+                  ? "bg-[#161410] border-aurum/70 shadow-xl"
                   : isDone
                   ? "bg-[#0E1117] border-white/[0.08]"
                   : "bg-void/40 border-white/[0.03] opacity-50"
@@ -124,7 +124,7 @@ export default function SimulationRunner() {
                   Stage 0{s.step}
                 </span>
                 {isDone ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle2 className="w-4 h-4 text-[#8FAF92]" />
                 ) : isCurrent ? (
                   <span className="w-2 h-2 rounded-sm bg-aurum rotate-45 inline-block" />
                 ) : (
@@ -155,7 +155,7 @@ export default function SimulationRunner() {
           {">"} Invariant Assertion: Nonce gap strictly non-decreasing, gas ceiling locked at 25%.
         </div>
         {currentStep >= 5 && (
-          <div className="text-emerald-400 flex items-center gap-2">
+          <div className="text-[#8FAF92] flex items-center gap-2">
             <span>{">"} Onchain Resolution Tx:</span>
             <a
               href={getBaseScanTxUrl(sampleTx)}
