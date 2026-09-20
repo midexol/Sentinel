@@ -1,6 +1,10 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
+import SiteFooter from "@/components/site-footer";
+import SiteAtmosphere from "@/components/site-atmosphere";
 import { truncateAddress, formatEther, getBaseScanAddressUrl } from "@/lib/viem";
 import { ShieldCheck, ExternalLink, Cpu, Database } from "lucide-react";
 
@@ -36,20 +40,21 @@ const keystores = [
 
 export default function AssetsPage() {
   return (
-    <div className="min-h-screen bg-void text-marble selection:bg-aurum/20 selection:text-aurum-light">
+    <div className="min-h-screen bg-void text-marble relative overflow-hidden font-sans selection:bg-aurum/20 selection:text-aurum-light">
+      <SiteAtmosphere />
       <SiteHeader />
 
-      <main className="pt-36 md:pt-44 pb-24 px-6 max-w-7xl mx-auto">
-        <div className="max-w-3xl mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-void-2 border border-aurum/30 text-xs font-mono mb-4 text-aurum">
-            <Database className="w-3.5 h-3.5" />
-            <span>Monitored Assets & Keystores</span>
+      <main className="pt-36 md:pt-44 pb-24 px-6 max-w-7xl mx-auto relative z-10 space-y-12">
+        <div className="max-w-3xl space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961] text-xs font-mono">
+            <Database className="w-3.5 h-3.5 text-[#C9A961]" />
+            <span>REGISTERED EXECUTION KEYSTORES</span>
           </div>
-          <h1 className="font-cinzel text-3xl sm:text-5xl font-bold tracking-wide text-marble">
-            REGISTERED EXECUTION KEYSTORES
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif text-white font-medium tracking-tight">
+            Monitored Keystores & Pipelines
           </h1>
-          <p className="mt-4 font-sans text-marble-dim/80 text-base leading-relaxed">
-            Institutional trading bots on Base L2 register their public addresses with Sentinel. The watchdog continuously polls local mempools and the Base sequencer to protect against deadlocks.
+          <p className="text-sm sm:text-base text-[#C2BEB4] font-light leading-relaxed">
+            Institutional trading bots on Base L2 register their public addresses with Sentinel. The autonomous watchdog monitors mempool state, Flashblock transactions, and sequencer queues to prevent stalled execution.
           </p>
         </div>
 
@@ -57,7 +62,7 @@ export default function AssetsPage() {
           {keystores.map((k) => (
             <div
               key={k.address}
-              className="bg-[#0C0E14] border border-aurum/20 rounded-2xl p-6 shadow-xl flex flex-col justify-between hover:border-aurum/50 transition-all group"
+              className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 shadow-sm flex flex-col justify-between transition-all group"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -68,31 +73,32 @@ export default function AssetsPage() {
                     href={getBaseScanAddressUrl(k.address)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-ash hover:text-aurum transition-colors"
+                    className="text-[#686660] hover:text-[#C9A961] transition-colors"
+                    title="View on BaseScan Explorer"
                   >
                     <ExternalLink className="w-4 h-4" />
                   </a>
                 </div>
 
-                <h3 className="font-cinzel text-base font-semibold text-marble mb-1">
+                <h3 className="font-serif text-xl font-medium text-white mb-1">
                   {k.name}
                 </h3>
-                <p className="text-xs font-mono text-ash mb-4">
+                <p className="text-xs font-mono text-[#686660] mb-4">
                   Target: {k.dexTarget}
                 </p>
 
-                <div className="space-y-2 pt-3 border-t border-white/[0.06] font-mono text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-ash">Address:</span>
-                    <span className="text-marble">{truncateAddress(k.address)}</span>
+                <div className="space-y-2.5 pt-4 border-t border-white/[0.06] font-mono text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#686660]">Address:</span>
+                    <span className="text-white font-mono">{truncateAddress(k.address)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-ash">Mined Nonce:</span>
-                    <span className="text-aurum">#{k.minedNonce}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#686660]">Mined Nonce:</span>
+                    <span className="text-[#C9A961] font-semibold">#{k.minedNonce}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-ash">Balance:</span>
-                    <span className="text-marble">{formatEther(k.balanceWei)} ETH</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#686660]">Balance:</span>
+                    <span className="text-white">{formatEther(k.balanceWei)} ETH</span>
                   </div>
                 </div>
               </div>
@@ -100,7 +106,7 @@ export default function AssetsPage() {
               <div className="mt-6 pt-4 border-t border-white/[0.06]">
                 <Link
                   href="/dapp"
-                  className="flex items-center justify-between text-xs font-mono text-aurum group-hover:text-aurum-light"
+                  className="flex items-center justify-between text-xs font-mono text-[#C9A961] hover:text-white font-semibold transition-colors"
                 >
                   <span>Open in Observatory</span>
                 </Link>
@@ -109,6 +115,8 @@ export default function AssetsPage() {
           ))}
         </div>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

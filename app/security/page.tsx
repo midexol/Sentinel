@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import SiteHeader from "@/components/site-header";
+import SiteFooter from "@/components/site-footer";
+import SiteAtmosphere from "@/components/site-atmosphere";
 import {
   ShieldCheck,
   Lock,
@@ -221,65 +223,66 @@ export default function SecurityPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-void text-marble selection:bg-aurum/20 selection:text-aurum-light">
+    <div className="min-h-screen bg-void text-marble relative overflow-hidden font-sans selection:bg-aurum/20 selection:text-aurum-light">
+      <SiteAtmosphere />
       <SiteHeader />
 
-      <main className="pt-36 md:pt-44 pb-28 px-6 max-w-7xl mx-auto space-y-12">
+      <main className="pt-36 md:pt-44 pb-28 px-6 max-w-7xl mx-auto relative z-10 space-y-12">
         {/* Header section */}
         <div className="max-w-4xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-void-2 border border-aurum/30 text-xs font-mono text-aurum">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961] text-xs font-mono">
             <ShieldCheck className="w-4 h-4" />
             <span>Institutional Security & Invariants</span>
           </div>
 
-          <h1 className="font-cinzel text-3xl sm:text-5xl font-bold tracking-wide text-marble">
-            SECURITY MODEL & GUARDRAILS
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif text-white font-medium tracking-tight">
+            Security Architecture & Guardrails
           </h1>
 
-          <p className="font-sans text-marble-dim/80 text-base sm:text-lg leading-relaxed">
+          <p className="text-sm sm:text-base text-[#C2BEB4] font-light leading-relaxed">
             Securing an autonomous system that signs transactions requires rigorous defense in depth. Sentinel is engineered around a three-layer isolation model, mathematical invariants, and zero-trust RPC communication on Base L2.
           </p>
         </div>
 
         {/* Security posture summary stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#0C0E14] border border-white/[0.08] p-5 rounded-2xl flex items-center gap-4">
+          <div className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
             <div className="p-3 rounded-xl bg-aurum/10 border border-aurum/20 text-aurum">
               <KeyRound className="w-5 h-5" />
             </div>
             <div>
               <div className="text-xs font-mono text-ash uppercase">Private Key Isolation</div>
-              <div className="text-lg font-cinzel font-bold text-marble">Environment Locked</div>
+              <div className="text-base font-serif font-medium text-white">Environment Locked</div>
             </div>
           </div>
 
-          <div className="bg-[#0C0E14] border border-white/[0.08] p-5 rounded-2xl flex items-center gap-4">
+          <div className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
             <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
               <Globe className="w-5 h-5" />
             </div>
             <div>
               <div className="text-xs font-mono text-ash uppercase">RPC Gateway</div>
-              <div className="text-lg font-cinzel font-bold text-marble">Backend Proxied</div>
+              <div className="text-base font-serif font-medium text-white">Backend Proxied</div>
             </div>
           </div>
 
-          <div className="bg-[#0C0E14] border border-white/[0.08] p-5 rounded-2xl flex items-center gap-4">
+          <div className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
             <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400">
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
               <div className="text-xs font-mono text-ash uppercase">HTTP Security</div>
-              <div className="text-lg font-cinzel font-bold text-marble">OWASP Clamped</div>
+              <div className="text-base font-serif font-medium text-white">OWASP Clamped</div>
             </div>
           </div>
 
-          <div className="bg-[#0C0E14] border border-white/[0.08] p-5 rounded-2xl flex items-center gap-4">
+          <div className="rounded-2xl bg-[#101216] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
             <div className="p-3 rounded-xl bg-aurum/10 border border-aurum/20 text-aurum">
               <CheckCircle2 className="w-5 h-5" />
             </div>
             <div>
               <div className="text-xs font-mono text-ash uppercase">Pre-Launch Verification</div>
-              <div className="text-lg font-cinzel font-bold text-aurum-light">
+              <div className="text-base font-serif font-medium text-[#C9A961]">
                 {verifiedPct}% Complete
               </div>
             </div>
@@ -335,7 +338,7 @@ export default function SecurityPage() {
           <div className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Layer 1 */}
-              <div className="bg-[#0C0E14] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
+              <div className="bg-[#101216] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <KeyRound className="w-24 h-24 text-aurum" />
                 </div>
@@ -368,7 +371,7 @@ export default function SecurityPage() {
               </div>
 
               {/* Layer 2 */}
-              <div className="bg-[#0C0E14] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
+              <div className="bg-[#101216] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Globe className="w-24 h-24 text-aurum" />
                 </div>
@@ -401,7 +404,7 @@ export default function SecurityPage() {
               </div>
 
               {/* Layer 3 */}
-              <div className="bg-[#0C0E14] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
+              <div className="bg-[#101216] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Cpu className="w-24 h-24 text-aurum" />
                 </div>
@@ -435,7 +438,7 @@ export default function SecurityPage() {
             </div>
 
             {/* Architecture diagram description */}
-            <div className="bg-[#0C0E14] border border-white/[0.08] rounded-2xl p-6 sm:p-8 space-y-4">
+            <div className="rounded-2xl bg-[#101216] border border-white/[0.08] p-6 sm:p-8 space-y-4">
               <div className="flex items-center gap-2 text-xs font-mono text-aurum">
                 <Terminal className="w-4 h-4" />
                 <span>Zero-Trust Gateway Architecture</span>
@@ -457,7 +460,7 @@ export default function SecurityPage() {
         {/* Tab 2: Interactive Pre-Launch Checklist */}
         {activeTab === "checklist" && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0C0E14] border border-aurum/20 rounded-2xl p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-[#101216] border border-white/[0.08] p-6">
               <div>
                 <h2 className="font-cinzel text-xl font-bold text-marble">Pre-Launch Security Audit Checklist</h2>
                 <p className="text-xs font-mono text-ash mt-1">
@@ -484,8 +487,8 @@ export default function SecurityPage() {
                   onClick={() => toggleCheck(item.id)}
                   className={`cursor-pointer p-5 rounded-xl border transition-all duration-200 space-y-2 ${
                     item.verified
-                      ? "bg-[#0C0E14] border-aurum/30 hover:border-aurum/60"
-                      : "bg-[#0C0E14]/60 border-white/[0.06] hover:border-white/[0.15] opacity-60"
+                      ? "bg-[#101216] border-aurum/30 hover:border-aurum/60"
+                      : "bg-[#101216]/60 border-white/[0.06] hover:border-white/[0.15] opacity-60"
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -517,7 +520,7 @@ export default function SecurityPage() {
         {/* Tab 3: Formal Mathematical Invariants */}
         {activeTab === "invariants" && (
           <div className="space-y-6">
-            <div className="bg-[#0C0E14] border border-aurum/20 rounded-2xl p-6 space-y-2">
+            <div className="rounded-2xl bg-[#101216] border border-white/[0.08] p-6 space-y-2">
               <h2 className="font-cinzel text-xl font-bold text-marble">Formal Safety Invariants</h2>
               <p className="text-xs font-mono text-ash">
                 These mathematical invariants are hard-enforced in code to eliminate systemic failure modes.
@@ -528,7 +531,7 @@ export default function SecurityPage() {
               {invariants.map((inv) => (
                 <div
                   key={inv.id}
-                  className="bg-[#0C0E14] border border-aurum/20 rounded-2xl p-6 shadow-xl space-y-4"
+                  className="rounded-2xl bg-[#101216] border border-white/[0.08] p-6 shadow-xl space-y-4"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs text-aurum font-semibold">
@@ -557,14 +560,14 @@ export default function SecurityPage() {
         {/* Tab 4: Anti-Patterns Comparison Table */}
         {activeTab === "antipatterns" && (
           <div className="space-y-6">
-            <div className="bg-[#0C0E14] border border-aurum/20 rounded-2xl p-6 space-y-2">
+            <div className="rounded-2xl bg-[#101216] border border-white/[0.08] p-6 space-y-2">
               <h2 className="font-cinzel text-xl font-bold text-marble">Common Anti-Patterns vs Sentinel Standard</h2>
               <p className="text-xs font-mono text-ash">
                 Why standard Web3 bot implementations fail under pressure and how Sentinel resolves each vulnerability.
               </p>
             </div>
 
-            <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-[#0C0E14]">
+            <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-[#101216]">
               <table className="w-full text-left border-collapse text-xs font-mono">
                 <thead>
                   <tr className="border-b border-white/[0.08] bg-void-2/60 text-ash uppercase">
@@ -587,6 +590,7 @@ export default function SecurityPage() {
           </div>
         )}
       </main>
+      <SiteFooter />
     </div>
   );
 }
