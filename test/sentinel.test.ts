@@ -18,7 +18,7 @@ const mockConfig: SentinelConfig = {
   minGasBumpPct: 10,
   maxGasBumpPct: 50,
   anthropicApiKey: null,
-  agentModel: "claude-sonnet-5",
+  agentModel: "llm-reasoning-agent",
   dryRun: true,
 };
 

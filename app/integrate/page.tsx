@@ -252,7 +252,7 @@ export default function IntegratePage() {
                 <p className="text-[#C86A58]">   - Tx #2 (nonce 43): Underpriced (1 wei tip) [STUCK]</p>
                 <p className="text-[#D4A359]">   - Tx #3 (nonce 44): High fee [QUEUED behind stuck nonce 43]</p>
                 <p className="text-[#93A7B8] pt-1">2. Sentinel detects gap at nonce 43</p>
-                <p className="text-ash">3. Triggering AI Diagnosis (Claude reasoning layer)...</p>
+                <p className="text-ash">3. Triggering AI Diagnosis (LLM agent reasoning layer)...</p>
                 <p className="text-[#8FAF92]">   - Clamped recommendation: 10%</p>
                 <p className="text-ash">4. Resolving stuck transaction via GapResolver (Dry Run)...</p>
                 <p className="text-[#8FAF92] font-semibold">   Resolution outcome: resolved (0xdryrun002b1a0b9baeaf1)</p>

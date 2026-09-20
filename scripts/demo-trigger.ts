@@ -29,7 +29,7 @@ import { TransactionInterceptor } from "../src/interceptor.js";
  * - `npm run demo -- --mode=raw`:
  *   Submits transactions directly to Base Sepolia RPC. Run `npm run watch`
  *   in a separate terminal to watch Sentinel detect the gap, diagnose it
- *   with Claude, and resubmit it with the clamped bump.
+ *   with the LLM agent, and resubmit it with the clamped bump.
  *
  * - `npm run demo -- --mode=interceptor`:
  *   Submits transactions through `TransactionInterceptor`. The interceptor
@@ -61,7 +61,7 @@ async function runSimulation() {
     minGasBumpPct: 10,
     maxGasBumpPct: 50,
     anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? null,
-    agentModel: process.env.AGENT_MODEL ?? "claude-sonnet-5",
+    agentModel: process.env.AGENT_MODEL ?? "llm-reasoning-agent",
     dryRun: true,
   };
 
@@ -128,7 +128,7 @@ async function runSimulation() {
     trackedTxs: store.all(),
   };
 
-  console.log("3. Triggering AI Diagnosis (Claude reasoning layer)...");
+  console.log("3. Triggering AI Diagnosis (LLM agent reasoning layer)...");
   const diagnosis = await diagnostician.diagnose(gap, mockState, [
     { timestamp: Date.now() - 5000, kind: "gap" },
   ]);

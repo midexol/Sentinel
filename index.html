@@ -378,7 +378,7 @@
           <span class="text-[10px] font-mono uppercase tracking-widest text-[#4A7A99]">RESOLVER SUBSYSTEM</span>
           <h3 class="font-serif text-2xl text-white">AI Diagnostics & Clamped Gas Bumping</h3>
           <p class="text-xs text-[#C2BEB4] leading-relaxed">
-            When a gap is confirmed, <code class="text-[#4A7A99]">agent.ts</code> classifies the root cause via Claude 3.5 Sonnet or local fast heuristics. <code class="text-[#4A7A99]">resolver.ts</code> constructs a zero-value cancellation or bumped replacement, strictly clamped within user-defined percentage bounds.
+            When a gap is confirmed, <code class="text-[#4A7A99]">agent.ts</code> classifies the root cause via the LLM reasoning agent or local fast heuristics. <code class="text-[#4A7A99]">resolver.ts</code> constructs a zero-value cancellation or bumped replacement, strictly clamped within user-defined percentage bounds.
           </p>
           <div class="pt-2 flex items-center gap-4 text-xs font-mono text-[#4A7A99]">
             <span>✓ Bounded Gas Clamp (10% - 100%)</span>

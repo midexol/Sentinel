@@ -56,7 +56,7 @@ export function loadConfig(): SentinelConfig {
     minGasBumpPct: Number(process.env.MIN_GAS_BUMP_PCT ?? 10), // Base's documented minimum
     maxGasBumpPct: Number(process.env.MAX_GAS_BUMP_PCT ?? 50), // hard ceiling regardless of AI suggestion
     anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? null,
-    agentModel: process.env.AGENT_MODEL ?? "claude-sonnet-5",
+    agentModel: process.env.AGENT_MODEL ?? "llm-reasoning-agent",
     dryRun: (process.env.DRY_RUN ?? "false").toLowerCase() === "true",
   };
 }
