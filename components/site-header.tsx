@@ -25,9 +25,9 @@ export default function SiteHeader() {
   }, [pathname]);
 
   const navLinks = [
-    { label: "Assets", href: "/assets" },
-    { label: "CLI Daemon", href: "/#cli" },
-    { label: "Simulate", href: "/simulate" },
+    { label: "Pipelines", href: "/assets" },
+    { label: "Integration", href: "/integrate" },
+    { label: "Simulation", href: "/simulate" },
     { label: "Security", href: "/security" },
     { label: "Status", href: "/status" },
   ];
