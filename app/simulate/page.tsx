@@ -15,9 +15,9 @@ export default function SimulatePage() {
 
       <main className="pt-36 md:pt-44 pb-24 px-6 max-w-7xl mx-auto relative z-10 space-y-12">
         <div className="max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961] text-xs font-mono">
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
             <Terminal className="w-3.5 h-3.5 text-[#C9A961]" />
-            <span>DETERMINISTIC FAULT INJECTION</span>
+            <span>Deterministic Fault Injection</span>
           </div>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif text-white font-medium tracking-tight">
             Conformance & Recovery Engine

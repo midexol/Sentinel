@@ -20,8 +20,8 @@ export default function StatusPage() {
 
       <main className="relative z-10 pt-36 md:pt-44 pb-24 px-6 max-w-6xl mx-auto w-full space-y-12">
         <div className="max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B0D11]/90 border border-aurum/30 text-xs font-mono text-aurum shadow-sm">
-            <Activity className="w-3.5 h-3.5 text-aurum" />
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
+            <Activity className="w-3.5 h-3.5" />
             <span>Telemetry & Uptime</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-5xl font-semibold tracking-tight text-marble">

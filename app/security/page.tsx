@@ -230,7 +230,7 @@ export default function SecurityPage() {
       <main className="pt-36 md:pt-44 pb-28 px-6 max-w-7xl mx-auto relative z-10 space-y-12">
         {/* Header section */}
         <div className="max-w-4xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961] text-xs font-mono">
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
             <ShieldCheck className="w-4 h-4" />
             <span>Institutional Security & Invariants</span>
           </div>
@@ -342,9 +342,9 @@ export default function SecurityPage() {
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <KeyRound className="w-24 h-24 text-aurum" />
                 </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-aurum/10 border border-aurum/20 text-xs font-mono text-aurum">
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-aurum">
                   <Fingerprint className="w-3.5 h-3.5" />
-                  <span>Layer 1: Highest Priority</span>
+                  <span>Layer 1 · Highest Priority</span>
                 </div>
                 <h2 className="font-cinzel text-xl font-bold text-marble">Private Key Protection</h2>
                 <p className="text-sm font-sans text-marble-dim/80 leading-relaxed">
@@ -375,9 +375,9 @@ export default function SecurityPage() {
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Globe className="w-24 h-24 text-aurum" />
                 </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8FAF92]/10 border border-[#8FAF92]/25 text-xs font-mono text-[#8FAF92]">
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#8FAF92]">
                   <Server className="w-3.5 h-3.5" />
-                  <span>Layer 2: Gateway Defense</span>
+                  <span>Layer 2 · Gateway Defense</span>
                 </div>
                 <h2 className="font-cinzel text-xl font-bold text-marble">RPC & API Security</h2>
                 <p className="text-sm font-sans text-marble-dim/80 leading-relaxed">
@@ -408,9 +408,9 @@ export default function SecurityPage() {
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Cpu className="w-24 h-24 text-aurum" />
                 </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-xs font-mono text-[#C9A961]">
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Layer 3: Application Defense</span>
+                  <span>Layer 3 · Application Defense</span>
                 </div>
                 <h2 className="font-serif text-xl font-medium text-marble">Daemon & Node.js Hygiene</h2>
                 <p className="text-sm font-sans text-marble-dim/80 leading-relaxed">

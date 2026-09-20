@@ -57,7 +57,7 @@ export default function PrivacyPolicyPage() {
 
       <main className="relative z-10 pt-36 md:pt-44 pb-24 px-6 max-w-5xl mx-auto w-full space-y-12">
         <div className="space-y-4 text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B0D11]/90 border border-aurum/30 text-xs font-mono text-aurum shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
             <Shield className="w-3.5 h-3.5" />
             <span>Institutional Governance</span>
           </div>

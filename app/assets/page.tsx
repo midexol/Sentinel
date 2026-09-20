@@ -46,9 +46,9 @@ export default function AssetsPage() {
 
       <main className="pt-36 md:pt-44 pb-24 px-6 max-w-7xl mx-auto relative z-10 space-y-12">
         <div className="max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961] text-xs font-mono">
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
             <Database className="w-3.5 h-3.5 text-[#C9A961]" />
-            <span>REGISTERED EXECUTION KEYSTORES</span>
+            <span>Registered Execution Keystores</span>
           </div>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif text-white font-medium tracking-tight">
             Monitored Keystores & Pipelines
@@ -66,7 +66,8 @@ export default function AssetsPage() {
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase bg-[#8FAF92]/10 text-[#8FAF92] border border-[#8FAF92]/25">
+                  <span className="flex items-center gap-1.5 text-[10px] font-mono font-semibold uppercase text-[#8FAF92]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#8FAF92]" />
                     {k.status}
                   </span>
                   <a

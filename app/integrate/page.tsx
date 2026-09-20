@@ -19,8 +19,8 @@ export default function IntegratePage() {
       <main className="relative z-10 pt-28 sm:pt-36 md:pt-44 pb-20 px-4 sm:px-6 max-w-6xl mx-auto w-full space-y-12">
         {/* Page Header */}
         <div className="space-y-4 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B0D11] border border-aurum/30 text-xs font-mono text-aurum">
-            <Terminal className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
+            <Terminal className="w-3.5 h-3.5 text-[#C9A961]" />
             <span>Developer Integration & Daemon Control</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-5xl font-semibold tracking-tight text-marble">
@@ -37,8 +37,8 @@ export default function IntegratePage() {
           <div className="bg-[#07080A]/95 border border-white/[0.08] hover:border-aurum/35 transition-colors rounded-2xl p-6 sm:p-8 space-y-5 shadow-2xl backdrop-blur-xl flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="px-2.5 py-1 rounded-full bg-[#8FAF92]/10 border border-[#8FAF92]/25 text-[#8FAF92] font-mono text-xs font-semibold">
-                  MODE 1: IN-LINE INTERCEPTOR
+                <span className="text-[11px] font-mono uppercase tracking-widest text-[#8FAF92] font-semibold">
+                  Mode 01 · In-Line Interceptor
                 </span>
                 <span className="font-mono text-xs text-ash">src/interceptor.ts</span>
               </div>
@@ -65,8 +65,8 @@ export default function IntegratePage() {
           <div className="bg-[#07080A]/95 border border-white/[0.08] hover:border-aurum/35 transition-colors rounded-2xl p-6 sm:p-8 space-y-5 shadow-2xl backdrop-blur-xl flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="px-2.5 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961] font-mono text-xs font-semibold">
-                  MODE 2: OUT-OF-BAND WATCHDOG
+                <span className="text-[11px] font-mono uppercase tracking-widest text-[#C9A961] font-semibold">
+                  Mode 02 · Out-of-Band Watchdog
                 </span>
                 <span className="font-mono text-xs text-ash">src/evictionMonitor.ts</span>
               </div>

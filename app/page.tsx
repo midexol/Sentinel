@@ -173,9 +173,9 @@ export default function LandingPage() {
       {/* 1. HERO SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 sm:pt-36 md:pt-40 pb-14 sm:pb-20 space-y-10">
         <div className="text-center max-w-3xl mx-auto space-y-5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B0D11] border border-aurum/30 text-xs font-mono text-aurum">
+          <div className="flex items-center justify-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Autonomous Nonce Watchdog for Base L2</span>
+            <span>Autonomous Nonce Watchdog · Base L2</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif font-normal tracking-tight leading-[1.12] text-white">
@@ -215,7 +215,7 @@ export default function LandingPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#08090C]/40 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-r from-[#000000]/80 via-transparent to-[#000000]/80" />
 
-            <div className="absolute bottom-3 left-3 right-3 sm:bottom-6 sm:left-6 sm:right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2.5 sm:gap-4">
+            <div className="absolute bottom-3 left-3 right-3 sm:bottom-6 sm:left-6 sm:right-6 flex flex-col gap-2.5">
               <div className="space-y-1">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-[#C9A961]">
                   Sub-Second Guardian
@@ -227,14 +227,7 @@ export default function LandingPage() {
                   Base Sepolia RPC & 200ms Flashblocks
                 </div>
               </div>
-              <div className="flex items-center gap-2 sm:gap-3 font-mono text-xs shrink-0">
-                <div className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/[0.08] text-[#C9A961]">
-                  Flashblocks: ~200ms
-                </div>
-                <div className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/[0.08] text-[#C2BEB4]">
-                  Zero Runaway Fees
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>
@@ -250,10 +243,7 @@ export default function LandingPage() {
                 &ldquo;Model Proposes, Code Decides&rdquo;
               </h2>
             </div>
-            <div className="flex items-center gap-2 font-mono text-xs text-[#8FAF92] bg-[#8FAF92]/10 border border-[#8FAF92]/25 px-3 py-1 rounded-full self-start md:self-auto">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Hard Clamped Bounds</span>
-            </div>
+            
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 font-mono text-xs">
@@ -288,7 +278,7 @@ export default function LandingPage() {
       <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5 space-y-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-5 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C86A58]/10 text-[#C86A58] border border-[#C86A58]/20 text-[11px] font-mono uppercase tracking-wider">
+            <div className="text-[11px] font-mono uppercase tracking-widest text-[#C86A58] font-semibold">
               The Real Problem
             </div>
             <h2 className="text-2xl sm:text-4xl font-serif text-white leading-tight">
@@ -320,9 +310,6 @@ export default function LandingPage() {
                     Michelangelo&apos;s Creation of Adam · The Unconfirmed Sequence Gap
                   </div>
                 </div>
-                <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-[#C86A58]/10 text-[#C86A58] border border-[#C86A58]/25 shrink-0">
-                  DEADLOCK STATE
-                </span>
               </div>
             </div>
           </div>
@@ -354,7 +341,7 @@ export default function LandingPage() {
       {/* 3. ARCHITECTURE: HOW SENTINEL HEALS THE STREAM */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5 space-y-10">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C9A961]/10 text-[#C9A961] text-[11px] font-mono uppercase tracking-wider">
+          <div className="text-[11px] font-mono uppercase tracking-widest text-[#C9A961]">
             Autonomous Engine
           </div>
           <h2 className="text-2xl sm:text-4xl font-serif text-white">
@@ -488,7 +475,7 @@ export default function LandingPage() {
       {/* 5. OPERATIONAL STATS BENTO GRID */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5 space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C9A961]/10 text-[#C9A961] text-[11px] font-mono uppercase tracking-wider">
+          <div className="text-[11px] font-mono uppercase tracking-widest text-[#C9A961]">
             Operational Benchmarks
           </div>
           <h2 className="text-2xl sm:text-4xl font-serif text-white">
@@ -526,7 +513,7 @@ export default function LandingPage() {
       {/* 6. DEDICATED MODULES NAVIGATION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5 space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C9A961]/10 text-[#C9A961] text-[11px] font-mono uppercase tracking-wider">
+          <div className="text-[11px] font-mono uppercase tracking-widest text-[#C9A961]">
             Specialized Subsystems
           </div>
           <h2 className="text-2xl sm:text-4xl font-serif text-white">
@@ -604,9 +591,9 @@ export default function LandingPage() {
       <section id="dapp-preview" className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5">
         <div className="rounded-2xl sm:rounded-[28px] bg-[#07080A]/95 border border-[#C9A961]/20 p-8 sm:p-12 text-center space-y-6 relative overflow-hidden shadow-2xl">
           <div className="w-full max-w-xl mx-auto space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961] text-xs font-mono">
+            <div className="flex items-center justify-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
               <Activity className="w-3.5 h-3.5 text-[#C9A961]" />
-              <span>REAL-TIME OBSERVATORY INTERFACE</span>
+              <span>Real-Time Observatory Interface</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-serif text-white">
               Enter the Live Observatory.
