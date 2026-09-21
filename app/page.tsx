@@ -13,7 +13,16 @@ import {
   Cpu,
   Terminal,
   Play,
-  CheckCircle2
+  CheckCircle2,
+  Crown,
+  Scroll,
+  Scale,
+  Landmark,
+  Flame,
+  KeyRound,
+  Sparkles,
+  Layers,
+  ShieldAlert,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -248,7 +257,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 font-mono text-xs">
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
-              <div className="text-ash uppercase text-[10px]">Step 1 · AI Reasoning</div>
+              <div className="text-ash uppercase text-[10px] flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#C9A961]" /><span>Step 1 · AI Reasoning</span></div>
               <div className="text-white font-serif text-base font-medium">The Agent Reasons</div>
               <p className="text-marble-dim/80 text-xs leading-relaxed">
                 The LLM reasoning agent diagnoses why the transaction stalled and proposes an optimal recovery gas bump.
@@ -256,7 +265,7 @@ export default function LandingPage() {
             </div>
 
             <div className="p-4 rounded-xl bg-white/[0.02] border border-[#C9A961]/30 space-y-1">
-              <div className="text-[#C9A961] uppercase text-[10px]">Step 2 · Hard Mathematical Clamp</div>
+              <div className="text-[#C9A961] uppercase text-[10px] flex items-center gap-1.5"><Scale className="w-3.5 h-3.5 text-[#C9A961]" /><span>Step 2 · Hard Mathematical Clamp</span></div>
               <div className="text-[#C9A961] font-serif text-base font-medium">Code Decides</div>
               <p className="text-marble-dim/80 text-xs leading-relaxed">
                 The model never touches gas fees directly. Every proposal is clamped between 10% and 50% max. Zero runaway risk.
@@ -264,7 +273,7 @@ export default function LandingPage() {
             </div>
 
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
-              <div className="text-ash uppercase text-[10px]">Step 3 · Deterministic Execution</div>
+              <div className="text-ash uppercase text-[10px] flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-[#8FAF92]" /><span>Step 3 · Deterministic Execution</span></div>
               <div className="text-white font-serif text-base font-medium">Atomic Healing</div>
               <p className="text-marble-dim/80 text-xs leading-relaxed">
                 A replacement transaction is signed and broadcast. The queue unblocks and downstream trades resume immediately.
@@ -318,19 +327,19 @@ export default function LandingPage() {
         {/* 3 Failure Modes */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 font-mono text-xs">
           <div className="bg-[#07080A]/95 rounded-xl border border-white/[0.08] p-4 sm:p-5 space-y-1.5">
-            <div className="text-[#C86A58] text-[11px] font-semibold">01 · UNDERPRICED GAS STALL</div>
+            <div className="text-[#C86A58] text-[11px] font-semibold flex items-center gap-1.5"><Flame className="w-3.5 h-3.5" /><span>01 · UNDERPRICED GAS STALL</span></div>
             <p className="text-marble-dim/80 text-[11px] leading-relaxed">
               Gas spikes mid-flight. The transaction tip falls below sequencer minimum, stranding all downstream nonces.
             </p>
           </div>
           <div className="bg-[#07080A]/95 rounded-xl border border-white/[0.08] p-4 sm:p-5 space-y-1.5">
-            <div className="text-[#C9A961] text-[11px] font-semibold">02 · SILENT RPC EVICTION</div>
+            <div className="text-[#C9A961] text-[11px] font-semibold flex items-center gap-1.5"><Radio className="w-3.5 h-3.5" /><span>02 · SILENT RPC EVICTION</span></div>
             <p className="text-marble-dim/80 text-[11px] leading-relaxed">
               Overloaded RPC nodes drop pending transactions without error callbacks, leaving bots waiting indefinitely.
             </p>
           </div>
           <div className="bg-[#07080A]/95 rounded-xl border border-white/[0.08] p-4 sm:p-5 space-y-1.5">
-            <div className="text-[#C2BEB4] text-[11px] font-semibold">03 · MICRO-REORG COLLISION</div>
+            <div className="text-[#C2BEB4] text-[11px] font-semibold flex items-center gap-1.5"><Layers className="w-3.5 h-3.5" /><span>03 · MICRO-REORG COLLISION</span></div>
             <p className="text-marble-dim/80 text-[11px] leading-relaxed">
               A 200ms sub-block reorganization invalidates assumed order, triggering repeated sequence submission errors.
             </p>
@@ -438,7 +447,7 @@ export default function LandingPage() {
           {/* 4 Axiom Pillars */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-6 sm:p-8 bg-[#07080A] border-t border-white/[0.08] font-mono text-xs">
             <div className="space-y-1.5">
-              <div className="text-xs text-[#C9A961] font-semibold">AXIOM I</div>
+              <div className="text-xs text-[#C9A961] font-semibold flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" /><span>AXIOM I</span></div>
               <div className="font-serif text-sm sm:text-base text-white">Hard Clamped Bumping</div>
               <p className="text-ash text-[11px] leading-relaxed">
                 Fee proposals are clamped between 10% and 50% max. Zero runaway gas expenditure.
@@ -446,7 +455,7 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-1.5">
-              <div className="text-xs text-[#C9A961] font-semibold">AXIOM II</div>
+              <div className="text-xs text-[#C9A961] font-semibold flex items-center gap-1.5"><ShieldAlert className="w-3.5 h-3.5" /><span>AXIOM II</span></div>
               <div className="font-serif text-sm sm:text-base text-white">Triple-Strike Breaker</div>
               <p className="text-ash text-[11px] leading-relaxed">
                 Freezes automated writes if consecutive failures occur in a sliding window; sounds instant webhook alert.
@@ -454,7 +463,7 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-1.5">
-              <div className="text-xs text-[#C9A961] font-semibold">AXIOM III</div>
+              <div className="text-xs text-[#C9A961] font-semibold flex items-center gap-1.5"><KeyRound className="w-3.5 h-3.5" /><span>AXIOM III</span></div>
               <div className="font-serif text-sm sm:text-base text-white">Zero Key Exposure</div>
               <p className="text-ash text-[11px] leading-relaxed">
                 Runs in proxy interceptor mode with zero private keys stored in Sentinel itself.
@@ -462,7 +471,7 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-1.5">
-              <div className="text-xs text-[#C9A961] font-semibold">AXIOM IV</div>
+              <div className="text-xs text-[#C9A961] font-semibold flex items-center gap-1.5"><Scroll className="w-3.5 h-3.5" /><span>AXIOM IV</span></div>
               <div className="font-serif text-sm sm:text-base text-white">Audit Trail Provenance</div>
               <p className="text-ash text-[11px] leading-relaxed">
                 Every gap detection, diagnosis reason, and broadcast hash is permanently recorded to structured JSONL logs.
@@ -592,7 +601,7 @@ export default function LandingPage() {
         <div className="rounded-2xl sm:rounded-[28px] bg-[#07080A]/95 border border-[#C9A961]/20 p-8 sm:p-12 text-center space-y-6 relative overflow-hidden shadow-2xl">
           <div className="w-full max-w-xl mx-auto space-y-3">
             <div className="flex items-center justify-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
-              <Activity className="w-3.5 h-3.5 text-[#C9A961]" />
+              <Crown className="w-3.5 h-3.5 text-[#C9A961]" />
               <span>Real-Time Observatory Interface</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-serif text-white">

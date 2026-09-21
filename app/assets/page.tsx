@@ -6,7 +6,7 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import SiteAtmosphere from "@/components/site-atmosphere";
 import { truncateAddress, formatEther, getBaseScanAddressUrl } from "@/lib/viem";
-import { ShieldCheck, ExternalLink, Cpu, Database } from "lucide-react";
+import { ShieldCheck, ExternalLink, Cpu, Database, Landmark, Coins, Crown } from "lucide-react";
 
 const keystores = [
   {
@@ -47,7 +47,7 @@ export default function AssetsPage() {
       <main className="pt-36 md:pt-44 pb-24 px-6 max-w-7xl mx-auto relative z-10 space-y-12">
         <div className="max-w-3xl space-y-4">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
-            <Database className="w-3.5 h-3.5 text-[#C9A961]" />
+            <Landmark className="w-3.5 h-3.5 text-[#C9A961]" />
             <span>Registered Execution Keystores</span>
           </div>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif text-white font-medium tracking-tight">
@@ -110,6 +110,7 @@ export default function AssetsPage() {
                   className="flex items-center justify-between text-xs font-mono text-[#C9A961] hover:text-white font-semibold transition-colors"
                 >
                   <span>Open in Observatory</span>
+                  <Crown className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>

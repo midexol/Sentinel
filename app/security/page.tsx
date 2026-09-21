@@ -5,6 +5,9 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import SiteAtmosphere from "@/components/site-atmosphere";
 import {
+  Crown,
+  Scale,
+  Scroll,
   ShieldCheck,
   Lock,
   AlertOctagon,
@@ -19,6 +22,8 @@ import {
   ShieldAlert,
   Cpu,
   Fingerprint,
+  Landmark,
+  Shield,
 } from "lucide-react";
 
 interface ChecklistItem {
@@ -343,7 +348,7 @@ export default function SecurityPage() {
                   <KeyRound className="w-24 h-24 text-aurum" />
                 </div>
                 <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-aurum">
-                  <Fingerprint className="w-3.5 h-3.5" />
+                  <Crown className="w-3.5 h-3.5 text-aurum" />
                   <span>Layer 1 · Highest Priority</span>
                 </div>
                 <h2 className="font-cinzel text-xl font-bold text-marble">Private Key Protection</h2>
@@ -376,7 +381,7 @@ export default function SecurityPage() {
                   <Globe className="w-24 h-24 text-aurum" />
                 </div>
                 <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#8FAF92]">
-                  <Server className="w-3.5 h-3.5" />
+                  <Landmark className="w-3.5 h-3.5 text-[#8FAF92]" />
                   <span>Layer 2 · Gateway Defense</span>
                 </div>
                 <h2 className="font-cinzel text-xl font-bold text-marble">RPC & API Security</h2>
@@ -409,7 +414,7 @@ export default function SecurityPage() {
                   <Cpu className="w-24 h-24 text-aurum" />
                 </div>
                 <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
-                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <Shield className="w-3.5 h-3.5 text-[#C9A961]" />
                   <span>Layer 3 · Application Defense</span>
                 </div>
                 <h2 className="font-serif text-xl font-medium text-marble">Daemon & Node.js Hygiene</h2>

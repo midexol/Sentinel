@@ -5,7 +5,7 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import SiteAtmosphere from "@/components/site-atmosphere";
 import SimulationRunner from "@/components/simulation-runner";
-import { Terminal, ShieldAlert, Zap, Cpu } from "lucide-react";
+import { Terminal, ShieldAlert, Zap, Cpu, Flame, Radio, Layers } from "lucide-react";
 
 export default function SimulatePage() {
   return (
@@ -16,7 +16,7 @@ export default function SimulatePage() {
       <main className="pt-36 md:pt-44 pb-24 px-6 max-w-7xl mx-auto relative z-10 space-y-12">
         <div className="max-w-3xl space-y-4">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
-            <Terminal className="w-3.5 h-3.5 text-[#C9A961]" />
+            <Flame className="w-3.5 h-3.5 text-[#C9A961]" />
             <span>Deterministic Fault Injection</span>
           </div>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif text-white font-medium tracking-tight">
@@ -34,7 +34,7 @@ export default function SimulatePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
           <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 transition-all shadow-sm space-y-3">
             <div className="flex items-center gap-3 text-[#C9A961]">
-              <Zap className="w-5 h-5" />
+              <Flame className="w-5 h-5" />
               <h3 className="font-serif text-lg font-medium text-white">Scenario A: Flash Surge</h3>
             </div>
             <p className="font-mono text-xs text-[#C2BEB4]/80 leading-relaxed">
@@ -44,7 +44,7 @@ export default function SimulatePage() {
 
           <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 transition-all shadow-sm space-y-3">
             <div className="flex items-center gap-3 text-[#C9A961]">
-              <ShieldAlert className="w-5 h-5" />
+              <Radio className="w-5 h-5" />
               <h3 className="font-serif text-lg font-medium text-white">Scenario B: RPC Node Eviction</h3>
             </div>
             <p className="font-mono text-xs text-[#C2BEB4]/80 leading-relaxed">
@@ -54,7 +54,7 @@ export default function SimulatePage() {
 
           <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-6 transition-all shadow-sm space-y-3">
             <div className="flex items-center gap-3 text-[#C9A961]">
-              <Cpu className="w-5 h-5" />
+              <Layers className="w-5 h-5" />
               <h3 className="font-serif text-lg font-medium text-white">Scenario C: Sequencer Reorg</h3>
             </div>
             <p className="font-mono text-xs text-[#C2BEB4]/80 leading-relaxed">

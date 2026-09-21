@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { CheckCircle2, AlertTriangle, Radio, Box, Activity, Terminal, Eye } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Radio, Box, Activity, Terminal, Eye, Shield, Scroll, Flame, SlidersHorizontal, Crown, Landmark } from "lucide-react";
 import DappSettings from "@/components/dapp-settings";
 import "./dapp.css";
 
@@ -792,73 +792,60 @@ export default function DappPage() {
             <span className="font-script text-2xl text-white tracking-wide">Sentinel</span>
           </Link>
 
-          {/* Nav Group */}
+          {/* Nav Group with Uniform Imperial Icons & Roman Numerals */}
           <nav className="nav-group">
             <button
               className={`nav-item ${currentView === "dashboard" ? "active" : ""}`}
               onClick={() => setCurrentView("dashboard")}
             >
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
-                <rect x="1.5" y="1.5" width="6" height="6" />
-                <rect x="8.5" y="1.5" width="6" height="6" />
-                <rect x="1.5" y="8.5" width="6" height="6" />
-                <rect x="8.5" y="8.5" width="6" height="6" />
-              </svg>
-              Dashboard
+              <Shield className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <span className="flex-1 text-left">Dashboard</span>
+              <span className="font-mono text-[10px] text-ash/60">I</span>
             </button>
 
             <button
               className={`nav-item ${currentView === "ledger" ? "active" : ""}`}
               onClick={() => setCurrentView("ledger")}
             >
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
-                <path d="M2 2h12v12H2z" />
-                <path d="M4.5 5.5h7M4.5 8h7M4.5 10.5h4" />
-              </svg>
-              Ledger
+              <Scroll className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <span className="flex-1 text-left">Ledger</span>
+              <span className="font-mono text-[10px] text-ash/60">II</span>
             </button>
 
             <button
               className={`nav-item ${currentView === "simulate" ? "active" : ""}`}
               onClick={() => setCurrentView("simulate")}
             >
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
-                <path d="M4 2.5v11l9-5.5-9-5.5z" />
-              </svg>
-              Simulate
+              <Flame className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <span className="flex-1 text-left">Simulate</span>
+              <span className="font-mono text-[10px] text-ash/60">III</span>
             </button>
 
             <button
               className={`nav-item ${currentView === "cli" ? "active" : ""}`}
               onClick={() => setCurrentView("cli")}
             >
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
-                <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
-                <path d="M4 6l2.5 2L4 10M8.5 10H12" />
-              </svg>
-              CLI Daemon
+              <Terminal className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <span className="flex-1 text-left">CLI Daemon</span>
+              <span className="font-mono text-[10px] text-ash/60">IV</span>
             </button>
 
             <button
               className={`nav-item ${currentView === "metrics" ? "active" : ""}`}
               onClick={() => setCurrentView("metrics")}
             >
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
-                <path d="M2 13.5V2M2 13.5h12" />
-                <path d="M4.5 11V7.5M8 11V4.5M11.5 11V6" />
-              </svg>
-              Metrics
+              <Activity className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <span className="flex-1 text-left">Metrics</span>
+              <span className="font-mono text-[10px] text-ash/60">V</span>
             </button>
 
             <button
               className={`nav-item ${currentView === "settings" ? "active" : ""}`}
               onClick={() => setCurrentView("settings")}
             >
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.1">
-                <circle cx="8" cy="8" r="2.3" />
-                <path d="M8 1.5v2M8 12.5v2M14.5 8h-2M3.5 8h-2M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4M12.6 12.6l-1.4-1.4M4.8 4.8L3.4 3.4" />
-              </svg>
-              Settings
+              <SlidersHorizontal className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <span className="flex-1 text-left">Settings</span>
+              <span className="font-mono text-[10px] text-ash/60">VI</span>
             </button>
           </nav>
 
@@ -874,13 +861,73 @@ export default function DappPage() {
 
         {/* MAIN COLUMN */}
         <div className="main">
-          {/* Topbar */}
-          <header className="topbar">
-            <h2>{titles[currentView]}</h2>
-            <div className="topbar-right flex items-center gap-2.5">
-              <div className="chain-badge">
-                <span />
-                Base Sepolia
+          {/* Topbar: Imperial Command Deck with Centered Segmented Nav */}
+          <header className="topbar flex items-center justify-between gap-4 py-3 px-4 sm:px-8 border-b border-[#C9A961]/20 bg-[#000000]/90 backdrop-blur-2xl sticky top-0 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.7)]">
+            <div className="flex items-center gap-3 shrink-0">
+              <Link
+                href="/"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-[#C9A961]/10 border border-white/[0.08] hover:border-[#C9A961]/40 text-xs font-mono text-[#C2BEB4] hover:text-[#F5F3EF] transition-all"
+                title="Return to Sentinel Overview"
+              >
+                <div className="relative w-4 h-4 rounded-full overflow-hidden border border-[#C9A961]/40 shrink-0">
+                  <Image
+                    src="/assets/logo-transparent.png"
+                    alt="Sentinel Logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <span className="font-script text-white text-sm tracking-wide">Sentinel</span>
+                <span className="text-ash/60">/</span>
+                <span className="text-[11px] text-[#C9A961] font-medium uppercase tracking-wider">Site</span>
+              </Link>
+
+              <div className="h-4 w-[1px] bg-white/[0.08] hidden sm:block" />
+
+              <div className="hidden sm:flex items-center gap-2">
+                <span className="text-[11px] font-mono text-[#C9A961] font-semibold tracking-wider uppercase">
+                  {currentView === "dashboard" ? "I" : currentView === "ledger" ? "II" : currentView === "simulate" ? "III" : currentView === "cli" ? "IV" : currentView === "metrics" ? "V" : "VI"}
+                </span>
+                <h2 className="text-sm sm:text-base font-serif font-medium text-white tracking-wide">
+                  {titles[currentView]}
+                </h2>
+              </div>
+            </div>
+
+            {/* Center Segmented Imperial Navigation Pill Bar */}
+            <div className="hidden lg:flex items-center gap-1 p-1 rounded-full bg-[#07080A]/95 border border-[#C9A961]/25 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.7)]">
+              {[
+                { id: "dashboard", label: "Dashboard", icon: Shield },
+                { id: "ledger", label: "Ledger", icon: Scroll },
+                { id: "simulate", label: "Simulate", icon: Flame },
+                { id: "cli", label: "CLI", icon: Terminal },
+                { id: "metrics", label: "Metrics", icon: Activity },
+                { id: "settings", label: "Settings", icon: SlidersHorizontal },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const isActive = currentView === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setCurrentView(tab.id as any)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono transition-all duration-200 ${
+                      isActive
+                        ? "bg-[#C9A961] text-[#07080B] font-semibold shadow-md"
+                        : "text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.06]"
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Right: Base Sepolia Status & Keystore */}
+            <div className="topbar-right flex items-center gap-2 sm:gap-2.5 shrink-0">
+              <div className="chain-badge flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.02] border border-white/[0.08] text-xs font-mono text-[#C2BEB4]">
+                <span className="w-2 h-2 rounded-full bg-[#8FAF92] animate-pulse" />
+                <span>Base Sepolia</span>
               </div>
               {isDemoMode ? (
                 <>
@@ -890,7 +937,7 @@ export default function DappPage() {
                     title="Live Demo Observer on Base Sepolia"
                   >
                     <Eye className="w-3.5 h-3.5 text-[#C9A961]/80" />
-                    <span>Demo Observer</span>
+                    <span className="hidden sm:inline">Observer</span>
                   </div>
                   <button
                     className={`btn-primary btn text-xs py-1.5 px-3.5 ${connecting ? "connecting" : ""}`}
@@ -902,33 +949,52 @@ export default function DappPage() {
                 </>
               ) : (
                 <div
-                  className="wallet-pill"
+                  className="wallet-pill flex items-center gap-2 px-3 py-1.5 rounded-full border border-aurum/40 bg-aurum/10 text-xs font-mono text-[#F5F3EF] cursor-pointer hover:border-aurum transition-all"
                   onClick={() => setCurrentView("settings")}
                   title="Connected Web3 Keystore"
                 >
-                  <span className="dot" />
-                  {shortAddr(walletAddress)}
+                  <span className="w-2 h-2 rounded-full bg-[#8FAF92]" />
+                  <span>{shortAddr(walletAddress)}</span>
                 </div>
               )}
             </div>
           </header>
+
+          {/* Mobile Quick-Navigation Strip */}
+          <div className="lg:hidden flex items-center gap-1.5 px-3 py-2 border-b border-white/[0.06] bg-[#050608] overflow-x-auto no-scrollbar">
+            {[
+              { id: "dashboard", label: "Dashboard", icon: Shield },
+              { id: "ledger", label: "Ledger", icon: Scroll },
+              { id: "simulate", label: "Simulate", icon: Flame },
+              { id: "cli", label: "CLI", icon: Terminal },
+              { id: "metrics", label: "Metrics", icon: Activity },
+              { id: "settings", label: "Settings", icon: SlidersHorizontal },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = currentView === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setCurrentView(tab.id as any)}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono whitespace-nowrap shrink-0 transition-all ${
+                    isActive
+                      ? "bg-[#C9A961] text-[#07080B] font-semibold"
+                      : "text-[#C2BEB4] bg-white/[0.03] border border-white/[0.06]"
+                  }`}
+                >
+                  <Icon className="w-3 h-3 shrink-0" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
 
           {/* VIEW: CONNECT */}
           {currentView === "connect" && (
             <div className="view">
               <div className="connect-screen">
                 <div className="glyph">
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="26"
-                    height="26"
-                    fill="none"
-                    stroke="#C9A961"
-                    strokeWidth="1.3"
-                  >
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M12 7v5l3.2 3.2" />
-                  </svg>
+                  <Shield className="w-8 h-8 text-[#C9A961]" />
                 </div>
                 <h1>Connect a wallet or explore live demo.</h1>
                 <p>

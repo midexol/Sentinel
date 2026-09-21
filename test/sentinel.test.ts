@@ -62,7 +62,7 @@ async function runTests() {
   assert.equal(breaker.isTripped(), false, "Breaker should remain closed under 2 failures (threshold=3)");
   await breaker.recordFailure();
   assert.equal(breaker.isTripped(), true, "Breaker should trip into SAFE mode after 3 failures");
-  breaker.reset();
+  await breaker.reset();
   assert.equal(breaker.isTripped(), false, "Breaker should reset back to normal operation");
   console.log("  PASS: Invariant INV-04 trips and resets as specified.\n");
 
@@ -95,7 +95,9 @@ async function runTests() {
   console.log("====================================================\n");
 }
 
-runTests().catch((err) => {
+runTests().then(() => {
+  process.exit(0);
+}).catch((err) => {
   console.error("TEST FAILED:", err);
   process.exit(1);
 });

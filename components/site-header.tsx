@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Menu, X, ExternalLink } from "lucide-react";
+import { Menu, X, Landmark, Terminal, Flame, ShieldCheck, Activity, Crown } from "lucide-react";
 
 export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -24,11 +24,11 @@ export default function SiteHeader() {
   }, [pathname]);
 
   const navLinks = [
-    { label: "Pipelines", href: "/assets" },
-    { label: "Integration", href: "/integrate" },
-    { label: "Simulation", href: "/simulate" },
-    { label: "Security", href: "/security" },
-    { label: "Status", href: "/status" },
+    { label: "Pipelines", href: "/assets", icon: Landmark },
+    { label: "Integration", href: "/integrate", icon: Terminal },
+    { label: "Simulation", href: "/simulate", icon: Flame },
+    { label: "Security", href: "/security", icon: ShieldCheck },
+    { label: "Status", href: "/status", icon: Activity },
   ];
 
   return (
@@ -67,18 +67,20 @@ export default function SiteHeader() {
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-1 ml-auto" aria-label="Main Navigation">
           {navLinks.map((link) => {
+            const Icon = link.icon;
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-[13px] px-3.5 py-1.5 rounded-full transition-all duration-200 ${
+                className={`text-[12.5px] font-mono px-3.5 py-1.5 rounded-full transition-all duration-200 flex items-center gap-1.5 ${
                   isActive
                     ? "text-[#C9A961] bg-[#C9A961]/10 border border-[#C9A961]/30 font-medium"
                     : "text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.08]"
                 }`}
               >
-                {link.label}
+                <Icon className="w-3.5 h-3.5 shrink-0 opacity-80" />
+                <span>{link.label}</span>
               </Link>
             );
           })}
@@ -88,8 +90,9 @@ export default function SiteHeader() {
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link
             href="/dapp"
-            className="inline-flex items-center px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs font-mono font-medium transition-all bg-gradient-to-b from-[#ECD79B] to-[#C9A961] hover:from-[#F3E5AB] hover:to-[#D4B574] text-[#07080B] shadow-md hover:-translate-y-0.5 active:translate-y-0 shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs font-mono font-medium transition-all bg-gradient-to-b from-[#ECD79B] to-[#C9A961] hover:from-[#F3E5AB] hover:to-[#D4B574] text-[#07080B] shadow-md hover:-translate-y-0.5 active:translate-y-0 shrink-0"
           >
+            <Crown className="w-3.5 h-3.5 shrink-0 text-[#07080B]" />
             <span className="sm:hidden">Observatory</span>
             <span className="hidden sm:inline">Launch Observatory</span>
           </Link>
@@ -110,28 +113,31 @@ export default function SiteHeader() {
         <div className="md:hidden fixed inset-x-3 top-16 z-50 bg-[#07080A]/95 backdrop-blur-2xl border border-aurum/30 rounded-2xl p-4 shadow-2xl space-y-2">
           <div className="grid grid-cols-2 gap-2 text-xs font-mono">
             {navLinks.map((link) => {
+              const Icon = link.icon;
               const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`px-3 py-2 rounded-xl transition-colors ${
+                  className={`px-3 py-2 rounded-xl transition-colors flex items-center gap-2 ${
                     isActive
                       ? "bg-aurum/15 text-aurum font-semibold border border-aurum/30"
                       : "bg-white/[0.03] hover:bg-white/[0.08] text-[#C2BEB4] hover:text-white"
                   }`}
                 >
-                  {link.label}
+                  <Icon className="w-3.5 h-3.5 shrink-0 text-[#C9A961]" />
+                  <span>{link.label}</span>
                 </Link>
               );
             })}
             <Link
               href="/dapp"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-xl bg-aurum/10 text-aurum border border-aurum/30 transition-colors font-semibold"
+              className="px-3 py-2 rounded-xl bg-aurum/10 text-aurum border border-aurum/30 transition-colors font-semibold flex items-center gap-2"
             >
-              Observatory
+              <Crown className="w-3.5 h-3.5 shrink-0 text-[#C9A961]" />
+              <span>Observatory</span>
             </Link>
           </div>
         </div>
