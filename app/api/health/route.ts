@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { publicClient } from '@/lib/viem';
 import fs from 'fs';
 import path from 'path';
@@ -23,7 +23,7 @@ export async function GET() {
     rpcStatus = 'Degraded';
   }
 
-  let walletAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438BaEa';
+  let walletAddress = process.env.WALLET_ADDRESS || '0x859901345112F0812b06aF1858E623414E472D72';
   try {
     const settingsPath = path.join(process.cwd(), 'settings.json');
     if (fs.existsSync(settingsPath)) {

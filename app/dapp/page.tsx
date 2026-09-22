@@ -160,7 +160,7 @@ export default function DappPage() {
   const [connected, setConnected] = useState(true);
   const [isDemoMode, setIsDemoMode] = useState(true);
   const [connecting, setConnecting] = useState(false);
-  const [walletAddress, setWalletAddress] = useState("0x742d35Cc6634C0532925a3b844Bc454e4438BaEa");
+  const [walletAddress, setWalletAddress] = useState("0x859901345112F0812b06aF1858E623414E472D72");
   const [balanceEth, setBalanceEth] = useState("0.0000");
   const [currentBlock, setCurrentBlock] = useState(47023464);
   const fakeAddr = walletAddress;
@@ -364,6 +364,26 @@ export default function DappPage() {
       window.removeEventListener("resize", resize);
       cancelAnimationFrame(animId);
     };
+  }, []);
+
+  // Initial on-chain state sync
+  useEffect(() => {
+    fetch("/api/state")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.monitoredAccounts?.[0]?.address) {
+          setWalletAddress(d.monitoredAccounts[0].address);
+        }
+        if (d.latestNonce !== undefined) {
+          setLatest(d.latestNonce);
+          setPending(d.pendingNonce !== undefined ? d.pendingNonce : d.latestNonce);
+        }
+        if (d.currentBlock) setCurrentBlock(d.currentBlock);
+        if (d.monitoredAccounts?.[0]?.balanceEth) {
+          setBalanceEth(d.monitoredAccounts[0].balanceEth);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // Connect wallet handler

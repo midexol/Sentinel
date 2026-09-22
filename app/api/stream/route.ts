@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   const encoder = new TextEncoder();
   const { searchParams } = new URL(req.url);
-  const account = searchParams.get("address") || "0x742d35Cc6634C0532925a3b844Bc454e4438BaEa";
+  const account = searchParams.get("address") || process.env.WALLET_ADDRESS || "0x859901345112F0812b06aF1858E623414E472D72";
 
   const stream = new ReadableStream({
     async start(controller) {

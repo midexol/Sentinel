@@ -16,7 +16,7 @@ function getStoredSettings() {
   }
   return {
     system: {
-      walletAddress: "0x742d35Cc6634C0532925a3b844Bc454e4438BaEa",
+      walletAddress: process.env.WALLET_ADDRESS || "0x859901345112F0812b06aF1858E623414E472D72",
       privateKeyLoaded: true,
       rpcUrl: "https://sepolia.base.org",
       chainId: 84532,
@@ -33,7 +33,8 @@ export async function GET(req: NextRequest) {
     const settings = getStoredSettings();
     const address = (searchParams.get("address") ||
       settings.system?.walletAddress ||
-      "0x742d35Cc6634C0532925a3b844Bc454e4438BaEa") as `0x${string}`;
+      process.env.WALLET_ADDRESS ||
+      "0x859901345112F0812b06aF1858E623414E472D72") as `0x${string}`;
 
     const onchain = await fetchOnChainAccountState(address);
 
@@ -77,7 +78,8 @@ export async function POST(req: Request) {
     const settings = getStoredSettings();
     const address = (body.address ||
       settings.system?.walletAddress ||
-      "0x742d35Cc6634C0532925a3b844Bc454e4438BaEa") as `0x${string}`;
+      process.env.WALLET_ADDRESS ||
+      "0x859901345112F0812b06aF1858E623414E472D72") as `0x${string}`;
 
     const onchain = await fetchOnChainAccountState(address);
 

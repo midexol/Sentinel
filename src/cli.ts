@@ -156,8 +156,10 @@ if (mode === "watch") {
     process.exit(1);
   });
 } else {
-  reportOnce().catch((err) => {
-    console.error("Sentinel failed:", err);
-    process.exit(1);
-  });
+  reportOnce()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error("Sentinel failed:", err);
+      process.exit(1);
+    });
 }

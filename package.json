@@ -13,6 +13,7 @@
     "cli:watch": "tsx src/cli.ts watch",
     "demo": "tsx scripts/demo-trigger.ts",
     "test": "tsx test/sentinel.test.ts",
+    "proxy": "tsx src/proxy.ts",
     "serve": "node scripts/server.js"
   },
   "dependencies": {
