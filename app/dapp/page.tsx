@@ -149,9 +149,7 @@ interface SimTx {
 type StepState = "active" | "done" | "gapped" | null;
 
 export default function DappPage() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  // View state
+    // View state
   const [currentView, setCurrentView] = useState<
     "connect" | "dashboard" | "ledger" | "simulate" | "cli" | "metrics" | "settings"
   >("dashboard");
@@ -298,73 +296,7 @@ export default function DappPage() {
     if (tag === "circuit_breaker") pushToast("Circuit breaker", text);
   };
 
-  // Canvas living wave background
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let W = window.innerWidth;
-    let H = window.innerHeight;
-    const DPR = Math.min(window.devicePixelRatio || 1, 2);
-
-    const resize = () => {
-      if (!canvas) return;
-      W = window.innerWidth;
-      H = window.innerHeight;
-      canvas.width = W * DPR;
-      canvas.height = H * DPR;
-      canvas.style.width = W + "px";
-      canvas.style.height = H + "px";
-      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const GOLD = [201, 169, 97];
-    const BLUE = [74, 122, 153];
-    const lines = [0.15, 0.9].map((yf, i) => ({
-      yFrac: yf,
-      amp: 16,
-      freq: 0.0028,
-      phase: Math.random() * 6,
-      speed: 0.00012,
-      color: i ? BLUE : GOLD,
-    }));
-
-    function yOn(line: (typeof lines)[0], x: number, t: number) {
-      return (
-        H * line.yFrac +
-        Math.sin(x * line.freq + line.phase + t * line.speed) * line.amp
-      );
-    }
-
-    let animId: number;
-    function drawBg(t: number) {
-      if (!ctx) return;
-      ctx.fillStyle = "rgba(8,9,12,0.45)";
-      ctx.fillRect(0, 0, W, H);
-      lines.forEach((line) => {
-        ctx.beginPath();
-        ctx.strokeStyle = `rgba(${line.color.join(",")},0.08)`;
-        ctx.lineWidth = 1;
-        for (let x = 0; x <= W; x += 10) {
-          const yy = yOn(line, x, t);
-          if (x === 0) ctx.moveTo(x, yy);
-          else ctx.lineTo(x, yy);
-        }
-        ctx.stroke();
-      });
-      animId = requestAnimationFrame(drawBg);
-    }
-    animId = requestAnimationFrame(drawBg);
-
-    return () => {
-      window.removeEventListener("resize", resize);
-      cancelAnimationFrame(animId);
-    };
-  }, []);
+  
 
   // Initial on-chain state sync
   useEffect(() => {
@@ -794,9 +726,7 @@ export default function DappPage() {
 
   return (
     <div className="dapp-container">
-      <canvas ref={canvasRef} className="dapp-canvas" aria-hidden="true" />
-
-      <div className="app-shell">
+            <div className="app-shell">
         {/* SIDEBAR */}
         <aside className="sidebar">
           {/* Clickable Concept B logo & dramatic Cinzel brand title returning to "/" */}

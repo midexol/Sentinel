@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
@@ -26,152 +26,11 @@ import {
 } from "lucide-react";
 
 export default function LandingPage() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animId: number;
-    let W = window.innerWidth;
-    let H = window.innerHeight;
-    const DPR = Math.min(window.devicePixelRatio || 1, 2);
-
-    const resize = () => {
-      if (!canvas) return;
-      W = window.innerWidth;
-      H = window.innerHeight;
-      canvas.width = W * DPR;
-      canvas.height = H * DPR;
-      canvas.style.width = W + "px";
-      canvas.style.height = H + "px";
-      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const nodeCount = Math.min(48, Math.floor(W / 28));
-    const nodes = Array.from({ length: nodeCount }, () => ({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      vx: (Math.random() - 0.5) * 0.32,
-      vy: (Math.random() - 0.5) * 0.32,
-      radius: Math.random() * 1.8 + 1,
-      baseAlpha: Math.random() * 0.35 + 0.2,
-      pulse: Math.random() * Math.PI * 2,
-    }));
-
-    const waves = [
-      { yFrac: 0.28, amp: 24, freq: 0.0022, speed: 0.00014, color: [201, 169, 97], alpha: 0.045 },
-      { yFrac: 0.52, amp: 30, freq: 0.0018, speed: 0.00012, color: [175, 162, 145], alpha: 0.035 },
-      { yFrac: 0.78, amp: 28, freq: 0.0024, speed: 0.00016, color: [201, 169, 97], alpha: 0.045 },
-    ];
-
-    let t = 0;
-    const render = () => {
-      t += 1;
-      ctx.clearRect(0, 0, W, H);
-
-      waves.forEach((w) => {
-        ctx.beginPath();
-        ctx.strokeStyle = `rgba(${w.color.join(",")}, ${w.alpha})`;
-        ctx.lineWidth = 1.1;
-
-        for (let x = 0; x <= W; x += 14) {
-          const y =
-            H * w.yFrac +
-            Math.sin(x * w.freq + t * w.speed * 8) * w.amp +
-            Math.cos(x * w.freq * 0.6 + t * w.speed * 5) * (w.amp * 0.35);
-          if (x === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-      });
-
-      nodes.forEach((node, i) => {
-        node.x += node.vx;
-        node.y += node.vy;
-
-        if (node.x < -10) node.x = W + 10;
-        if (node.x > W + 10) node.x = -10;
-        if (node.y < -10) node.y = H + 10;
-        if (node.y > H + 10) node.y = -10;
-
-        const dx = node.x - mousePos.x;
-        const dy = node.y - mousePos.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 150 && dist > 0) {
-          const force = (150 - dist) / 150;
-          node.x += (dx / dist) * force * 1.2;
-          node.y += (dy / dist) * force * 1.2;
-        }
-
-        const pulseAlpha = node.baseAlpha + Math.sin(t * 0.03 + node.pulse) * 0.12;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(201, 169, 97, ${Math.max(0.08, pulseAlpha)})`;
-        ctx.fill();
-
-        for (let j = i + 1; j < nodes.length; j++) {
-          const other = nodes[j];
-          const ndx = node.x - other.x;
-          const ndy = node.y - other.y;
-          const nDist = Math.sqrt(ndx * ndx + ndy * ndy);
-          if (nDist < 115) {
-            const lineAlpha = (1 - nDist / 115) * 0.12;
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(201, 169, 97, ${lineAlpha})`;
-            ctx.lineWidth = 0.7;
-            ctx.moveTo(node.x, node.y);
-            ctx.lineTo(other.x, other.y);
-            ctx.stroke();
-          }
-        }
-      });
-
-      animId = requestAnimationFrame(render);
-    };
-
-    animId = requestAnimationFrame(render);
-    return () => {
-      window.removeEventListener("resize", resize);
-      cancelAnimationFrame(animId);
-    };
-  }, [mousePos]);
-
   return (
     <div className="min-h-screen bg-[#000000] relative text-[#F5F3EF] selection:bg-[#C9A961] selection:text-black font-sans overflow-hidden">
-      {/* Living Canvas */}
-      <canvas
-        ref={canvasRef}
-        className="fixed inset-0 pointer-events-none -z-10"
-        aria-hidden="true"
-      />
-
-      {/* Interactive Cursor Spotlight Aura */}
-      <div
-        className="fixed pointer-events-none -z-10 rounded-full blur-3xl transition-opacity duration-500"
-        style={{
-          left: mousePos.x - 240,
-          top: mousePos.y - 240,
-          width: 480,
-          height: 480,
-          background:
-            "radial-gradient(circle, rgba(201,169,97,0.07) 0%, rgba(175,162,145,0.02) 45%, transparent 70%)",
-          opacity: mousePos.x > 0 ? 1 : 0,
-        }}
-      />
+      {/* Pure static premium black foundation with subtle golden aura */}
+      <div className="fixed inset-0 pointer-events-none -z-10 bg-[#000000]" />
+      <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(201,169,97,0.03),rgba(0,0,0,0))]" />
 
       {/* Top Ambient Vignette */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[450px] bg-gradient-to-b from-[#C9A961]/8 via-transparent to-transparent blur-3xl pointer-events-none -z-20" />

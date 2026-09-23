@@ -19,7 +19,7 @@
 }
 
 .dapp-container {
-  background: var(--void);
+  background: #000000;
   color: var(--marble);
   font-family: 'Plus Jakarta Sans', var(--font-sans), sans-serif;
   font-weight: 300;
@@ -27,16 +27,6 @@
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   position: relative;
-}
-
-.dapp-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
 }
 
 .brand-title {

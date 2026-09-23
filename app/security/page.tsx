@@ -228,7 +228,7 @@ export default function SecurityPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-void text-marble relative overflow-hidden font-sans selection:bg-aurum/20 selection:text-aurum-light">
+    <div className="min-h-screen bg-[#000000] text-marble relative overflow-hidden font-sans selection:bg-aurum/20 selection:text-aurum-light">
       <SiteAtmosphere />
       <SiteHeader />
 
