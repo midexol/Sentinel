@@ -23,6 +23,7 @@ import {
   Sparkles,
   Layers,
   ShieldAlert,
+  ChevronRight,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -143,7 +144,7 @@ export default function LandingPage() {
       </section>
 
       {/* 2. THE PROBLEM & ANATOMY OF A NONCE GAP */}
-      <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5 space-y-10">
+      <section id="the-problem" className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5 space-y-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-5 space-y-4">
             <div className="text-[11px] font-mono uppercase tracking-widest text-[#C86A58] font-semibold">
@@ -206,20 +207,263 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 3. ARCHITECTURE: HOW SENTINEL HEALS THE STREAM */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5 space-y-10">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="text-[11px] font-mono uppercase tracking-widest text-[#C9A961]">
-            Autonomous Engine
+      {/* 3. HOW SENTINEL WORKS: THE SELF-HEALING WATCHDOG PIPELINE */}
+      <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5 space-y-12">
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <div className="text-[11px] font-mono uppercase tracking-widest text-[#C9A961] flex items-center justify-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-[#C9A961]" />
+            <span>Autonomous Mempool Watchdog</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-serif text-white">
-            Neoclassical Precision: How Sentinel Heals.
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif text-white leading-tight">
+            How Sentinel Works
           </h2>
-          <p className="text-xs sm:text-sm text-[#C2BEB4] leading-relaxed">
-            Sentinel runs as an out-of-band watchdog alongside any trading bot with two core subsystems:
+          <p className="text-xs sm:text-sm text-[#C2BEB4] leading-relaxed max-w-2xl mx-auto font-light">
+            When a transaction gets underpriced or silently dropped on Base L2, every trade queued behind it deadlocks. Here is the step-by-step mechanism Sentinel uses to detect, diagnose, and auto-heal stuck nonces in milliseconds without human intervention or treasury risk.
           </p>
         </div>
 
+        {/* 4-PHASE DETAILED PIPELINE */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {/* Phase 01 */}
+          <div className="bg-[#07080A]/95 rounded-2xl border border-white/[0.08] hover:border-[#C9A961]/40 transition-all p-5 sm:p-6 flex flex-col justify-between space-y-4 group">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#C9A961]/10 text-[#C9A961] border border-[#C9A961]/25">
+                  Phase 01 · Sensing
+                </span>
+                <span className="text-xs font-mono font-bold text-[#8A867D]">500ms</span>
+              </div>
+              <h3 className="text-base sm:text-lg font-serif text-white group-hover:text-[#C9A961] transition-colors">
+                Dual-Tag Polling & Stream Intercept
+              </h3>
+              <p className="text-xs text-[#A8A49C] leading-relaxed">
+                Sentinel queries Base L2 every 500ms for both <code className="text-[#C9A961] bg-white/[0.06] px-1 py-0.5 rounded">pending</code> and <code className="text-[#C9A961] bg-white/[0.06] px-1 py-0.5 rounded">latest</code> transaction counts. Every in-flight order submitted by your trading bot is indexed in an in-memory queue store with <strong className="text-white">zero added trade latency</strong>.
+              </p>
+            </div>
+            <div className="pt-3 border-t border-white/[0.06] space-y-1.5 text-[11px] font-mono text-[#8A867D]">
+              <div className="flex items-center justify-between">
+                <span>Polling cadence:</span>
+                <span className="text-white">500ms tick</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Trade overhead:</span>
+                <span className="text-emerald-400">0ms (out-of-band)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Phase 02 */}
+          <div className="bg-[#07080A]/95 rounded-2xl border border-white/[0.08] hover:border-[#C9A961]/40 transition-all p-5 sm:p-6 flex flex-col justify-between space-y-4 group">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#C86A58]/15 text-[#C86A58] border border-[#C86A58]/30">
+                  Phase 02 · Detection
+                </span>
+                <span className="text-xs font-mono font-bold text-[#8A867D]">Real-Time</span>
+              </div>
+              <h3 className="text-base sm:text-lg font-serif text-white group-hover:text-[#C86A58] transition-colors">
+                Gap Discovery & Eviction Inference
+              </h3>
+              <p className="text-xs text-[#A8A49C] leading-relaxed">
+                When <code className="text-[#C9A961] bg-white/[0.06] px-1 py-0.5 rounded">pending &gt; latest</code> and a sequential nonce is missing (e.g. Nonce 42 is stalled while Nonces 43-50 wait), Sentinel flags an active gap. If an in-flight hash disappears for 3 consecutive poll cycles, Sentinel identifies a <strong className="text-white">Silent Eviction</strong>.
+              </p>
+            </div>
+            <div className="pt-3 border-t border-white/[0.06] space-y-1.5 text-[11px] font-mono text-[#8A867D]">
+              <div className="flex items-center justify-between">
+                <span>Gap identification:</span>
+                <span className="text-white">Lowest missing nonce</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Eviction window:</span>
+                <span className="text-white">3 cycles (1,500ms)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Phase 03 */}
+          <div className="bg-[#07080A]/95 rounded-2xl border border-white/[0.08] hover:border-[#C9A961]/40 transition-all p-5 sm:p-6 flex flex-col justify-between space-y-4 group">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#C9A961]/10 text-[#C9A961] border border-[#C9A961]/25">
+                  Phase 03 · Diagnosis
+                </span>
+                <span className="text-xs font-mono font-bold text-[#C9A961]">INV-02</span>
+              </div>
+              <h3 className="text-base sm:text-lg font-serif text-white group-hover:text-[#C9A961] transition-colors">
+                AI Reasoning & Clamped Gas Bump
+              </h3>
+              <p className="text-xs text-[#A8A49C] leading-relaxed">
+                The LLM reasoning agent assesses base-fee drift and queue congestion to diagnose the stall cause and suggest an optimal bump. <strong className="text-white">Code strictly bounds the recommendation</strong> between a 10% floor and 50% ceiling. The AI never touches gas fees directly.
+              </p>
+            </div>
+            <div className="pt-3 border-t border-white/[0.06] space-y-1.5 text-[11px] font-mono text-[#8A867D]">
+              <div className="flex items-center justify-between">
+                <span>AI role:</span>
+                <span className="text-white">Advisory diagnosis only</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Gas clamp:</span>
+                <span className="text-[#C9A961]">10% min to 50% max</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Phase 04 */}
+          <div className="bg-[#07080A]/95 rounded-2xl border border-white/[0.08] hover:border-[#C9A961]/40 transition-all p-5 sm:p-6 flex flex-col justify-between space-y-4 group">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+                  Phase 04 · Healing
+                </span>
+                <span className="text-xs font-mono font-bold text-emerald-400">~200ms</span>
+              </div>
+              <h3 className="text-base sm:text-lg font-serif text-white group-hover:text-emerald-400 transition-colors">
+                Atomic Replacement & Queue Unfreeze
+              </h3>
+              <p className="text-xs text-[#A8A49C] leading-relaxed">
+                After verifying the nonce was not mined in flight, Sentinel dispatches a zero-value null self-transfer (<code className="text-[#C9A961] bg-white/[0.06] px-1 py-0.5 rounded">0 ETH</code>, null calldata) using an isolated operational gas wallet. It confirms in the next Flashblock, unblocking trades 43-50 immediately.
+              </p>
+            </div>
+            <div className="pt-3 border-t border-white/[0.06] space-y-1.5 text-[11px] font-mono text-[#8A867D]">
+              <div className="flex items-center justify-between">
+                <span>Replacement type:</span>
+                <span className="text-white">Zero-Value Null Tx</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Mempool resolution:</span>
+                <span className="text-emerald-400">Sub-second unblock</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* VISUAL SEQUENCE PIPELINE */}
+        <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] p-6 sm:p-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#C9A961]">
+                TRANSACTION LIFECYCLE
+              </span>
+              <h3 className="text-lg sm:text-xl font-serif text-white">
+                Life of a Self-Healed Transaction on Base L2
+              </h3>
+            </div>
+            <Link
+              href="/docs/architecture"
+              className="text-xs font-mono text-[#C9A961] hover:underline flex items-center gap-1.5 self-start sm:self-auto"
+            >
+              <span>View Architecture Specs</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3 font-mono text-xs">
+            <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-2">
+              <div className="text-[10px] text-[#8A867D] uppercase font-bold">1. Burst Submission</div>
+              <p className="text-[#C2BEB4] text-[11.5px] leading-relaxed">
+                Trading bot submits Nonces #40 to #50 in rapid succession into Base mempool.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-white/[0.02] border border-[#C86A58]/30 space-y-2">
+              <div className="text-[10px] text-[#C86A58] uppercase font-bold">2. Nonce 42 Stalls</div>
+              <p className="text-[#C2BEB4] text-[11.5px] leading-relaxed">
+                Sudden Base gas spike strands Nonce #42. Nonces #43 to #50 sit deadlocked in queue.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-white/[0.02] border border-[#C9A961]/30 space-y-2">
+              <div className="text-[10px] text-[#C9A961] uppercase font-bold">3. Sentinel Diagnoses</div>
+              <p className="text-[#C2BEB4] text-[11.5px] leading-relaxed">
+                Dual-tag tracker detects missing #42. AI assesses base fee and requests +25% bump.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-white/[0.02] border border-[#C9A961]/30 space-y-2">
+              <div className="text-[10px] text-[#C9A961] uppercase font-bold">4. Clamped Broadcast</div>
+              <p className="text-[#C2BEB4] text-[11.5px] leading-relaxed">
+                INV-02 confirms bump is safe. Sentinel broadcasts zero-value replacement for #42.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-white/[0.02] border border-emerald-500/30 space-y-2">
+              <div className="text-[10px] text-emerald-400 uppercase font-bold">5. Queue Cleared</div>
+              <p className="text-[#C2BEB4] text-[11.5px] leading-relaxed">
+                Base Flashblock confirms replacement. Nonces #43 to #50 execute instantly with 0 slippage.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* COMPARISON: WITHOUT SENTINEL VS WITH SENTINEL */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Without Sentinel */}
+          <div className="p-6 rounded-2xl bg-[#07080A]/95 border border-[#C86A58]/30 space-y-4">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+              <div className="font-serif text-lg text-white">Without Sentinel</div>
+              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#C86A58]/20 text-[#C86A58]">
+                Vulnerable
+              </span>
+            </div>
+            <ul className="space-y-2.5 text-xs text-[#C2BEB4] font-mono">
+              <li className="flex items-start gap-2">
+                <span className="text-[#C86A58] mt-0.5 font-bold">✕</span>
+                <span>Single stuck nonce halts all subsequent bot orders indefinitely.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#C86A58] mt-0.5 font-bold">✕</span>
+                <span>Silent sequencer evictions emit no errors, leaving bots deadlocked.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#C86A58] mt-0.5 font-bold">✕</span>
+                <span>Arbitrage opportunities expire while inventory price risk surges.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#C86A58] mt-0.5 font-bold">✕</span>
+                <span>Requires human operator intervention to cancel or speed up transactions.</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* With Sentinel */}
+          <div className="p-6 rounded-2xl bg-[#07080A]/95 border border-[#C9A961]/40 space-y-4 shadow-[0_0_40px_-15px_rgba(201,169,97,0.15)]">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+              <div className="font-serif text-lg text-white">With Sentinel</div>
+              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#C9A961]/20 text-[#C9A961]">
+                Protected
+              </span>
+            </div>
+            <ul className="space-y-2.5 text-xs text-[#EDE9E1] font-mono">
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-400 mt-0.5 font-bold">✓</span>
+                <span>Autonomous 500ms dual-tag mempool monitoring catches gaps immediately.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-400 mt-0.5 font-bold">✓</span>
+                <span>Sliding-window heuristics detect and recover silent sequencer drops.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-400 mt-0.5 font-bold">✓</span>
+                <span>AI diagnosis bounded by INV-02 mathematical clamp [10%, 50%].</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-400 mt-0.5 font-bold">✓</span>
+                <span>Sub-second atomic unblocking unjams downstream pipeline in milliseconds.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* SUBSYSTEM ARCHITECTURE CARDS */}
+        <div className="pt-4 space-y-4">
+          <div className="text-center max-w-xl mx-auto space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#C9A961]">
+              DUAL SUBSYSTEM ARCHITECTURE
+            </span>
+            <h3 className="font-serif text-xl sm:text-2xl text-white">
+              Deterministic Tracking & Clamped Resolution
+            </h3>
+          </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* IMAGE 3: Chronometer Card */}
           <div className="bg-[#07080A] rounded-[24px] border border-white/[0.08] hover:border-[#C9A961]/35 transition-colors overflow-hidden flex flex-col justify-between shadow-xl">
@@ -274,6 +518,7 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </section>
 
