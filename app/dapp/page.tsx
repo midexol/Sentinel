@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { CheckCircle2, AlertTriangle, Radio, Box, Activity, Terminal, Eye, Shield, Scroll, Flame, SlidersHorizontal, Crown, Landmark } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Radio, Box, Activity, Terminal, Shield, Scroll, Flame, SlidersHorizontal, Crown, Landmark } from "lucide-react";
 import DappSettings from "@/components/dapp-settings";
 import "./dapp.css";
 
@@ -824,39 +824,21 @@ export default function DappPage() {
               </h2>
             </div>
 
-            {/* Right: Network Status, Site Link & Wallet */}
+            {/* Right: Network Status & Wallet */}
             <div className="topbar-right flex items-center gap-2 sm:gap-3 shrink-0">
-              <Link
-                href="/"
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono text-[#8A867D] hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition-colors"
-                title="Return to Sentinel Overview"
-              >
-                <span>Site</span>
-              </Link>
-
               <div className="chain-badge flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.02] border border-white/[0.08] text-xs font-mono text-[#C2BEB4]">
                 <span className="w-2 h-2 rounded-full bg-[#8FAF92] animate-pulse" />
                 <span>Base Sepolia</span>
               </div>
 
               {isDemoMode ? (
-                <>
-                  <div
-                    className="hidden sm:flex px-2.5 py-1 rounded-full text-[11px] font-mono border border-[#C9A961]/30 text-[#C9A961] bg-[#C9A961]/5 items-center gap-1.5 cursor-pointer hover:border-[#C9A961]/60 transition-all"
-                    onClick={() => setCurrentView("settings")}
-                    title="Live Demo Observer on Base Sepolia"
-                  >
-                    <Eye className="w-3.5 h-3.5 text-[#C9A961]/80" />
-                    <span>Observer</span>
-                  </div>
-                  <button
-                    className={`btn-primary btn text-xs py-1.5 px-4 ${connecting ? "connecting" : ""}`}
-                    onClick={doConnect}
-                    disabled={connecting}
-                  >
-                    {connecting ? "Connecting…" : "Connect Wallet"}
-                  </button>
-                </>
+                <button
+                  className={`btn-primary btn text-xs py-1.5 px-4 ${connecting ? "connecting" : ""}`}
+                  onClick={doConnect}
+                  disabled={connecting}
+                >
+                  {connecting ? "Connecting…" : "Connect Wallet"}
+                </button>
               ) : (
                 <div
                   className="wallet-pill flex items-center gap-2 px-3 py-1.5 rounded-full border border-aurum/40 bg-aurum/10 text-xs font-mono text-[#F5F3EF] cursor-pointer hover:border-aurum transition-all"

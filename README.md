@@ -172,19 +172,35 @@ graph LR
 Sentinel enforces four hard-coded formal safety invariants:
 
 ### INV-01: Strict Monotonicity Guarantee
-$$\text{Nonce}_{\text{Mined}}(t) \le \text{Nonce}_{\text{Pending}}(t)$$
+
+$$
+\text{Nonce}_{\text{Mined}}(t) \le \text{Nonce}_{\text{Pending}}(t)
+$$
+
 The monitored mined nonce must never exceed the pending nonce. Any negative gap triggers an emergency RPC state reconciliation.
 
 ### INV-02: Hard Gas Bump Ceiling
-$$\text{Bump}_{\text{Effective}} \le \min(\text{Bump}_{\text{AI}}, \text{MAX\_GAS\_BUMP\_PCT})$$
+
+$$
+\text{Bump}_{\text{Effective}} = \max\left(10\%, \min\left(\text{Bump}_{\text{AI}}, 50\%\right)\right)
+$$
+
 Replacement transactions are clamped between a 10% floor and a 50% ceiling. This mathematically eliminates gas depletion loops under adversarial network conditions.
 
 ### INV-03: Zero-Value Null Execution
-$$\text{Value} = 0 \text{ ETH} \land \text{To} = \text{From} \land \text{Data} = \text{0x}$$
+
+$$
+\text{Value} = 0 \text{ ETH} \quad \land \quad \text{To} = \text{From} \quad \land \quad \text{Data} = \text{0x}
+$$
+
 Autonomous gap-healing transactions are strictly zero-value self-transfers with null calldata. The agent cannot drain protocol assets.
 
 ### INV-04: Circuit Breaker Trip Rate
-$$\text{Failures}_{\text{Window}} \le \text{Threshold} \lor \text{TRIP\_SAFE\_MODE}$$
+
+$$
+\text{Failures}_{\Delta t} \le K_{\text{Threshold}} \quad \lor \quad \text{TRIP\_SAFE\_MODE}
+$$
+
 If consecutive failures exceed the threshold (default: 10 within 5 minutes), Sentinel enters safe standby mode and dispatches alerts to Telegram / Discord webhooks.
 
 ---
