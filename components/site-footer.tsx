@@ -22,6 +22,9 @@ export default function SiteFooter() {
           <span>High-Frequency Nonce Watchdog for Base L2</span>
         </div>
         <div className="flex flex-wrap items-center gap-5 text-[11.5px]">
+          <Link href="/docs" className="hover:text-[#F5F3EF] transition-colors">
+            Documentation
+          </Link>
           <Link href="/privacy" className="hover:text-[#F5F3EF] transition-colors">
             Privacy Policy
           </Link>
