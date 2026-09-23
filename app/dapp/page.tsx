@@ -811,86 +811,46 @@ export default function DappPage() {
 
         {/* MAIN COLUMN */}
         <div className="main">
-          {/* Topbar: Imperial Command Deck with Centered Segmented Nav */}
-          <header className="topbar flex items-center justify-between gap-4 py-3 px-4 sm:px-8 border-b border-[#C9A961]/20 bg-[#000000]/90 backdrop-blur-2xl sticky top-0 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.7)]">
-            <div className="flex items-center gap-3 shrink-0">
+          {/* Topbar: Streamlined Command Deck */}
+          <header className="topbar flex items-center justify-between gap-4 py-3.5 px-4 sm:px-8 border-b border-white/[0.08] bg-[#000000]/90 backdrop-blur-2xl sticky top-0 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.7)]">
+            {/* Left: View Title & Context */}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <span className="text-[11px] font-mono text-[#8A867D] uppercase tracking-wider">
+                Observatory
+              </span>
+              <span className="text-white/20">/</span>
+              <h2 className="text-sm sm:text-base font-serif font-medium text-white tracking-wide">
+                {titles[currentView]}
+              </h2>
+            </div>
+
+            {/* Right: Network Status, Site Link & Wallet */}
+            <div className="topbar-right flex items-center gap-2 sm:gap-3 shrink-0">
               <Link
                 href="/"
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-[#C9A961]/10 border border-white/[0.08] hover:border-[#C9A961]/40 text-xs font-mono text-[#C2BEB4] hover:text-[#F5F3EF] transition-all"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono text-[#8A867D] hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition-colors"
                 title="Return to Sentinel Overview"
               >
-                <div className="relative w-4 h-4 rounded-full overflow-hidden border border-[#C9A961]/40 shrink-0">
-                  <Image
-                    src="/assets/logo-transparent.png"
-                    alt="Sentinel Logo"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                <span className="font-script text-white text-sm tracking-wide">Sentinel</span>
-                <span className="text-ash/60">/</span>
-                <span className="text-[11px] text-[#C9A961] font-medium uppercase tracking-wider">Site</span>
+                <span>Site</span>
               </Link>
 
-              <div className="h-4 w-[1px] bg-white/[0.08] hidden sm:block" />
-
-              <div className="hidden sm:flex items-center gap-2">
-                <span className="text-[11px] font-mono text-[#C9A961] font-semibold tracking-wider uppercase">
-                  {currentView === "dashboard" ? "I" : currentView === "ledger" ? "II" : currentView === "simulate" ? "III" : currentView === "cli" ? "IV" : currentView === "metrics" ? "V" : "VI"}
-                </span>
-                <h2 className="text-sm sm:text-base font-serif font-medium text-white tracking-wide">
-                  {titles[currentView]}
-                </h2>
-              </div>
-            </div>
-
-            {/* Center Segmented Imperial Navigation Pill Bar */}
-            <div className="hidden lg:flex items-center gap-1 p-1 rounded-full bg-[#07080A]/95 border border-[#C9A961]/25 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.7)]">
-              {[
-                { id: "dashboard", label: "Dashboard", icon: Shield },
-                { id: "ledger", label: "Ledger", icon: Scroll },
-                { id: "simulate", label: "Simulate", icon: Flame },
-                { id: "cli", label: "CLI", icon: Terminal },
-                { id: "metrics", label: "Metrics", icon: Activity },
-                { id: "settings", label: "Settings", icon: SlidersHorizontal },
-              ].map((tab) => {
-                const Icon = tab.icon;
-                const isActive = currentView === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setCurrentView(tab.id as any)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono transition-all duration-200 ${
-                      isActive
-                        ? "bg-[#C9A961] text-[#07080B] font-semibold shadow-md"
-                        : "text-[#C2BEB4] hover:text-[#F5F3EF] hover:bg-white/[0.06]"
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5 shrink-0" />
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Right: Base Sepolia Status & Keystore */}
-            <div className="topbar-right flex items-center gap-2 sm:gap-2.5 shrink-0">
               <div className="chain-badge flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.02] border border-white/[0.08] text-xs font-mono text-[#C2BEB4]">
                 <span className="w-2 h-2 rounded-full bg-[#8FAF92] animate-pulse" />
                 <span>Base Sepolia</span>
               </div>
+
               {isDemoMode ? (
                 <>
                   <div
-                    className="px-2.5 py-1 rounded-full text-[11px] font-mono border border-[#C9A961]/30 text-[#C9A961] bg-[#C9A961]/5 flex items-center gap-1.5 cursor-pointer hover:border-[#C9A961]/60 transition-all"
+                    className="hidden sm:flex px-2.5 py-1 rounded-full text-[11px] font-mono border border-[#C9A961]/30 text-[#C9A961] bg-[#C9A961]/5 items-center gap-1.5 cursor-pointer hover:border-[#C9A961]/60 transition-all"
                     onClick={() => setCurrentView("settings")}
                     title="Live Demo Observer on Base Sepolia"
                   >
                     <Eye className="w-3.5 h-3.5 text-[#C9A961]/80" />
-                    <span className="hidden sm:inline">Observer</span>
+                    <span>Observer</span>
                   </div>
                   <button
-                    className={`btn-primary btn text-xs py-1.5 px-3.5 ${connecting ? "connecting" : ""}`}
+                    className={`btn-primary btn text-xs py-1.5 px-4 ${connecting ? "connecting" : ""}`}
                     onClick={doConnect}
                     disabled={connecting}
                   >
