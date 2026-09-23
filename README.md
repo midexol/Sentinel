@@ -11,6 +11,12 @@
   <img src="https://img.shields.io/badge/License-MIT-gray?style=for-the-badge" alt="License" />
 </p>
 
+<p align="center">
+  <a href="https://sentinel-sigma-six.vercel.app"><strong>Live Observatory</strong></a> •
+  <a href="https://sentinel-sigma-six.vercel.app/docs"><strong>Documentation Portal</strong></a> •
+  <a href="https://sentinel-dqla.onrender.com/api/health"><strong>Backend Gateway (Render)</strong></a>
+</p>
+
 ---
 
 ## Overview
@@ -195,10 +201,11 @@ Sentinel/
 │   │   ├── state/              # Live wallet nonce and queue state
 │   │   └── stream/             # Real-time mempool telemetry feed
 │   ├── dapp/                   # Institutional trading command dashboard
+│   ├── docs/                   # GitBook-style dark mode technical documentation (14 articles)
 │   ├── security/               # 3-layer security model, checklist, invariants
 │   ├── simulate/               # Interactive adversarial mempool simulator
 │   ├── layout.tsx              # Root layout with Pacifico & Cinzel typography
-│   └── page.tsx                # Interactive landing experience with motion canvas
+│   └── page.tsx                # Interactive landing experience with solid black aesthetic
 ├── src/                        # Sentinel Autonomous Core Engine
 │   ├── agent.ts                # AI diagnosis and prompt reasoning
 │   ├── circuitBreaker.ts       # Trip-wire halt and webhook alerts
@@ -213,6 +220,17 @@ Sentinel/
 ├── next.config.mjs             # OWASP HTTP security header configuration
 └── tailwind.config.ts          # Renaissance-inspired Void & Aurum design tokens
 ```
+
+---
+
+## Documentation Portal
+
+Sentinel features an interactive, GitBook-inspired technical documentation portal at [`/docs`](https://sentinel-sigma-six.vercel.app/docs) covering 14 in-depth guides organized across 5 pillars:
+- **Pillar 1: Getting Started**: Introduction, Quickstart (2-minute deployment), System Architecture.
+- **Pillar 2: Core Engineering**: Base Flashblocks & sub-second sequencing, "Model Proposes, Code Decides", Silent Eviction Detection, and formal Mathematical Invariants (`INV-01` to `INV-04`).
+- **Pillar 3: Integration & SDK**: Drop-in Viem & Ethers.js Interceptor Gateway, Server-Sent Events (`/api/stream`), and REST API endpoints.
+- **Pillar 4: Institutional Security**: Three-Layer Security Model, Circuit Breakers & webhook alerts, and append-only audit receipts.
+- **Pillar 5: Reference**: Environment configuration specifications and EVM/HFT Glossary.
 
 ---
 
