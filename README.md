@@ -285,6 +285,24 @@ npm start
 ```
 The interface will be live at `http://localhost:3000`.
 
+### 6. Docker Container Deployment
+
+Run Sentinel in Docker for 24/7 continuous operation on any VPS or local machine:
+
+```bash
+# Start all services (Web Observatory, Watchdog loop, and RPC Proxy):
+docker compose up -d
+
+# View live daemon and proxy logs:
+docker compose logs -f
+
+# Run only the headless Watchdog loop (e.g. if Web UI is on Vercel):
+docker compose --profile split up sentinel-watchdog -d
+
+# Run only the JSON-RPC Proxy on port 8545:
+docker compose --profile split up sentinel-proxy -d
+```
+
 ---
 
 ## API Reference

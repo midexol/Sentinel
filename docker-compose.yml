@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+  # ============================================================================
+  # Sentinel All-In-One Service
+  # Runs the Web Observatory (port 3000), JSON-RPC Proxy (port 8545),
+  # and the continuous Watchdog loop together in a single container.
+  # Usage: docker compose up -d
+  # ============================================================================
+  sentinel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sentinel:latest
+    container_name: sentinel
+    restart: unless-stopped
+    command: ["all"]
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+      - "8545:8545"
+    volumes:
+      - sentinel-logs:/app/logs
+      - ./settings.json:/app/settings.json
+    environment:
+      - NODE_ENV=production
+
+  # ============================================================================
+  # Dedicated Watchdog Daemon
+  # Use this profile if your Web Observatory is hosted on Vercel and you only
+  # want to run the background watchdog loop on your server/VPS.
+  # Usage: docker compose --profile split up sentinel-watchdog -d
+  # ============================================================================
+  sentinel-watchdog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sentinel:latest
+    container_name: sentinel-watchdog
+    restart: unless-stopped
+    command: ["watchdog"]
+    env_file:
+      - .env
+    volumes:
+      - sentinel-logs:/app/logs
+    profiles:
+      - split
+
+  # ============================================================================
+  # Dedicated JSON-RPC Proxy
+  # Use this profile to expose the port 8545 proxy endpoint for your bots
+  # on a dedicated container without running the web UI.
+  # Usage: docker compose --profile split up sentinel-proxy -d
+  # ============================================================================
+  sentinel-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sentinel:latest
+    container_name: sentinel-proxy
+    restart: unless-stopped
+    command: ["proxy"]
+    env_file:
+      - .env
+    ports:
+      - "8545:8545"
+    profiles:
+      - split
+
+volumes:
+  sentinel-logs:
+    driver: local
