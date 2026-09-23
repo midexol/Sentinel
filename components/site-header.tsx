@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Menu, X, Landmark, Terminal, Flame, ShieldCheck, Activity, Crown, BookOpen } from "lucide-react";
+import { Menu, X, Landmark, Terminal, Flame, ShieldCheck, Activity, Crown } from "lucide-react";
 
 export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -24,7 +24,6 @@ export default function SiteHeader() {
   }, [pathname]);
 
   const navLinks = [
-    { label: "Docs", href: "/docs", icon: BookOpen },
     { label: "Pipelines", href: "/assets", icon: Landmark },
     { label: "Integration", href: "/integrate", icon: Terminal },
     { label: "Simulation", href: "/simulate", icon: Flame },
