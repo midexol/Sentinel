@@ -54,4 +54,4 @@ EXPOSE 3000
 EXPOSE 8545
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD ["app"]
+CMD ["all"]
