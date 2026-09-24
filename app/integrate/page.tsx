@@ -5,7 +5,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import SiteAtmosphere from "@/components/site-atmosphere";
-import { Terminal, Copy, Check, Radio, Cpu, ShieldCheck, ExternalLink, Code2, Play } from "lucide-react";
+import { RiTerminalBoxLine, RiCheckLine, RiFileCopyLine, RiBroadcastLine, RiShieldCheckLine, RiCpuLine } from "react-icons/ri";
 
 export default function IntegratePage() {
   const [cliTab, setCliTab] = useState<"watch" | "scan" | "compile" | "demo">("watch");
@@ -20,7 +20,7 @@ export default function IntegratePage() {
         {/* Page Header */}
         <div className="space-y-4 max-w-3xl">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
-            <Terminal className="w-3.5 h-3.5 text-[#C9A961]" />
+            <RiTerminalBoxLine className="w-3.5 h-3.5 text-[#C9A961]" />
             <span>Developer Integration & Daemon Control</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-5xl font-semibold tracking-tight text-marble">
@@ -188,12 +188,12 @@ export default function IntegratePage() {
               >
                 {copiedCli ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-[#8FAF92]" />
+                    <RiCheckLine className="w-3.5 h-3.5 text-[#8FAF92]" />
                     <span className="text-[#8FAF92]">Copied</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5" />
+                    <RiFileCopyLine className="w-3.5 h-3.5" />
                     <span>Copy</span>
                   </>
                 )}
@@ -235,7 +235,7 @@ export default function IntegratePage() {
               <div className="space-y-2 text-marble-dim/90 leading-relaxed">
                 <p className="text-ash">&gt; sentinel@0.1.0 build:cli</p>
                 <p className="text-ash">&gt; tsc -p tsconfig.cli.json</p>
-                <p className="text-[#8FAF92]">✓ Compiled TypeScript into dist/cli.js (Zero external dev dependencies)</p>
+                <p className="text-[#8FAF92]">◆ Compiled TypeScript into dist/cli.js (Zero external dev dependencies)</p>
                 <p className="text-ash pt-2">$ node dist/cli.js</p>
                 <p className="text-marble font-semibold">Latest nonce: 44, Pending nonce: 44, Gap: none</p>
                 <p className="text-ash/70">Standalone execution ready for Docker containerization or systemd service deployment.</p>
@@ -266,7 +266,7 @@ export default function IntegratePage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
           <div className="p-5 rounded-2xl bg-[#07080A]/95 border border-white/[0.08] space-y-2">
             <div className="text-[#8FAF92] font-semibold flex items-center gap-2">
-              <Radio className="w-4 h-4 text-[#8FAF92]" />
+              <RiBroadcastLine className="w-4 h-4 text-[#8FAF92]" />
               <span>Real-Time SSE Stream</span>
             </div>
             <p className="text-ash text-[11px] leading-relaxed">
@@ -276,7 +276,7 @@ export default function IntegratePage() {
 
           <div className="p-5 rounded-2xl bg-[#07080A]/95 border border-white/[0.08] space-y-2">
             <div className="text-[#C9A961] font-semibold flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4" />
+              <RiShieldCheckLine className="w-4 h-4" />
               <span>Zero-Key Dry-Run Mode</span>
             </div>
             <p className="text-ash text-[11px] leading-relaxed">
@@ -286,7 +286,7 @@ export default function IntegratePage() {
 
           <div className="p-5 rounded-2xl bg-[#07080A]/95 border border-white/[0.08] space-y-2">
             <div className="text-[#C9A961] font-semibold flex items-center gap-2">
-              <Cpu className="w-4 h-4" />
+              <RiCpuLine className="w-4 h-4" />
               <span>Triple-Strike Breaker</span>
             </div>
             <p className="text-ash text-[11px] leading-relaxed">

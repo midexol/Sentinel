@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { RiCheckLine, RiFileCopyLine } from "react-icons/ri";
 
 interface DocsCodeBlockProps {
   language?: string;
@@ -40,12 +40,12 @@ export default function DocsCodeBlock({ language = "bash", code, filename }: Doc
         >
           {copied ? (
             <>
-              <Check className="w-3.5 h-3.5 text-emerald-400" />
+              <RiCheckLine className="w-3.5 h-3.5 text-emerald-400" />
               <span className="text-emerald-400">Copied</span>
             </>
           ) : (
             <>
-              <Copy className="w-3.5 h-3.5 opacity-70" />
+              <RiFileCopyLine className="w-3.5 h-3.5 opacity-70" />
               <span>Copy</span>
             </>
           )}

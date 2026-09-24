@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Play, RotateCcw, CheckCircle2, AlertCircle, ShieldCheck } from "lucide-react";
+import { RiPlayFill, RiRestartLine, RiCheckboxCircleLine } from "react-icons/ri";
 import { truncateHash, getBaseScanTxUrl } from "@/lib/viem";
 
 const steps = [
@@ -85,7 +85,7 @@ export default function SimulationRunner() {
             onClick={reset}
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono text-ash hover:text-marble bg-void-2 border border-white/[0.06] hover:border-white/[0.15] transition-all"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RiRestartLine className="w-3.5 h-3.5" />
             <span>Reset</span>
           </button>
           <button
@@ -93,7 +93,7 @@ export default function SimulationRunner() {
             disabled={isRunning}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-mono font-medium bg-gradient-to-b from-[#ECD79B] to-[#C9A961] hover:from-[#F3E5AB] hover:to-[#D4B574] text-[#07080B] hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 shadow-md"
           >
-            <Play className="w-3.5 h-3.5 fill-current" />
+            <RiPlayFill className="w-3.5 h-3.5 fill-current" />
             <span>{isRunning ? "Simulating…" : "Run Conformance Suite"}</span>
           </button>
         </div>
@@ -124,7 +124,7 @@ export default function SimulationRunner() {
                   Stage 0{s.step}
                 </span>
                 {isDone ? (
-                  <CheckCircle2 className="w-4 h-4 text-[#8FAF92]" />
+                  <RiCheckboxCircleLine className="w-4 h-4 text-[#8FAF92]" />
                 ) : isCurrent ? (
                   <span className="w-2 h-2 rounded-sm bg-aurum rotate-45 inline-block" />
                 ) : (

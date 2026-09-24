@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronRight, ArrowLeft, ArrowRight, ExternalLink, ShieldCheck, AlertTriangle, Info, Terminal } from "lucide-react";
+import { RiShieldCheckLine, RiArrowRightSLine, RiExternalLinkLine } from "react-icons/ri";
 import { DocArticle } from "@/lib/docs-data";
 import DocsCodeBlock from "@/components/docs-code-block";
 
@@ -105,7 +105,7 @@ export default function DocArticleViewer({ article }: DocArticleViewerProps) {
               key={`quote-${lineIdx}`}
               className="my-4 p-4 rounded-xl border border-[rgba(201,169,97,0.25)] bg-[#C9A961]/5 flex items-start gap-3 text-sm text-[#EDE9E1]"
             >
-              <ShieldCheck className="w-5 h-5 text-[#C9A961] shrink-0 mt-0.5" />
+              <RiShieldCheckLine className="w-5 h-5 text-[#C9A961] shrink-0 mt-0.5" />
               <div className="leading-relaxed font-sans">{quoteText}</div>
             </div>
           );
@@ -232,9 +232,9 @@ export default function DocArticleViewer({ article }: DocArticleViewerProps) {
           <Link href="/docs" className="hover:text-white transition-colors">
             Docs
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 opacity-50" />
+          <RiArrowRightSLine className="w-3.5 h-3.5 opacity-50" />
           <span className="uppercase text-[#8A867D]">{article.category}</span>
-          <ChevronRight className="w-3.5 h-3.5 opacity-50" />
+          <RiArrowRightSLine className="w-3.5 h-3.5 opacity-50" />
           <span className="text-[#C9A961] truncate">{article.title}</span>
         </div>
 
@@ -267,8 +267,7 @@ export default function DocArticleViewer({ article }: DocArticleViewerProps) {
               href={`/docs/${article.prev.slug}`}
               className="group p-4 rounded-xl border border-white/[0.08] hover:border-[#C9A961]/40 bg-[#07080A] hover:bg-[#0D0E12] transition-all flex flex-col justify-between"
             >
-              <div className="flex items-center gap-2 text-xs font-mono text-[#686660] group-hover:text-[#C9A961] transition-colors">
-                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+              <div className="text-xs font-mono text-[#686660] group-hover:text-[#C9A961] transition-colors">
                 <span>PREVIOUS</span>
               </div>
               <span className="mt-2 text-sm font-semibold text-white group-hover:text-[#C9A961] transition-colors">
@@ -284,9 +283,8 @@ export default function DocArticleViewer({ article }: DocArticleViewerProps) {
               href={`/docs/${article.next.slug}`}
               className="group p-4 rounded-xl border border-white/[0.08] hover:border-[#C9A961]/40 bg-[#07080A] hover:bg-[#0D0E12] transition-all flex flex-col justify-between text-right"
             >
-              <div className="flex items-center justify-end gap-2 text-xs font-mono text-[#686660] group-hover:text-[#C9A961] transition-colors">
+              <div className="text-xs font-mono text-[#686660] group-hover:text-[#C9A961] transition-colors">
                 <span>NEXT</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </div>
               <span className="mt-2 text-sm font-semibold text-white group-hover:text-[#C9A961] transition-colors">
                 {article.next.title}
@@ -336,7 +334,7 @@ export default function DocArticleViewer({ article }: DocArticleViewerProps) {
             className="flex items-center justify-between text-[#8A867D] hover:text-[#C9A961] transition-colors py-0.5"
           >
             <span>BaseScan Sepolia</span>
-            <ExternalLink className="w-3 h-3 opacity-60" />
+            <RiExternalLinkLine className="w-3.5 h-3.5 opacity-60" />
           </a>
           <a
             href="https://docs.base.org"
@@ -345,7 +343,7 @@ export default function DocArticleViewer({ article }: DocArticleViewerProps) {
             className="flex items-center justify-between text-[#8A867D] hover:text-[#C9A961] transition-colors py-0.5"
           >
             <span>Base Official Docs</span>
-            <ExternalLink className="w-3 h-3 opacity-60" />
+            <RiExternalLinkLine className="w-3.5 h-3.5 opacity-60" />
           </a>
           <a
             href="https://github.com/midexol/Sentinel"
@@ -354,7 +352,7 @@ export default function DocArticleViewer({ article }: DocArticleViewerProps) {
             className="flex items-center justify-between text-[#8A867D] hover:text-[#C9A961] transition-colors py-0.5"
           >
             <span>GitHub Repository</span>
-            <ExternalLink className="w-3 h-3 opacity-60" />
+            <RiExternalLinkLine className="w-3.5 h-3.5 opacity-60" />
           </a>
         </div>
       </aside>

@@ -5,18 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
-  Search,
-  Menu,
-  X,
-  ExternalLink,
-  Crown,
-  ChevronRight,
-  BookOpen,
-  Shield,
-  Layers,
-  Code2,
-  HelpCircle,
-} from "lucide-react";
+  RiSearchLine,
+  RiMenu4Line,
+  RiCloseLine,
+  RiExternalLinkLine,
+  RiBookOpenLine,
+  RiShieldLine,
+  RiStackLine,
+  RiCodeSSlashLine,
+  RiQuestionLine,
+} from "react-icons/ri";
 import { DOCS_CATEGORIES } from "@/lib/docs-data";
 import DocsSearchModal from "@/components/docs-search-modal";
 
@@ -32,15 +30,15 @@ export default function DocsLayout({
   const getCategoryIcon = (categoryTitle: string) => {
     switch (categoryTitle) {
       case "GETTING STARTED":
-        return BookOpen;
+        return RiBookOpenLine;
       case "CORE CONCEPTS":
-        return Layers;
+        return RiStackLine;
       case "INTEGRATION & SDK":
-        return Code2;
+        return RiCodeSSlashLine;
       case "SECURITY & AUTHORITY":
-        return Shield;
+        return RiShieldLine;
       default:
-        return HelpCircle;
+        return RiQuestionLine;
     }
   };
 
@@ -55,7 +53,7 @@ export default function DocsLayout({
             className="md:hidden p-2 rounded-lg text-[#C2BEB4] hover:text-white hover:bg-white/[0.06]"
             aria-label="Toggle navigation"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <RiCloseLine className="w-5 h-5" /> : <RiMenu4Line className="w-5 h-5" />}
           </button>
 
           <Link href="/" className="flex items-center gap-2.5 group">
@@ -90,7 +88,7 @@ export default function DocsLayout({
             className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-full border border-white/[0.08] bg-[#07080A] hover:border-[#C9A961]/40 text-[#8A867D] hover:text-[#C2BEB4] transition-all text-xs font-mono group shadow-inner"
           >
             <div className="flex items-center gap-2">
-              <Search className="w-3.5 h-3.5 text-[#C9A961]/70 group-hover:text-[#C9A961]" />
+              <RiSearchLine className="w-3.5 h-3.5 text-[#C9A961]/70 group-hover:text-[#C9A961]" />
               <span>Search documentation...</span>
             </div>
             <div className="flex items-center gap-1 text-[10px] text-[#686660]">
@@ -108,7 +106,7 @@ export default function DocsLayout({
             className="sm:hidden p-2 rounded-lg text-[#C2BEB4] hover:text-white hover:bg-white/[0.06]"
             aria-label="Search"
           >
-            <Search className="w-4 h-4 text-[#C9A961]" />
+            <RiSearchLine className="w-4 h-4 text-[#C9A961]" />
           </button>
 
           <a
@@ -118,15 +116,15 @@ export default function DocsLayout({
             className="hidden lg:flex items-center gap-1.5 text-xs font-mono text-[#8A867D] hover:text-white transition-colors"
           >
             <span>GitHub</span>
-            <ExternalLink className="w-3 h-3 opacity-60" />
+            <RiExternalLinkLine className="w-3 h-3 opacity-60" />
           </a>
 
           <Link
             href="/dapp"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono font-medium transition-all bg-gradient-to-b from-[#ECD79B] to-[#C9A961] hover:from-[#F3E5AB] hover:to-[#D4B574] text-[#07080B] shadow-md hover:-translate-y-0.5"
+            className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-mono font-medium transition-all bg-gradient-to-b from-[#ECD79B] to-[#C9A961] hover:from-[#F3E5AB] hover:to-[#D4B574] text-[#07080B] shadow-md hover:-translate-y-0.5"
           >
-            <Crown className="w-3.5 h-3.5 text-[#07080B]" />
             <span className="hidden sm:inline">Observatory</span>
+            <span className="sm:hidden">App</span>
           </Link>
         </div>
       </header>
@@ -202,7 +200,7 @@ export default function DocsLayout({
                 onClick={() => setMobileMenuOpen(false)}
                 className="p-2 rounded-lg bg-white/[0.06] text-[#C2BEB4]"
               >
-                <X className="w-5 h-5" />
+                <RiCloseLine className="w-5 h-5" />
               </button>
             </div>
             <div className="space-y-6 pb-12">

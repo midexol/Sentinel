@@ -5,26 +5,18 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import SiteAtmosphere from "@/components/site-atmosphere";
 import {
-  Crown,
-  Scale,
-  Scroll,
-  ShieldCheck,
-  Lock,
-  AlertOctagon,
-  KeyRound,
-  Globe,
-  Server,
-  CheckCircle2,
-  Terminal,
-  RefreshCw,
-  Layers,
-  FileCode2,
-  ShieldAlert,
-  Cpu,
-  Fingerprint,
-  Landmark,
-  Shield,
-} from "lucide-react";
+  RiShieldCheckLine,
+  RiKey2Line,
+  RiGlobalLine,
+  RiShieldCrossLine,
+  RiBankLine,
+  RiCpuLine,
+  RiShieldLine,
+  RiTerminalBoxLine,
+  RiErrorWarningLine,
+  RiLockLine,
+  RiVerifiedBadgeLine,
+} from "react-icons/ri";
 
 interface ChecklistItem {
   id: string;
@@ -236,7 +228,7 @@ export default function SecurityPage() {
         {/* Header section */}
         <div className="max-w-4xl space-y-4">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
-            <ShieldCheck className="w-4 h-4" />
+            <RiShieldCheckLine className="w-4 h-4" />
             <span>Institutional Security & Invariants</span>
           </div>
 
@@ -253,7 +245,7 @@ export default function SecurityPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
             <div className="p-3 rounded-xl bg-aurum/10 border border-aurum/20 text-aurum">
-              <KeyRound className="w-5 h-5" />
+              <RiKey2Line className="w-5 h-5" />
             </div>
             <div>
               <div className="text-xs font-mono text-ash uppercase">Private Key Isolation</div>
@@ -263,7 +255,7 @@ export default function SecurityPage() {
 
           <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
             <div className="p-3 rounded-xl bg-[#8FAF92]/10 border border-[#8FAF92]/25 text-[#8FAF92]">
-              <Globe className="w-5 h-5" />
+              <RiGlobalLine className="w-5 h-5" />
             </div>
             <div>
               <div className="text-xs font-mono text-ash uppercase">RPC Gateway</div>
@@ -273,7 +265,7 @@ export default function SecurityPage() {
 
           <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
             <div className="p-3 rounded-xl bg-[#C9A961]/10 border border-[#C9A961]/25 text-[#C9A961]">
-              <ShieldAlert className="w-5 h-5" />
+              <RiShieldCrossLine className="w-5 h-5" />
             </div>
             <div>
               <div className="text-xs font-mono text-ash uppercase">HTTP Security</div>
@@ -283,7 +275,7 @@ export default function SecurityPage() {
 
           <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] hover:border-[#C9A961]/35 p-5 shadow-sm flex items-center gap-4 transition-all">
             <div className="p-3 rounded-xl bg-aurum/10 border border-aurum/20 text-aurum">
-              <CheckCircle2 className="w-5 h-5" />
+              <RiVerifiedBadgeLine className="w-5 h-5" />
             </div>
             <div>
               <div className="text-xs font-mono text-ash uppercase">Pre-Launch Verification</div>
@@ -345,10 +337,9 @@ export default function SecurityPage() {
               {/* Layer 1 */}
               <div className="bg-[#07080A] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <KeyRound className="w-24 h-24 text-aurum" />
+                  <RiKey2Line className="w-24 h-24 text-aurum" />
                 </div>
-                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-aurum">
-                  <Crown className="w-3.5 h-3.5 text-aurum" />
+                <div className="text-xs font-mono uppercase tracking-widest text-aurum">
                   <span>Layer 1 · Highest Priority</span>
                 </div>
                 <h2 className="font-cinzel text-xl font-bold text-marble">Private Key Protection</h2>
@@ -356,20 +347,20 @@ export default function SecurityPage() {
                   The private key that signs replacement transactions is the single most critical asset. If leaked, an attacker could drain the wallet or hijack bot actions.
                 </p>
                 <div className="space-y-3 pt-2 text-xs font-mono text-ash">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>Loaded only via process.env.PRIVATE_KEY</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>Dedicated operational wallet with minimum gas budget</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>Zero UI exposure (status masked as [Loaded])</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>Support for KMS / HashiCorp Vault key rotation</span>
                   </div>
                 </div>
@@ -378,10 +369,9 @@ export default function SecurityPage() {
               {/* Layer 2 */}
               <div className="bg-[#07080A] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <Globe className="w-24 h-24 text-aurum" />
+                  <RiGlobalLine className="w-24 h-24 text-aurum" />
                 </div>
-                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#8FAF92]">
-                  <Landmark className="w-3.5 h-3.5 text-[#8FAF92]" />
+                <div className="text-xs font-mono uppercase tracking-widest text-[#8FAF92]">
                   <span>Layer 2 · Gateway Defense</span>
                 </div>
                 <h2 className="font-cinzel text-xl font-bold text-marble">RPC & API Security</h2>
@@ -389,20 +379,20 @@ export default function SecurityPage() {
                   The RPC is the gateway to Base. If intercepted or spoofed, an adversary could supply faulty nonce states or exhaust transaction budgets.
                 </p>
                 <div className="space-y-3 pt-2 text-xs font-mono text-ash">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>Zero RPC keys embedded in client-side bundle</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>Backend proxy for state queries and stream feeds</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>Mandatory HTTPS transport for all endpoints</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>Constant-time timingSafeEqual token verification</span>
                   </div>
                 </div>
@@ -411,10 +401,9 @@ export default function SecurityPage() {
               {/* Layer 3 */}
               <div className="bg-[#07080A] border border-aurum/25 rounded-2xl p-6 space-y-5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <Cpu className="w-24 h-24 text-aurum" />
+                  <RiCpuLine className="w-24 h-24 text-aurum" />
                 </div>
-                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
-                  <Shield className="w-3.5 h-3.5 text-[#C9A961]" />
+                <div className="text-xs font-mono uppercase tracking-widest text-[#C9A961]">
                   <span>Layer 3 · Application Defense</span>
                 </div>
                 <h2 className="font-serif text-xl font-medium text-marble">Daemon & Node.js Hygiene</h2>
@@ -422,20 +411,20 @@ export default function SecurityPage() {
                   The autonomous Sentinel daemon and its Next.js runtime enforce strict perimeter controls, boundary input schemas, and payload throttling.
                 </p>
                 <div className="space-y-3 pt-2 text-xs font-mono text-ash">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>OWASP security headers (HSTS, nosniff, DENY)</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>Recursive prototype pollution rejection</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>100KB payload limit on all JSON inputs</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#8FAF92] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
                     <span>Automatic regex scrubbing in audit log receipts</span>
                   </div>
                 </div>
@@ -445,7 +434,7 @@ export default function SecurityPage() {
             {/* Architecture diagram description */}
             <div className="rounded-2xl bg-[#07080A] border border-white/[0.08] p-6 sm:p-8 space-y-4">
               <div className="flex items-center gap-2 text-xs font-mono text-aurum">
-                <Terminal className="w-4 h-4" />
+                <RiTerminalBoxLine className="w-4 h-4" />
                 <span>Zero-Trust Gateway Architecture</span>
               </div>
               <div className="p-4 rounded-xl bg-void-2 border border-white/[0.06] font-mono text-xs text-marble-dim/90 overflow-x-auto leading-relaxed">
@@ -503,11 +492,11 @@ export default function SecurityPage() {
                     <div className="flex items-center gap-1.5 text-xs font-mono">
                       {item.verified ? (
                         <span className="text-[#8FAF92] flex items-center gap-1 font-semibold">
-                          <CheckCircle2 className="w-4 h-4" /> PASS
+                          <RiShieldCheckLine className="w-4 h-4" /> PASS
                         </span>
                       ) : (
                         <span className="text-[#C86A58] flex items-center gap-1 font-semibold">
-                          <AlertOctagon className="w-4 h-4" /> PENDING
+                          <RiErrorWarningLine className="w-4 h-4" /> PENDING
                         </span>
                       )}
                     </div>
@@ -542,7 +531,7 @@ export default function SecurityPage() {
                     <span className="font-mono text-xs text-aurum font-semibold">
                       {inv.id}
                     </span>
-                    <Lock className="w-4 h-4 text-ash" />
+                    <RiLockLine className="w-4 h-4 text-ash" />
                   </div>
 
                   <h3 className="font-cinzel text-base font-semibold text-marble">

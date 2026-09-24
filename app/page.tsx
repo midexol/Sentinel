@@ -5,26 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import {
-  ShieldCheck,
-  Zap,
-  Activity,
-  Radio,
-  Lock,
-  Cpu,
-  Terminal,
-  Play,
-  CheckCircle2,
-  Crown,
-  Scroll,
-  Scale,
-  Landmark,
-  Flame,
-  KeyRound,
-  Sparkles,
-  Layers,
-  ShieldAlert,
-  ChevronRight,
-} from "lucide-react";
+  RiShieldCheckLine,
+  RiCpuLine,
+  RiScales3Line,
+  RiTerminalBoxLine,
+  RiPlayCircleLine,
+} from "react-icons/ri";
 
 export default function LandingPage() {
   return (
@@ -43,7 +29,7 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 sm:pt-36 md:pt-40 pb-14 sm:pb-20 space-y-10">
         <div className="text-center max-w-3xl mx-auto space-y-5">
           <div className="flex items-center justify-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
-            <ShieldCheck className="w-3.5 h-3.5" />
+            <RiShieldCheckLine className="w-3.5 h-3.5" />
             <span>Autonomous Nonce Watchdog · Base L2</span>
           </div>
 
@@ -117,7 +103,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 font-mono text-xs">
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
-              <div className="text-ash uppercase text-[10px] flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#C9A961]" /><span>Step 1 · AI Reasoning</span></div>
+              <div className="text-ash uppercase text-[10px] flex items-center gap-1.5"><RiCpuLine className="w-3.5 h-3.5 text-[#C9A961]" /><span>Step 1 · AI Reasoning</span></div>
               <div className="text-white font-serif text-base font-medium">The Agent Reasons</div>
               <p className="text-marble-dim/80 text-xs leading-relaxed">
                 The LLM reasoning agent diagnoses why the transaction stalled and proposes an optimal recovery gas bump.
@@ -125,7 +111,7 @@ export default function LandingPage() {
             </div>
 
             <div className="p-4 rounded-xl bg-white/[0.02] border border-[#C9A961]/30 space-y-1">
-              <div className="text-[#C9A961] uppercase text-[10px] flex items-center gap-1.5"><Scale className="w-3.5 h-3.5 text-[#C9A961]" /><span>Step 2 · Hard Mathematical Clamp</span></div>
+              <div className="text-[#C9A961] uppercase text-[10px] flex items-center gap-1.5"><RiScales3Line className="w-3.5 h-3.5 text-[#C9A961]" /><span>Step 2 · Hard Mathematical Clamp</span></div>
               <div className="text-[#C9A961] font-serif text-base font-medium">Code Decides</div>
               <p className="text-marble-dim/80 text-xs leading-relaxed">
                 The model never touches gas fees directly. Every proposal is clamped between 10% and 50% max. Zero runaway risk.
@@ -133,7 +119,7 @@ export default function LandingPage() {
             </div>
 
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
-              <div className="text-ash uppercase text-[10px] flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-[#8FAF92]" /><span>Step 3 · Deterministic Execution</span></div>
+              <div className="text-ash uppercase text-[10px] flex items-center gap-1.5"><RiShieldCheckLine className="w-3.5 h-3.5 text-[#8FAF92]" /><span>Step 3 · Deterministic Execution</span></div>
               <div className="text-white font-serif text-base font-medium">Atomic Healing</div>
               <p className="text-marble-dim/80 text-xs leading-relaxed">
                 A replacement transaction is signed and broadcast. The queue unblocks and downstream trades resume immediately.
@@ -187,19 +173,19 @@ export default function LandingPage() {
         {/* 3 Failure Modes */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 font-mono text-xs">
           <div className="bg-[#07080A]/95 rounded-xl border border-white/[0.08] p-4 sm:p-5 space-y-1.5">
-            <div className="text-[#C86A58] text-[11px] font-semibold flex items-center gap-1.5"><Flame className="w-3.5 h-3.5" /><span>01 · UNDERPRICED GAS STALL</span></div>
+            <div className="text-[#C86A58] text-[11px] font-semibold tracking-wide">01 · UNDERPRICED GAS STALL</div>
             <p className="text-marble-dim/80 text-[11px] leading-relaxed">
               Gas spikes mid-flight. The transaction tip falls below sequencer minimum, stranding all downstream nonces.
             </p>
           </div>
           <div className="bg-[#07080A]/95 rounded-xl border border-white/[0.08] p-4 sm:p-5 space-y-1.5">
-            <div className="text-[#C9A961] text-[11px] font-semibold flex items-center gap-1.5"><Radio className="w-3.5 h-3.5" /><span>02 · SILENT RPC EVICTION</span></div>
+            <div className="text-[#C9A961] text-[11px] font-semibold tracking-wide">02 · SILENT RPC EVICTION</div>
             <p className="text-marble-dim/80 text-[11px] leading-relaxed">
               Overloaded RPC nodes drop pending transactions without error callbacks, leaving bots waiting indefinitely.
             </p>
           </div>
           <div className="bg-[#07080A]/95 rounded-xl border border-white/[0.08] p-4 sm:p-5 space-y-1.5">
-            <div className="text-[#C2BEB4] text-[11px] font-semibold flex items-center gap-1.5"><Layers className="w-3.5 h-3.5" /><span>03 · MICRO-REORG COLLISION</span></div>
+            <div className="text-[#C2BEB4] text-[11px] font-semibold tracking-wide">03 · MICRO-REORG COLLISION</div>
             <p className="text-marble-dim/80 text-[11px] leading-relaxed">
               A 200ms sub-block reorganization invalidates assumed order, triggering repeated sequence submission errors.
             </p>
@@ -210,9 +196,8 @@ export default function LandingPage() {
       {/* 3. HOW SENTINEL WORKS: THE SELF-HEALING WATCHDOG PIPELINE */}
       <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5 space-y-12">
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="text-[11px] font-mono uppercase tracking-widest text-[#C9A961] flex items-center justify-center gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-[#C9A961]" />
-            <span>Autonomous Mempool Watchdog</span>
+          <div className="text-[11px] font-mono uppercase tracking-widest text-[#C9A961]">
+            Autonomous Mempool Watchdog
           </div>
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif text-white leading-tight">
             How Sentinel Works
@@ -350,10 +335,9 @@ export default function LandingPage() {
             </div>
             <Link
               href="/docs/architecture"
-              className="text-xs font-mono text-[#C9A961] hover:underline flex items-center gap-1.5 self-start sm:self-auto"
+              className="text-xs font-mono text-[#C9A961] hover:underline flex items-center self-start sm:self-auto"
             >
               <span>View Architecture Specs</span>
-              <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -434,20 +418,20 @@ export default function LandingPage() {
               </span>
             </div>
             <ul className="space-y-2.5 text-xs text-[#EDE9E1] font-mono">
-              <li className="flex items-start gap-2">
-                <span className="text-emerald-400 mt-0.5 font-bold">✓</span>
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#C9A961] text-[9px] mt-1 shrink-0 select-none">◆</span>
                 <span>Autonomous 500ms dual-tag mempool monitoring catches gaps immediately.</span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="text-emerald-400 mt-0.5 font-bold">✓</span>
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#C9A961] text-[9px] mt-1 shrink-0 select-none">◆</span>
                 <span>Sliding-window heuristics detect and recover silent sequencer drops.</span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="text-emerald-400 mt-0.5 font-bold">✓</span>
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#C9A961] text-[9px] mt-1 shrink-0 select-none">◆</span>
                 <span>AI diagnosis bounded by INV-02 mathematical clamp [10%, 50%].</span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="text-emerald-400 mt-0.5 font-bold">✓</span>
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#C9A961] text-[9px] mt-1 shrink-0 select-none">◆</span>
                 <span>Sub-second atomic unblocking unjams downstream pipeline in milliseconds.</span>
               </li>
             </ul>
@@ -485,9 +469,9 @@ export default function LandingPage() {
                 Monitors pending vs mined nonces at 200ms intervals matching Base Flashblocks. It maintains an eviction timer on every in-flight transaction to distinguish normal block latency from silent drops.
               </p>
               <div className="pt-2 flex flex-wrap items-center gap-3 text-xs font-mono text-[#C9A961]">
-                <span>✓ 200ms Polling Tick</span>
-                <span>✓ Eviction Timeout Window</span>
-                <span>✓ Ghost Nonce Reaper</span>
+                <span className="inline-flex items-center gap-1.5"><span className="text-[8px] opacity-75">◆</span> 200ms Polling Tick</span>
+                <span className="inline-flex items-center gap-1.5"><span className="text-[8px] opacity-75">◆</span> Eviction Timeout Window</span>
+                <span className="inline-flex items-center gap-1.5"><span className="text-[8px] opacity-75">◆</span> Ghost Nonce Reaper</span>
               </div>
             </div>
           </div>
@@ -512,9 +496,9 @@ export default function LandingPage() {
                 When a gap is confirmed, the LLM reasoning agent classifies the root cause. The resolver constructs a replacement or zero-value cancellation, strictly clamped within user-defined bounds.
               </p>
               <div className="pt-2 flex flex-wrap items-center gap-3 text-xs font-mono text-[#C2BEB4]">
-                <span>✓ Bounded Clamp (10% to 50%)</span>
-                <span>✓ Fallback Fast Heuristics</span>
-                <span>✓ Atomic Nonce Unblocking</span>
+                <span className="inline-flex items-center gap-1.5"><span className="text-[#C9A961] text-[8px] opacity-75">◆</span> Bounded Clamp (10% to 50%)</span>
+                <span className="inline-flex items-center gap-1.5"><span className="text-[#C9A961] text-[8px] opacity-75">◆</span> Fallback Fast Heuristics</span>
+                <span className="inline-flex items-center gap-1.5"><span className="text-[#C9A961] text-[8px] opacity-75">◆</span> Atomic Nonce Unblocking</span>
               </div>
             </div>
           </div>
@@ -551,7 +535,7 @@ export default function LandingPage() {
           {/* 4 Axiom Pillars */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-6 sm:p-8 bg-[#07080A] border-t border-white/[0.08] font-mono text-xs">
             <div className="space-y-1.5">
-              <div className="text-xs text-[#C9A961] font-semibold flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" /><span>AXIOM I</span></div>
+              <div className="text-xs text-[#C9A961] font-semibold tracking-wider">AXIOM I</div>
               <div className="font-serif text-sm sm:text-base text-white">Hard Clamped Bumping</div>
               <p className="text-ash text-[11px] leading-relaxed">
                 Fee proposals are clamped between 10% and 50% max. Zero runaway gas expenditure.
@@ -559,7 +543,7 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-1.5">
-              <div className="text-xs text-[#C9A961] font-semibold flex items-center gap-1.5"><ShieldAlert className="w-3.5 h-3.5" /><span>AXIOM II</span></div>
+              <div className="text-xs text-[#C9A961] font-semibold tracking-wider">AXIOM II</div>
               <div className="font-serif text-sm sm:text-base text-white">Triple-Strike Breaker</div>
               <p className="text-ash text-[11px] leading-relaxed">
                 Freezes automated writes if consecutive failures occur in a sliding window; sounds instant webhook alert.
@@ -567,7 +551,7 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-1.5">
-              <div className="text-xs text-[#C9A961] font-semibold flex items-center gap-1.5"><KeyRound className="w-3.5 h-3.5" /><span>AXIOM III</span></div>
+              <div className="text-xs text-[#C9A961] font-semibold tracking-wider">AXIOM III</div>
               <div className="font-serif text-sm sm:text-base text-white">Zero Key Exposure</div>
               <p className="text-ash text-[11px] leading-relaxed">
                 Runs in proxy interceptor mode with zero private keys stored in Sentinel itself.
@@ -575,7 +559,7 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-1.5">
-              <div className="text-xs text-[#C9A961] font-semibold flex items-center gap-1.5"><Scroll className="w-3.5 h-3.5" /><span>AXIOM IV</span></div>
+              <div className="text-xs text-[#C9A961] font-semibold tracking-wider">AXIOM IV</div>
               <div className="font-serif text-sm sm:text-base text-white">Audit Trail Provenance</div>
               <p className="text-ash text-[11px] leading-relaxed">
                 Every gap detection, diagnosis reason, and broadcast hash is permanently recorded to structured JSONL logs.
@@ -641,7 +625,7 @@ export default function LandingPage() {
           >
             <div className="space-y-3">
               <div className="w-10 h-10 rounded-xl bg-[#C9A961]/10 border border-[#C9A961]/25 flex items-center justify-center text-[#C9A961]">
-                <Terminal className="w-5 h-5" />
+                <RiTerminalBoxLine className="w-5 h-5" />
               </div>
               <h3 className="font-serif text-xl text-white group-hover:text-aurum-light transition-colors">
                 Bot SDK & CLI Daemon
@@ -662,7 +646,7 @@ export default function LandingPage() {
           >
             <div className="space-y-3">
               <div className="w-10 h-10 rounded-xl bg-[#8FAF92]/10 border border-[#8FAF92]/25 flex items-center justify-center text-[#8FAF92]">
-                <ShieldCheck className="w-5 h-5" />
+                <RiShieldCheckLine className="w-5 h-5" />
               </div>
               <h3 className="font-serif text-xl text-white group-hover:text-aurum-light transition-colors">
                 Institutional Security & Axioms
@@ -683,7 +667,7 @@ export default function LandingPage() {
           >
             <div className="space-y-3">
               <div className="w-10 h-10 rounded-xl bg-[#C9A961]/10 border border-[#C9A961]/25 flex items-center justify-center text-[#C9A961]">
-                <Play className="w-5 h-5" />
+                <RiPlayCircleLine className="w-5 h-5" />
               </div>
               <h3 className="font-serif text-xl text-white group-hover:text-aurum-light transition-colors">
                 Conformance Simulation Suite
@@ -704,9 +688,8 @@ export default function LandingPage() {
       <section id="dapp-preview" className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 border-t border-white/5">
         <div className="rounded-2xl sm:rounded-[28px] bg-[#07080A]/95 border border-[#C9A961]/20 p-8 sm:p-12 text-center space-y-6 relative overflow-hidden shadow-2xl">
           <div className="w-full max-w-xl mx-auto space-y-3">
-            <div className="flex items-center justify-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
-              <Crown className="w-3.5 h-3.5 text-[#C9A961]" />
-              <span>Real-Time Observatory Interface</span>
+            <div className="text-xs font-mono uppercase tracking-widest text-[#C9A961]">
+              Real-Time Observatory Interface
             </div>
             <h2 className="text-2xl sm:text-4xl font-serif text-white">
               Enter the Live Observatory.

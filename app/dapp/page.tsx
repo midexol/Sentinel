@@ -3,7 +3,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { CheckCircle2, AlertTriangle, Radio, Box, Activity, Terminal, Shield, Scroll, Flame, SlidersHorizontal, Crown, Landmark } from "lucide-react";
+import {
+  RiShieldCheckLine,
+  RiShieldLine,
+  RiFileList3Line,
+  RiFireLine,
+  RiTerminalBoxLine,
+  RiPulseLine,
+  RiEqualizerLine,
+  RiBox3Line,
+  RiAlertLine,
+  RiCheckboxCircleLine,
+  RiBroadcastLine,
+} from "react-icons/ri";
 import DappSettings from "@/components/dapp-settings";
 import "./dapp.css";
 
@@ -748,7 +760,7 @@ export default function DappPage() {
               className={`nav-item ${currentView === "dashboard" ? "active" : ""}`}
               onClick={() => setCurrentView("dashboard")}
             >
-              <Shield className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <RiShieldLine className="w-4 h-4 shrink-0 text-[#C9A961]" />
               <span className="flex-1 text-left">Dashboard</span>
               <span className="font-mono text-[10px] text-ash/60">I</span>
             </button>
@@ -757,7 +769,7 @@ export default function DappPage() {
               className={`nav-item ${currentView === "ledger" ? "active" : ""}`}
               onClick={() => setCurrentView("ledger")}
             >
-              <Scroll className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <RiFileList3Line className="w-4 h-4 shrink-0 text-[#C9A961]" />
               <span className="flex-1 text-left">Ledger</span>
               <span className="font-mono text-[10px] text-ash/60">II</span>
             </button>
@@ -766,7 +778,7 @@ export default function DappPage() {
               className={`nav-item ${currentView === "simulate" ? "active" : ""}`}
               onClick={() => setCurrentView("simulate")}
             >
-              <Flame className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <RiFireLine className="w-4 h-4 shrink-0 text-[#C9A961]" />
               <span className="flex-1 text-left">Simulate</span>
               <span className="font-mono text-[10px] text-ash/60">III</span>
             </button>
@@ -775,7 +787,7 @@ export default function DappPage() {
               className={`nav-item ${currentView === "cli" ? "active" : ""}`}
               onClick={() => setCurrentView("cli")}
             >
-              <Terminal className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <RiTerminalBoxLine className="w-4 h-4 shrink-0 text-[#C9A961]" />
               <span className="flex-1 text-left">CLI Daemon</span>
               <span className="font-mono text-[10px] text-ash/60">IV</span>
             </button>
@@ -784,7 +796,7 @@ export default function DappPage() {
               className={`nav-item ${currentView === "metrics" ? "active" : ""}`}
               onClick={() => setCurrentView("metrics")}
             >
-              <Activity className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <RiPulseLine className="w-4 h-4 shrink-0 text-[#C9A961]" />
               <span className="flex-1 text-left">Metrics</span>
               <span className="font-mono text-[10px] text-ash/60">V</span>
             </button>
@@ -793,7 +805,7 @@ export default function DappPage() {
               className={`nav-item ${currentView === "settings" ? "active" : ""}`}
               onClick={() => setCurrentView("settings")}
             >
-              <SlidersHorizontal className="w-4 h-4 shrink-0 text-[#C9A961]" />
+              <RiEqualizerLine className="w-4 h-4 shrink-0 text-[#C9A961]" />
               <span className="flex-1 text-left">Settings</span>
               <span className="font-mono text-[10px] text-ash/60">VI</span>
             </button>
@@ -855,12 +867,12 @@ export default function DappPage() {
           {/* Mobile Quick-Navigation Strip */}
           <div className="lg:hidden flex items-center gap-1.5 px-3 py-2 border-b border-white/[0.06] bg-[#050608] overflow-x-auto no-scrollbar">
             {[
-              { id: "dashboard", label: "Dashboard", icon: Shield },
-              { id: "ledger", label: "Ledger", icon: Scroll },
-              { id: "simulate", label: "Simulate", icon: Flame },
-              { id: "cli", label: "CLI", icon: Terminal },
-              { id: "metrics", label: "Metrics", icon: Activity },
-              { id: "settings", label: "Settings", icon: SlidersHorizontal },
+              { id: "dashboard", label: "Dashboard", icon: RiShieldLine },
+              { id: "ledger", label: "Ledger", icon: RiFileList3Line },
+              { id: "simulate", label: "Simulate", icon: RiFireLine },
+              { id: "cli", label: "CLI", icon: RiTerminalBoxLine },
+              { id: "metrics", label: "Metrics", icon: RiPulseLine },
+              { id: "settings", label: "Settings", icon: RiEqualizerLine },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = currentView === tab.id;
@@ -886,7 +898,7 @@ export default function DappPage() {
             <div className="view">
               <div className="connect-screen">
                 <div className="glyph">
-                  <Shield className="w-8 h-8 text-[#C9A961]" />
+                  <RiShieldCheckLine className="w-8 h-8 text-[#C9A961]" />
                 </div>
                 <h1>Connect a wallet or explore live demo.</h1>
                 <p>
@@ -952,7 +964,7 @@ export default function DappPage() {
               {/* Real on-chain telemetry bar */}
               <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 rounded-xl bg-[#101216] border border-white/[0.08] text-xs font-mono shadow-sm">
                 <div className="flex items-center gap-2">
-                  <Box className="w-3.5 h-3.5 text-[#C9A961]" />
+                  <RiBox3Line className="w-3.5 h-3.5 text-[#C9A961]" />
                   <span className="text-[#686660]">Base Sepolia Block:</span>
                   <span className="text-[#F5F3EF] font-semibold tracking-wide">#{currentBlock.toLocaleString()}</span>
                 </div>
@@ -967,7 +979,7 @@ export default function DappPage() {
                 <div className="flex items-center gap-2">
                   <span className="text-[#686660]">Sync:</span>
                   <div className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-[#8FAF92]/30 bg-[#8FAF92]/10 text-[#8FAF92] text-[11px]">
-                    <Radio className="w-3 h-3 text-[#8FAF92]" />
+                    <RiBroadcastLine className="w-3 h-3 text-[#8FAF92]" />
                     <span>Live SSE</span>
                   </div>
                 </div>
@@ -992,9 +1004,9 @@ export default function DappPage() {
                   </div>
                   <div className={`gap-flag ${hasGap ? "active" : ""}`}>
                     {hasGap ? (
-                      <AlertTriangle className="w-3.5 h-3.5 text-ember shrink-0" />
+                      <RiAlertLine className="w-3.5 h-3.5 text-ember shrink-0" />
                     ) : (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8FAF92] shrink-0" />
+                      <RiCheckboxCircleLine className="w-3.5 h-3.5 text-[#8FAF92] shrink-0" />
                     )}
                     <span>
                       {hasGap
@@ -1056,7 +1068,7 @@ export default function DappPage() {
               <div className="ledger-panel">
                 <div className="flex items-center justify-between panel-eyebrow">
                   <div className="flex items-center gap-2">
-                    <Activity className={`w-3.5 h-3.5 ${isFeedPaused ? "text-[#D4A359]" : "text-[#C9A961]"}`} />
+                    <RiPulseLine className={`w-3.5 h-3.5 ${isFeedPaused ? "text-[#D4A359]" : "text-[#C9A961]"}`} />
                     <span>Ledger: {isFeedPaused ? "Frozen" : "Streaming"}</span>
                     {isFeedPaused && (
                       <span className="px-2 py-0.5 rounded text-[10px] bg-[#D4A359]/10 text-[#D4A359] border border-[#D4A359]/25 font-mono">
@@ -1315,7 +1327,7 @@ export default function DappPage() {
               <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl bg-[#101216] border border-[#C9A961]/25 shadow-sm">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-xs font-mono text-[#C9A961]">
-                    <Terminal className="w-3.5 h-3.5 text-[#C9A961]" />
+                    <RiTerminalBoxLine className="w-3.5 h-3.5 text-[#C9A961]" />
                     <span>AUTONOMOUS DAEMON & IN-LINE INTERCEPTOR</span>
                   </div>
                   <h2 className="font-serif text-2xl text-white">Bot Integration & Daemon Control</h2>
@@ -1331,7 +1343,7 @@ export default function DappPage() {
                     rel="noreferrer"
                     className="px-3.5 py-2 rounded-xl bg-[#08090C] border border-white/10 hover:border-[#C9A961]/40 text-[#8FAF92] transition-colors flex items-center gap-2"
                   >
-                    <Radio className="w-3.5 h-3.5 text-[#8FAF92]" />
+                    <RiBroadcastLine className="w-3.5 h-3.5 text-[#8FAF92]" />
                     <span>Open SSE Telemetry Stream</span>
                   </a>
                 </div>

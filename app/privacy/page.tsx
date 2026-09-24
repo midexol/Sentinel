@@ -3,7 +3,7 @@ import Link from 'next/link';
 import SiteHeader from '@/components/site-header';
 import SiteFooter from '@/components/site-footer';
 import SiteAtmosphere from '@/components/site-atmosphere';
-import { Shield, EyeOff, KeyRound, Server, HardDrive, FileText } from 'lucide-react';
+import { RiShieldCheckLine, RiEyeOffLine, RiKey2Line, RiServerLine, RiHardDrive2Line, RiFileTextLine } from 'react-icons/ri';
 
 export const metadata = {
   title: 'Privacy Policy : Sentinel Autonomous Nonce Watchdog',
@@ -13,37 +13,37 @@ export const metadata = {
 export default function PrivacyPolicyPage() {
   const sections = [
     {
-      icon: KeyRound,
+      icon: RiKey2Line,
       title: '1. Non-Custodial Architecture & Zero Key Transmission',
       content:
         'Sentinel is designed from first principles as non-custodial middleware. Private keys, signing credentials, and API secrets configured by operators remain strictly within the operator local execution environment or browser runtime. Sentinel never transmits, logs, or exports private keys to external servers or third-party cloud infrastructure.',
     },
     {
-      icon: EyeOff,
+      icon: RiEyeOffLine,
       title: '2. Personal Data We Do Not Collect',
       content:
         'Sentinel does not require, request, or store any Personally Identifiable Information (PII). We do not collect names, email addresses, phone numbers, physical locations, or government-issued identifiers. Interactions with the software are entirely pseudonymous and anchored to public cryptographic addresses.',
     },
     {
-      icon: Server,
+      icon: RiServerLine,
       title: '3. Public Blockchain Telemetry',
       content:
         'To monitor for mempool transaction gaps, Sentinel reads public on-chain state from Base L2 via standard JSON-RPC queries (including eth_getTransactionCount, eth_getBlockByNumber, and eth_getTransactionReceipt). Public wallet addresses and transaction hashes processed by the observatory console are inherently public on the Base blockchain ledger.',
     },
     {
-      icon: HardDrive,
+      icon: RiHardDrive2Line,
       title: '4. Local Storage & In-Memory State',
       content:
         'The Sentinel Observatory interface stores operator preferences (such as polling intervals, gas ceiling parameters, and alert thresholds) locally within settings.json or browser LocalStorage. This data is never monetized, synchronized to marketing trackers, or shared with data brokers.',
     },
     {
-      icon: Shield,
+      icon: RiShieldCheckLine,
       title: '5. Webhook Alerts & Operator Control',
       content:
         'When failure alerts or circuit breaker notifications are configured, payloads are dispatched directly to the operator specified endpoint (e.g. Discord, Slack, or Telegram webhook). Operators maintain unilateral control to modify, disable, or clear webhook endpoints at any time through Settings.',
     },
     {
-      icon: FileText,
+      icon: RiFileTextLine,
       title: '6. Zero Tracking Cookies & Advertising Pixels',
       content:
         'The Sentinel application does not use commercial advertising cookies, tracking pixels, behavioral telemetry SDKs, or third-party marketing scripts. Our telemetry streams are strictly functional and dedicated to monitoring real-time block progression and nonce sequence integrity.',
@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
       <main className="relative z-10 pt-36 md:pt-44 pb-24 px-6 max-w-5xl mx-auto w-full space-y-12">
         <div className="space-y-4 text-left">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
-            <Shield className="w-3.5 h-3.5" />
+            <RiShieldCheckLine className="w-3.5 h-3.5" />
             <span>Institutional Governance</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-5xl font-semibold tracking-tight text-marble">

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Search, X, FileText, ChevronRight } from "lucide-react";
+import { RiSearchLine, RiCloseLine, RiFileTextLine, RiArrowRightSLine } from "react-icons/ri";
 import { DOCS_ARTICLES } from "@/lib/docs-data";
 
 interface DocsSearchModalProps {
@@ -79,7 +79,7 @@ export default function DocsSearchModal({ isOpen, onClose }: DocsSearchModalProp
       >
         {/* Search Input Bar */}
         <div className="flex items-center px-4 py-3.5 border-b border-white/[0.08] gap-3 bg-[#0D0E12]">
-          <Search className="w-5 h-5 text-[#C9A961] shrink-0" />
+          <RiSearchLine className="w-5 h-5 text-[#C9A961] shrink-0" />
           <input
             type="text"
             placeholder="Search documentation, invariants, SDK guide..."
@@ -92,7 +92,7 @@ export default function DocsSearchModal({ isOpen, onClose }: DocsSearchModalProp
             onClick={onClose}
             className="p-1 rounded-lg hover:bg-white/[0.08] text-[#8A867D] hover:text-white transition-colors"
           >
-            <X className="w-4 h-4" />
+            <RiCloseLine className="w-4 h-4" />
           </button>
         </div>
 
@@ -115,7 +115,7 @@ export default function DocsSearchModal({ isOpen, onClose }: DocsSearchModalProp
               >
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-white/[0.04] text-[#C9A961] mt-0.5 group-hover:bg-[#C9A961]/10 transition-colors">
-                    <FileText className="w-4 h-4" />
+                    <RiFileTextLine className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -131,7 +131,7 @@ export default function DocsSearchModal({ isOpen, onClose }: DocsSearchModalProp
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-[#686660] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                <RiArrowRightSLine className="w-4 h-4 text-[#686660] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
               </button>
             ))
           )}

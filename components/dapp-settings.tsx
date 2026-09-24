@@ -2,27 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Copy,
-  Check,
-  CheckCircle2,
-  Lock,
-  AlertTriangle,
-  Radio,
-  Shield,
-  ShieldAlert,
-  ShieldCheck,
-  RotateCcw,
-  Save,
-  Download,
-  Trash2,
-  Bell,
-  Activity,
-  Zap,
-  Sliders,
-  AlertOctagon,
-  FileText,
-  HelpCircle,
-} from "lucide-react";
+  RiEqualizerLine,
+  RiCheckboxCircleLine,
+  RiCheckLine,
+  RiFileCopyLine,
+  RiNotificationLine,
+  RiDeleteBinLine,
+  RiSaveLine,
+  RiRestartLine,
+  RiAlertLine,
+  RiErrorWarningLine,
+} from "react-icons/ri";
 
 interface DappSettingsProps {
   onNavigateToLedger: () => void;
@@ -321,13 +311,13 @@ export default function DappSettings({
         {/* TOP BAR: SETTINGS & [Connected ●] */}
         <div className="flex items-center justify-between px-6 py-4 bg-[#101216] border-b border-white/[0.08]">
           <div className="flex items-center gap-3">
-            <Sliders className="w-4 h-4 text-aurum" />
+            <RiEqualizerLine className="w-4 h-4 text-aurum" />
             <span className="font-cinzel text-base sm:text-lg font-bold tracking-[0.16em] text-white">
               SETTINGS
             </span>
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium border border-[#8FAF92]/30 bg-[#8FAF92]/10 text-[#8FAF92]">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#8FAF92]" />
+            <RiCheckboxCircleLine className="w-3.5 h-3.5 text-[#8FAF92]" />
             <span>{rpcStatus === "Connected" ? "Connected" : rpcStatus}</span>
           </div>
         </div>
@@ -352,7 +342,7 @@ export default function DappSettings({
                     className="text-[#686660] hover:text-[#C9A961] transition-colors p-1"
                     title="Copy full address"
                   >
-                    {copied ? <Check className="w-3.5 h-3.5 text-[#8FAF92]" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? <RiCheckLine className="w-3.5 h-3.5 text-[#8FAF92]" /> : <RiFileCopyLine className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>
@@ -634,7 +624,7 @@ export default function DappSettings({
                   onClick={handleSendTestAlert}
                   className="px-4 py-2 rounded-lg bg-[#171A20] hover:bg-[#20242D] border border-white/[0.1] hover:border-[#C9A961] text-white font-mono text-xs transition-colors flex items-center gap-2"
                 >
-                  <Bell className="w-3.5 h-3.5 text-[#C9A961]" />
+                  <RiNotificationLine className="w-3.5 h-3.5 text-[#C9A961]" />
                   <span>Send Test Alert</span>
                 </button>
 
@@ -643,7 +633,7 @@ export default function DappSettings({
                   onClick={() => setActiveModal("clear_webhooks")}
                   className="px-4 py-2 rounded-lg bg-[#171A20] hover:bg-red-500/10 border border-white/[0.1] hover:border-red-500/40 text-[#C2BEB4] hover:text-red-400 font-mono text-xs transition-colors flex items-center gap-2"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <RiDeleteBinLine className="w-3.5 h-3.5" />
                   <span>Clear Webhooks</span>
                 </button>
 
@@ -711,7 +701,7 @@ export default function DappSettings({
                   : "bg-white/10 text-[#686660] cursor-not-allowed"
               }`}
             >
-              <Save className="w-4 h-4" />
+              <RiSaveLine className="w-4 h-4" />
               <span>{isSaving ? "Saving..." : "Save Settings"}</span>
             </button>
 
@@ -720,7 +710,7 @@ export default function DappSettings({
               onClick={() => setActiveModal("reset_defaults")}
               className="px-6 py-3 rounded-xl bg-[#171A20] hover:bg-white/5 border border-white/[0.1] hover:border-white/20 text-white font-mono text-xs transition-colors flex items-center gap-2"
             >
-              <RotateCcw className="w-4 h-4 text-[#C2BEB4]" />
+              <RiRestartLine className="w-4 h-4 text-[#C2BEB4]" />
               <span>Reset to Defaults</span>
             </button>
 
@@ -737,7 +727,7 @@ export default function DappSettings({
           {/* SECTION 6: DANGER ZONE */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 text-xs font-bold tracking-widest text-red-400 uppercase">
-              <AlertTriangle className="w-4 h-4 text-red-400" />
+              <RiAlertLine className="w-4 h-4 text-red-400" />
               <span>DANGER ZONE</span>
             </div>
 
@@ -755,7 +745,7 @@ export default function DappSettings({
                       : "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30"
                   }`}
                 >
-                  <AlertOctagon className="w-3.5 h-3.5" />
+                  <RiErrorWarningLine className="w-3.5 h-3.5" />
                   <span>{isHalted ? "Resume Sentinel" : "Halt Sentinel"}</span>
                 </button>
 
@@ -764,7 +754,7 @@ export default function DappSettings({
                   onClick={() => setActiveModal("reset_audit")}
                   className="px-4 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-mono text-xs font-semibold transition-colors flex items-center gap-2"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <RiDeleteBinLine className="w-3.5 h-3.5" />
                   <span>Reset Audit Log</span>
                 </button>
 
@@ -773,7 +763,7 @@ export default function DappSettings({
                   onClick={handleResetCircuitBreaker}
                   className="px-4 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-mono text-xs font-semibold transition-colors flex items-center gap-2"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
+                  <RiRestartLine className="w-3.5 h-3.5" />
                   <span>Reset Circuit Breaker</span>
                 </button>
               </div>
@@ -788,7 +778,7 @@ export default function DappSettings({
           <div className="w-full max-w-md bg-[#101216] border border-[#C9A961]/40 rounded-2xl p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
-                <AlertTriangle className="w-5 h-5" />
+                <RiAlertLine className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="font-cinzel text-base font-bold text-white">

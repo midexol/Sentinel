@@ -3,7 +3,7 @@ import Link from 'next/link';
 import SiteHeader from '@/components/site-header';
 import SiteFooter from '@/components/site-footer';
 import SiteAtmosphere from '@/components/site-atmosphere';
-import { Scale, ShieldAlert, Cpu, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { RiScales3Line, RiShieldCrossLine, RiCpuLine, RiAlertLine, RiShieldCheckLine } from 'react-icons/ri';
 
 export const metadata = {
   title: 'Terms of Service : Sentinel Autonomous Nonce Watchdog',
@@ -13,31 +13,31 @@ export const metadata = {
 export default function TermsOfServicePage() {
   const terms = [
     {
-      icon: Cpu,
+      icon: RiCpuLine,
       title: '1. Autonomous Software License & Non-Custodial Nature',
       content:
         'Sentinel is an open-source decentralized watchdog and interceptor provided to trading agents, algorithmic market makers, and web3 developers. Sentinel is completely non-custodial; it does not custody, hold, broker, or clear digital assets on behalf of operators.',
     },
     {
-      icon: ShieldAlert,
+      icon: RiShieldCrossLine,
       title: '2. Gas Bump Safety Clamping & Autonomous Execution',
       content:
         'Operators acknowledge that Sentinel autonomously calculates and submits transaction replacement gas fees within configured bounds (MIN_GAS_BUMP_PCT and MAX_GAS_BUMP_PCT). Operators are solely responsible for setting gas ceilings and failure thresholds that align with their risk tolerances.',
     },
     {
-      icon: AlertTriangle,
+      icon: RiAlertLine,
       title: '3. Mempool Volatility & Network Conditions',
       content:
         'Blockchain networks, including Base L2 and underlying settlement layers, are subject to latency variations, reorganizations, gas price fluctuations, and validator ordering dynamics. While Sentinel provides active eviction detection and nonce sequence healing, no software can guarantee instantaneous inclusion during severe network congestion.',
     },
     {
-      icon: CheckCircle2,
+      icon: RiShieldCheckLine,
       title: '4. Operator Keystore Responsibility',
       content:
         'Operators are exclusively responsible for maintaining the physical and digital security of their private keys, mnemonic seeds, and RPC endpoints. Sentinel will never request private keys over unencrypted channels or prompt operators for seed phrase disclosures.',
     },
     {
-      icon: Scale,
+      icon: RiScales3Line,
       title: '5. Limitation of Liability & No Financial Advice',
       content:
         "Sentinel and its contributors provide this software on an 'as is' and 'as available' basis without warranties of any kind. Sentinel does not provide financial, legal, trading, or investment advice. Operators deploy Sentinel at their own discretion and sole risk.",
@@ -52,7 +52,7 @@ export default function TermsOfServicePage() {
       <main className="relative z-10 pt-36 md:pt-44 pb-24 px-6 max-w-5xl mx-auto w-full space-y-12">
         <div className="space-y-4 text-left">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C9A961]">
-            <Scale className="w-3.5 h-3.5" />
+            <RiScales3Line className="w-3.5 h-3.5" />
             <span>Legal Framework</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-5xl font-semibold tracking-tight text-marble">
