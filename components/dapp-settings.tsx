@@ -17,11 +17,13 @@ import {
 interface DappSettingsProps {
   onNavigateToLedger: () => void;
   onPushToast: (title: string, body: string) => void;
+  walletAddress?: string;
 }
 
 export default function DappSettings({
   onNavigateToLedger,
   onPushToast,
+  walletAddress,
 }: DappSettingsProps) {
   // Live polling data
   const [copied, setCopied] = useState(false);
@@ -107,8 +109,14 @@ export default function DappSettings({
         const res = await fetch("/api/settings");
         if (res.ok) {
           const data = await res.json();
-          setSettings(data.settings);
-          setInitialSettings(JSON.parse(JSON.stringify(data.settings)));
+          if (data.settings) {
+            const loaded = data.settings;
+            if (walletAddress) {
+              loaded.system = { ...loaded.system, walletAddress };
+            }
+            setSettings(loaded);
+            setInitialSettings(JSON.parse(JSON.stringify(loaded)));
+          }
           if (data.status) {
             setRpcStatus(data.status.rpcConnection || "Connected");
             setCurrentBlock(data.status.currentBlock || 19420845);
@@ -308,17 +316,13 @@ export default function DappSettings({
     <div className="max-w-4xl mx-auto pb-24 text-marble font-mono text-xs space-y-6">
       {/* WIREFRAME CONTAINER CARD */}
       <div className="rounded-2xl bg-[#0C0E14] border border-[#C9A961]/30 shadow-2xl overflow-hidden">
-        {/* TOP BAR: SETTINGS & [Connected ●] */}
+        {/* TOP BAR: SETTINGS */}
         <div className="flex items-center justify-between px-6 py-4 bg-[#101216] border-b border-white/[0.08]">
           <div className="flex items-center gap-3">
             <RiEqualizerLine className="w-4 h-4 text-aurum" />
             <span className="font-cinzel text-base sm:text-lg font-bold tracking-[0.16em] text-white">
               SETTINGS
             </span>
-          </div>
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium border border-[#8FAF92]/30 bg-[#8FAF92]/10 text-[#8FAF92]">
-            <RiCheckboxCircleLine className="w-3.5 h-3.5 text-[#8FAF92]" />
-            <span>{rpcStatus === "Connected" ? "Connected" : rpcStatus}</span>
           </div>
         </div>
 

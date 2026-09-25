@@ -15,6 +15,7 @@ import {
   RiAlertLine,
   RiCheckboxCircleLine,
   RiBroadcastLine,
+  RiLockLine,
 } from "react-icons/ri";
 import DappSettings from "@/components/dapp-settings";
 import "./dapp.css";
@@ -160,6 +161,51 @@ interface SimTx {
 
 type StepState = "active" | "done" | "gapped" | null;
 
+function WalletRequiredView({
+  feature,
+  description,
+  connecting,
+  onConnect,
+}: {
+  feature: string;
+  description: string;
+  connecting: boolean;
+  onConnect: () => void;
+}) {
+  return (
+    <div className="view">
+      <div className="max-w-2xl mx-auto my-12 p-8 sm:p-12 rounded-2xl bg-[#0C0E14] border border-[#C9A961]/30 shadow-2xl text-center space-y-6">
+        <div className="w-14 h-14 mx-auto rounded-full bg-[#C9A961]/10 border border-[#C9A961]/30 flex items-center justify-center text-[#C9A961]">
+          <RiLockLine className="w-7 h-7" />
+        </div>
+        <div className="space-y-2">
+          <div className="text-[11px] font-mono text-[#C9A961] uppercase tracking-widest">
+            Authentication Required
+          </div>
+          <h3 className="font-serif text-2xl font-bold text-white tracking-wide">
+            {feature} is Locked
+          </h3>
+          <p className="text-xs sm:text-sm font-mono text-[#8A867D] leading-relaxed max-w-lg mx-auto">
+            {description}
+          </p>
+        </div>
+        <div className="pt-2">
+          <button
+            className={`btn-primary btn text-xs py-2.5 px-7 ${connecting ? "connecting" : ""}`}
+            onClick={onConnect}
+            disabled={connecting}
+          >
+            {connecting ? "Connecting…" : "Connect Wallet to Unlock"}
+          </button>
+        </div>
+        <div className="border-t border-white/[0.06] pt-4 text-[11px] font-mono text-[#686660]">
+          Sentinel monitors only your designated address on Base Sepolia. Private keys remain local and are never transmitted.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DappPage() {
     // View state
   const [currentView, setCurrentView] = useState<
@@ -167,17 +213,16 @@ export default function DappPage() {
   >("dashboard");
 
   // Wallet state
-  const [connected, setConnected] = useState(true);
-  const [isDemoMode, setIsDemoMode] = useState(true);
+  const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
-  const [walletAddress, setWalletAddress] = useState("0x859901345112F0812b06aF1858E623414E472D72");
+  const [walletAddress, setWalletAddress] = useState("");
   const [balanceEth, setBalanceEth] = useState("0.0000");
   const [currentBlock, setCurrentBlock] = useState(47023464);
-  const fakeAddr = walletAddress;
+  const fakeAddr = walletAddress || "0x0000000000000000000000000000000000000000";
 
   // Dashboard feed state
-  const [latest, setLatest] = useState(127);
-  const [pending, setPending] = useState(127);
+  const [latest, setLatest] = useState(0);
+  const [pending, setPending] = useState(0);
   const [flashLatest, setFlashLatest] = useState(false);
   const [flashPending, setFlashPending] = useState(false);
   const [hasGap, setHasGap] = useState(false);
@@ -198,7 +243,7 @@ export default function DappPage() {
   const [clampReadout, setClampReadout] = useState("clamped -");
 
   // Ledger state & Feed controls
-  const [allEntries, setAllEntries] = useState<LedgerEntry[]>(initialMockEntries);
+  const [allEntries, setAllEntries] = useState<LedgerEntry[]>([]);
   const [activeLedgerTag, setActiveLedgerTag] = useState("all");
   const [ledgerSearch, setLedgerSearch] = useState("");
   const [isFeedPaused, setIsFeedPaused] = useState(false);
@@ -310,52 +355,11 @@ export default function DappPage() {
 
   
 
-  // Initial on-chain state sync
-  useEffect(() => {
-    fetch("/api/state")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.monitoredAccounts?.[0]?.address) {
-          setWalletAddress(d.monitoredAccounts[0].address);
-        }
-        if (d.latestNonce !== undefined) {
-          setLatest(d.latestNonce);
-          setPending(d.pendingNonce !== undefined ? d.pendingNonce : d.latestNonce);
-        }
-        if (d.currentBlock) setCurrentBlock(d.currentBlock);
-        if (d.monitoredAccounts?.[0]?.balanceEth) {
-          setBalanceEth(d.monitoredAccounts[0].balanceEth);
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  // Connect wallet handler
-  const doConnect = async () => {
-    if (connecting) return;
-    setConnecting(true);
-    let target = walletAddress;
-    let switchedToReal = false;
-    try {
-      if (
-        typeof window !== "undefined" &&
-        (window as unknown as { ethereum?: { request: (args: { method: string }) => Promise<string[]> } }).ethereum
-      ) {
-        const ethereum = (window as unknown as { ethereum: { request: (args: { method: string }) => Promise<string[]> } }).ethereum;
-        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-        if (accounts && accounts.length > 0) {
-          target = accounts[0];
-          switchedToReal = true;
-        }
-      }
-    } catch {
-      // User cancelled or no web3 injected, fall back cleanly
-    }
-
+  const connectAccount = async (target: string) => {
     setWalletAddress(target);
-    if (switchedToReal) {
-      setIsDemoMode(false);
-    }
+    setConnected(true);
+    setConnecting(false);
+    setAllEntries(initialMockEntries);
 
     try {
       const res = await fetch(`/api/state?address=${target}`);
@@ -372,21 +376,70 @@ export default function DappPage() {
       // ignore
     }
 
-    setConnected(true);
-    setConnecting(false);
-    setCurrentView("dashboard");
-    pushToast(
-      switchedToReal ? "Connected" : "Demo Mode Active",
-      `Watching ${shortAddr(target)} on Base Sepolia.`
-    );
+    pushToast("Connected", `Watching ${shortAddr(target)} on Base Sepolia.`);
     addLedgerRow("gap_resolved", `Sentinel started: watching wallet ${shortAddr(target)}`);
   };
 
-  const enterDemoMode = () => {
-    setIsDemoMode(true);
-    setConnected(true);
+  // Initial on-chain state sync & account check
+  useEffect(() => {
+    // Check if web3 account is already authorized
+    if (
+      typeof window !== "undefined" &&
+      (window as unknown as { ethereum?: { request: (args: { method: string }) => Promise<string[]> } }).ethereum
+    ) {
+      const ethereum = (window as unknown as { ethereum: { request: (args: { method: string }) => Promise<string[]> } }).ethereum;
+      ethereum
+        .request({ method: "eth_accounts" })
+        .then((accounts) => {
+          if (accounts && accounts.length > 0) {
+            connectAccount(accounts[0]);
+          }
+        })
+        .catch(() => {});
+    }
+
+    // Public network sync
+    fetch("/api/state")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.currentBlock) setCurrentBlock(d.currentBlock);
+      })
+      .catch(() => {});
+  }, []);
+
+  // Connect wallet handler
+  const doConnect = async () => {
+    if (connecting) return;
+    setConnecting(true);
+    try {
+      if (
+        typeof window !== "undefined" &&
+        (window as unknown as { ethereum?: { request: (args: { method: string }) => Promise<string[]> } }).ethereum
+      ) {
+        const ethereum = (window as unknown as { ethereum: { request: (args: { method: string }) => Promise<string[]> } }).ethereum;
+        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+        if (accounts && accounts.length > 0) {
+          await connectAccount(accounts[0]);
+          return;
+        }
+      } else {
+        alert("No Web3 wallet extension detected. Please install MetaMask, Rabby, or Coinbase Wallet.");
+      }
+    } catch (err) {
+      console.warn("Wallet connection request cancelled or failed:", err);
+    }
+    setConnecting(false);
+  };
+
+  const doDisconnect = () => {
+    setConnected(false);
+    setWalletAddress("");
+    setBalanceEth("0.0000");
+    setAllEntries([]);
+    setLatest(0);
+    setPending(0);
     setCurrentView("dashboard");
-    pushToast("Demo Mode Active", "Exploring Sentinel with live Base Sepolia telemetry.");
+    pushToast("Disconnected", "Session ended. Connect wallet to resume mempool monitoring.");
   };
 
   // Live feed simulation loop and onchain sync
@@ -771,7 +824,11 @@ export default function DappPage() {
             >
               <RiFileList3Line className="w-4 h-4 shrink-0 text-[#C9A961]" />
               <span className="flex-1 text-left">Ledger</span>
-              <span className="font-mono text-[10px] text-ash/60">II</span>
+              {!connected ? (
+                <RiLockLine className="w-3 h-3 text-[#686660]" title="Wallet Connection Required" />
+              ) : (
+                <span className="font-mono text-[10px] text-ash/60">II</span>
+              )}
             </button>
 
             <button
@@ -780,7 +837,11 @@ export default function DappPage() {
             >
               <RiFireLine className="w-4 h-4 shrink-0 text-[#C9A961]" />
               <span className="flex-1 text-left">Simulate</span>
-              <span className="font-mono text-[10px] text-ash/60">III</span>
+              {!connected ? (
+                <RiLockLine className="w-3 h-3 text-[#686660]" title="Wallet Connection Required" />
+              ) : (
+                <span className="font-mono text-[10px] text-ash/60">III</span>
+              )}
             </button>
 
             <button
@@ -789,7 +850,11 @@ export default function DappPage() {
             >
               <RiTerminalBoxLine className="w-4 h-4 shrink-0 text-[#C9A961]" />
               <span className="flex-1 text-left">CLI Daemon</span>
-              <span className="font-mono text-[10px] text-ash/60">IV</span>
+              {!connected ? (
+                <RiLockLine className="w-3 h-3 text-[#686660]" title="Wallet Connection Required" />
+              ) : (
+                <span className="font-mono text-[10px] text-ash/60">IV</span>
+              )}
             </button>
 
             <button
@@ -807,7 +872,11 @@ export default function DappPage() {
             >
               <RiEqualizerLine className="w-4 h-4 shrink-0 text-[#C9A961]" />
               <span className="flex-1 text-left">Settings</span>
-              <span className="font-mono text-[10px] text-ash/60">VI</span>
+              {!connected ? (
+                <RiLockLine className="w-3 h-3 text-[#686660]" title="Wallet Connection Required" />
+              ) : (
+                <span className="font-mono text-[10px] text-ash/60">VI</span>
+              )}
             </button>
           </nav>
 
@@ -843,7 +912,7 @@ export default function DappPage() {
                 <span>Base Sepolia</span>
               </div>
 
-              {isDemoMode ? (
+              {!connected ? (
                 <button
                   className={`btn-primary btn text-xs py-1.5 px-4 ${connecting ? "connecting" : ""}`}
                   onClick={doConnect}
@@ -852,13 +921,22 @@ export default function DappPage() {
                   {connecting ? "Connecting…" : "Connect Wallet"}
                 </button>
               ) : (
-                <div
-                  className="wallet-pill flex items-center gap-2 px-3 py-1.5 rounded-full border border-aurum/40 bg-aurum/10 text-xs font-mono text-[#F5F3EF] cursor-pointer hover:border-aurum transition-all"
-                  onClick={() => setCurrentView("settings")}
-                  title="Connected Web3 Keystore"
-                >
-                  <span className="w-2 h-2 rounded-full bg-[#8FAF92]" />
-                  <span>{shortAddr(walletAddress)}</span>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="wallet-pill flex items-center gap-2 px-3 py-1.5 rounded-full border border-aurum/40 bg-aurum/10 text-xs font-mono text-[#F5F3EF] cursor-pointer hover:border-aurum transition-all"
+                    onClick={() => setCurrentView("settings")}
+                    title={`Connected: ${walletAddress} (Click for Settings)`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-[#8FAF92]" />
+                    <span>{shortAddr(walletAddress)}</span>
+                  </div>
+                  <button
+                    onClick={doDisconnect}
+                    className="px-2.5 py-1 rounded-full border border-white/10 hover:border-white/20 text-[#8A867D] hover:text-white text-[11px] font-mono transition-colors"
+                    title="Disconnect Wallet"
+                  >
+                    Disconnect
+                  </button>
                 </div>
               )}
             </div>
@@ -867,12 +945,12 @@ export default function DappPage() {
           {/* Mobile Quick-Navigation Strip */}
           <div className="lg:hidden flex items-center gap-1.5 px-3 py-2 border-b border-white/[0.06] bg-[#050608] overflow-x-auto no-scrollbar">
             {[
-              { id: "dashboard", label: "Dashboard", icon: RiShieldLine },
-              { id: "ledger", label: "Ledger", icon: RiFileList3Line },
-              { id: "simulate", label: "Simulate", icon: RiFireLine },
-              { id: "cli", label: "CLI", icon: RiTerminalBoxLine },
-              { id: "metrics", label: "Metrics", icon: RiPulseLine },
-              { id: "settings", label: "Settings", icon: RiEqualizerLine },
+              { id: "dashboard", label: "Dashboard", icon: RiShieldLine, isLocked: false },
+              { id: "ledger", label: "Ledger", icon: RiFileList3Line, isLocked: !connected },
+              { id: "simulate", label: "Simulate", icon: RiFireLine, isLocked: !connected },
+              { id: "cli", label: "CLI", icon: RiTerminalBoxLine, isLocked: !connected },
+              { id: "metrics", label: "Metrics", icon: RiPulseLine, isLocked: false },
+              { id: "settings", label: "Settings", icon: RiEqualizerLine, isLocked: !connected },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = currentView === tab.id;
@@ -888,6 +966,7 @@ export default function DappPage() {
                 >
                   <Icon className="w-3 h-3 shrink-0" />
                   <span>{tab.label}</span>
+                  {tab.isLocked && <RiLockLine className="w-2.5 h-2.5 text-[#C9A961]/70" />}
                 </button>
               );
             })}
@@ -900,10 +979,10 @@ export default function DappPage() {
                 <div className="glyph">
                   <RiShieldCheckLine className="w-8 h-8 text-[#C9A961]" />
                 </div>
-                <h1>Connect a wallet or explore live demo.</h1>
+                <h1>Connect your wallet to initialize Sentinel.</h1>
                 <p>
-                  Sentinel monitors the wallet you connect for stalled
-                  transactions on Base, diagnoses why, and resolves them inside limits
+                  Sentinel monitors your connected wallet for stalled
+                  transactions on Base Sepolia, diagnoses root causes, and resolves them inside limits
                   you control.
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
@@ -913,12 +992,6 @@ export default function DappPage() {
                     disabled={connecting}
                   >
                     {connecting ? "Connecting…" : "Connect Wallet"}
-                  </button>
-                  <button
-                    className="px-5 py-2 rounded-full border border-[#C9A961]/40 hover:border-[#C9A961] text-[#C9A961] hover:bg-[#C9A961]/10 text-xs font-mono transition-all"
-                    onClick={enterDemoMode}
-                  >
-                    Enter Live Demo Mode
                   </button>
                 </div>
                 <ul className="trust-notes">
@@ -943,24 +1016,29 @@ export default function DappPage() {
           {/* VIEW: DASHBOARD */}
           {currentView === "dashboard" && (
             <div className="view space-y-5">
-              {isDemoMode && (
-                <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#121418] border border-[#C9A961]/25 text-xs font-mono">
-                  <div className="flex items-center gap-2.5">
-                    <span className="px-2 py-0.5 rounded border border-[#C9A961]/40 bg-[#C9A961]/10 text-[10px] font-bold text-[#C9A961] tracking-wider uppercase">
-                      DEMO MODE
-                    </span>
-                    <span className="text-[#C2BEB4]">
-                      All features, tabs, simulations, and settings are unlocked for exploration.
-                    </span>
+              {!connected && (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-gradient-to-r from-[#121418] via-[#0E1014] to-[#0A0B0E] border border-[#C9A961]/30 shadow-xl">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <RiShieldCheckLine className="w-4 h-4 text-[#C9A961]" />
+                      <span className="text-xs font-serif font-bold text-white tracking-wide uppercase">
+                        Mempool Observatory Inactive
+                      </span>
+                    </div>
+                    <p className="text-xs font-mono text-[#8A867D] max-w-xl leading-relaxed">
+                      Connect your Web3 wallet to activate real-time nonce surveillance, detect underpriced transactions, and enable autonomous self-healing.
+                    </p>
                   </div>
                   <button
-                    className="underline text-[#C9A961] hover:text-white text-[11px] transition-colors"
+                    className={`btn-primary btn text-xs py-2 px-5 shrink-0 ${connecting ? "connecting" : ""}`}
                     onClick={doConnect}
+                    disabled={connecting}
                   >
-                    Connect Personal Wallet
+                    {connecting ? "Connecting…" : "Connect Wallet"}
                   </button>
                 </div>
               )}
+
               {/* Real on-chain telemetry bar */}
               <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 rounded-xl bg-[#101216] border border-white/[0.08] text-xs font-mono shadow-sm">
                 <div className="flex items-center gap-2">
@@ -970,11 +1048,15 @@ export default function DappPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[#686660]">Monitored Keystore:</span>
-                  <span className="text-[#C9A961]">{shortAddr(walletAddress)}</span>
+                  <span className="text-[#C9A961]">
+                    {connected ? shortAddr(walletAddress) : "Not Connected"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[#686660]">Balance:</span>
-                  <span className="text-[#F5F3EF] font-semibold">{balanceEth} ETH</span>
+                  <span className="text-[#F5F3EF] font-semibold">
+                    {connected ? `${balanceEth} ETH` : "--"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[#686660]">Sync:</span>
@@ -992,24 +1074,26 @@ export default function DappPage() {
                     <div className="stat">
                       <div className="label">Latest</div>
                       <div className={`num ${flashLatest ? "flash" : ""}`}>
-                        {latest}
+                        {connected ? latest : "--"}
                       </div>
                     </div>
                     <div className="stat">
                       <div className="label">Pending</div>
                       <div className={`num ${flashPending ? "flash" : ""}`}>
-                        {pending}
+                        {connected ? pending : "--"}
                       </div>
                     </div>
                   </div>
-                  <div className={`gap-flag ${hasGap ? "active" : ""}`}>
-                    {hasGap ? (
+                  <div className={`gap-flag ${connected && hasGap ? "active" : ""}`}>
+                    {connected && hasGap ? (
                       <RiAlertLine className="w-3.5 h-3.5 text-ember shrink-0" />
                     ) : (
                       <RiCheckboxCircleLine className="w-3.5 h-3.5 text-[#8FAF92] shrink-0" />
                     )}
                     <span>
-                      {hasGap
+                      {!connected
+                        ? "Awaiting wallet connection"
+                        : hasGap
                         ? `Gap at nonce ${gapNonce}`
                         : "No gap: sequence clear"}
                     </span>
@@ -1018,17 +1102,18 @@ export default function DappPage() {
 
                 <div className="panel">
                   <div className="panel-eyebrow">Circuit breaker</div>
-                  <div className={`breaker-status ${tripped ? "tripped" : ""}`}>
-                    {tripped ? "Tripped" : "Armed"}
+                  <div className={`breaker-status ${connected && tripped ? "tripped" : ""}`}>
+                    {!connected ? "Standby" : tripped ? "Tripped" : "Armed"}
                   </div>
                   <div className="breaker-meta">
-                    {failuresInWindow} failure
-                    {failuresInWindow === 1 ? "" : "s"} in the last 5 minutes
+                    {!connected
+                      ? "Awaiting active keystore"
+                      : `${failuresInWindow} failure${failuresInWindow === 1 ? "" : "s"} in the last 5 minutes`}
                   </div>
                   <div className="breaker-bar-track">
                     <div
-                      className={`breaker-bar-fill ${tripped ? "danger" : ""}`}
-                      style={{ width: `${(failuresInWindow / 10) * 100}%` }}
+                      className={`breaker-bar-fill ${connected && tripped ? "danger" : ""}`}
+                      style={{ width: connected ? `${(failuresInWindow / 10) * 100}%` : "0%" }}
                     />
                   </div>
                 </div>
@@ -1038,8 +1123,14 @@ export default function DappPage() {
               <div className="diag-panel">
                 <div>
                   <div className="panel-eyebrow">Latest diagnosis</div>
-                  <div className="diag-category">{diagCategory}</div>
-                  <div className="diag-explain">{diagExplain}</div>
+                  <div className="diag-category">
+                    {!connected ? "Awaiting Keystore" : diagCategory}
+                  </div>
+                  <div className="diag-explain">
+                    {!connected
+                      ? "Connect your Web3 wallet to initialize real-time nonce gap detection and failure mode diagnosis."
+                      : diagExplain}
+                  </div>
                 </div>
                 <div>
                   <div className="gauge-labels">
@@ -1050,16 +1141,16 @@ export default function DappPage() {
                   <div className="gauge-track">
                     <div
                       className="gauge-requested"
-                      style={{ left: pctToLeft(gaugeRequested) }}
+                      style={{ left: connected ? pctToLeft(gaugeRequested) : "0%" }}
                     />
                     <div
                       className="gauge-clamped"
-                      style={{ left: pctToLeft(gaugeClamped) }}
+                      style={{ left: connected ? pctToLeft(gaugeClamped) : "0%" }}
                     />
                   </div>
                   <div className="gauge-readout">
-                    <span className="req">{reqReadout}</span>
-                    <span className="clamp">{clampReadout}</span>
+                    <span className="req">{connected ? reqReadout : "requested -"}</span>
+                    <span className="clamp">{connected ? clampReadout : "clamped -"}</span>
                   </div>
                 </div>
               </div>
@@ -1069,56 +1160,77 @@ export default function DappPage() {
                 <div className="flex items-center justify-between panel-eyebrow">
                   <div className="flex items-center gap-2">
                     <RiPulseLine className={`w-3.5 h-3.5 ${isFeedPaused ? "text-[#D4A359]" : "text-[#C9A961]"}`} />
-                    <span>Ledger: {isFeedPaused ? "Frozen" : "Streaming"}</span>
-                    {isFeedPaused && (
+                    <span>Ledger: {!connected ? "Idle" : isFeedPaused ? "Frozen" : "Streaming"}</span>
+                    {connected && isFeedPaused && (
                       <span className="px-2 py-0.5 rounded text-[10px] bg-[#D4A359]/10 text-[#D4A359] border border-[#D4A359]/25 font-mono">
                         PAUSED
                       </span>
                     )}
                   </div>
-                  <button
-                    onClick={() => setIsFeedPaused(!isFeedPaused)}
-                    className="text-xs px-2.5 py-1 rounded-lg border border-[#C9A961]/40 hover:border-[#C9A961] text-[#C9A961] bg-[#101216] transition-all font-mono"
-                    title={isFeedPaused ? "Resume live transaction stream" : "Freeze live feed to inspect rows"}
-                  >
-                    {isFeedPaused ? "Resume Feed" : "Pause Feed"}
-                  </button>
+                  {connected && (
+                    <button
+                      onClick={() => setIsFeedPaused(!isFeedPaused)}
+                      className="text-xs px-2.5 py-1 rounded-lg border border-[#C9A961]/40 hover:border-[#C9A961] text-[#C9A961] bg-[#101216] transition-all font-mono"
+                      title={isFeedPaused ? "Resume live transaction stream" : "Freeze live feed to inspect rows"}
+                    >
+                      {isFeedPaused ? "Resume Feed" : "Pause Feed"}
+                    </button>
+                  )}
                 </div>
                 <div className="ledger-feed">
-                  {allEntries.slice(0, 12).map((e) => (
-                    <div
-                      key={e.id}
-                      className={`ledger-row cursor-pointer transition-colors hover:bg-[#C9A961]/10 ${
-                        selectedTx?.originalHash === e.txDetails?.originalHash ? "bg-[#C9A961]/15" : ""
-                      }`}
-                      onClick={() => {
-                        if (e.txDetails) {
-                          setSelectedTx(e.txDetails);
-                        } else {
-                          setSelectedTx({
-                            nonce: latest,
-                            originalHash: rndFullHash(),
-                            to: walletAddress,
-                            valueEth: "0.0500",
-                            originalGasGwei: "0.0010",
-                            cause: e.text,
-                            status: "confirmed",
-                            submittedTime: e.time,
-                            confirmedTime: e.time,
-                            blockNumber: currentBlock,
-                          });
-                        }
-                      }}
-                      title="Click to inspect full transaction lifecycle"
-                    >
-                      <span className="time">{e.time}</span>
-                      <span className={`tag ${e.tag}`}>{e.tag}</span>
-                      <span className="truncate">{e.text}</span>
-                      <span className="text-[#C9A961] text-[11px] font-mono underline hover:text-[#E0BE70]">
-                        Inspect
-                      </span>
+                  {!connected ? (
+                    <div className="py-10 text-center space-y-2">
+                      <RiLockLine className="w-5 h-5 text-[#686660] mx-auto" />
+                      <p className="text-xs font-mono text-[#8A867D]">
+                        No active session stream.
+                      </p>
+                      <button
+                        onClick={doConnect}
+                        className="text-[11px] font-mono text-[#C9A961] underline hover:text-[#E0BE70]"
+                      >
+                        Connect wallet to stream transaction receipts
+                      </button>
                     </div>
-                  ))}
+                  ) : allEntries.length === 0 ? (
+                    <div className="py-10 text-center text-xs font-mono text-[#8A867D]">
+                      Listening for pending mempool transactions...
+                    </div>
+                  ) : (
+                    allEntries.slice(0, 12).map((e) => (
+                      <div
+                        key={e.id}
+                        className={`ledger-row cursor-pointer transition-colors hover:bg-[#C9A961]/10 ${
+                          selectedTx?.originalHash === e.txDetails?.originalHash ? "bg-[#C9A961]/15" : ""
+                        }`}
+                        onClick={() => {
+                          if (e.txDetails) {
+                            setSelectedTx(e.txDetails);
+                          } else {
+                            setSelectedTx({
+                              nonce: latest,
+                              originalHash: rndFullHash(),
+                              to: walletAddress,
+                              valueEth: "0.0500",
+                              originalGasGwei: "0.0010",
+                              cause: e.text,
+                              status: "confirmed",
+                              submittedTime: e.time,
+                              confirmedTime: e.time,
+                              blockNumber: currentBlock,
+                            });
+                          }
+                        }}
+                        title="Click to inspect full transaction lifecycle"
+                      >
+                        <span className="time">{e.time}</span>
+                        <span className={`tag ${e.tag}`}>{e.tag}</span>
+                        <span className="truncate">{e.text}</span>
+                        <span className="text-[#C9A961] text-[11px] font-mono underline hover:text-[#E0BE70]">
+                          Inspect
+                        </span>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -1126,7 +1238,15 @@ export default function DappPage() {
 
           {/* VIEW: LEDGER */}
           {currentView === "ledger" && (
-            <div className="view space-y-4">
+            !connected ? (
+              <WalletRequiredView
+                feature="Transaction Ledger"
+                description="Connect your Web3 wallet to access your private transaction stream, historical nonce resolution receipts, and cryptographic audit logs."
+                connecting={connecting}
+                onConnect={doConnect}
+              />
+            ) : (
+              <div className="view space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-[#101216] border border-[#C9A961]/20">
                 <div className="ledger-tabs !mb-0">
                   {["all", "gap_detected", "diagnosis", "gap_resolved", "circuit_breaker"].map(
@@ -1212,11 +1332,20 @@ export default function DappPage() {
                 </div>
               </div>
             </div>
+            )
           )}
 
           {/* VIEW: SIMULATE */}
           {currentView === "simulate" && (
-            <div className="view">
+            !connected ? (
+              <WalletRequiredView
+                feature="Simulation Playground"
+                description="Connect your Web3 wallet to simulate live nonce gaps, test EIP-1559 gas escalation ceilings, and evaluate automated mempool recovery."
+                connecting={connecting}
+                onConnect={doConnect}
+              />
+            ) : (
+              <div className="view">
               <div className="sim-intro panel">
                 <div>
                   <div className="panel-eyebrow">Simulation playground</div>
@@ -1319,11 +1448,20 @@ export default function DappPage() {
                 </div>
               </div>
             </div>
+            )
           )}
 
           {/* VIEW: CLI & BOT SDK INTEGRATION */}
           {currentView === "cli" && (
-            <div className="view space-y-6">
+            !connected ? (
+              <WalletRequiredView
+                feature="CLI Daemon Console"
+                description="Connect your Web3 wallet to authenticate terminal sessions, monitor daemon processes, and dispatch autonomous intervention commands."
+                connecting={connecting}
+                onConnect={doConnect}
+              />
+            ) : (
+              <div className="view space-y-6">
               <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl bg-[#101216] border border-[#C9A961]/25 shadow-sm">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-xs font-mono text-[#C9A961]">
@@ -1448,6 +1586,7 @@ export default function DappPage() {
                 </div>
               </div>
             </div>
+            )
           )}
 
           {/* VIEW: METRICS */}
@@ -1543,12 +1682,22 @@ export default function DappPage() {
 
           {/* VIEW: SETTINGS */}
           {currentView === "settings" && (
-            <div className="view">
-              <DappSettings
-                onNavigateToLedger={() => setCurrentView("ledger")}
-                onPushToast={pushToast}
+            !connected ? (
+              <WalletRequiredView
+                feature="Sentinel Settings"
+                description="Connect your Web3 wallet to configure gas escalation multipliers, custom RPC endpoints, webhook alerts, and circuit breaker thresholds."
+                connecting={connecting}
+                onConnect={doConnect}
               />
-            </div>
+            ) : (
+              <div className="view">
+                <DappSettings
+                  onNavigateToLedger={() => setCurrentView("ledger")}
+                  onPushToast={pushToast}
+                  walletAddress={walletAddress}
+                />
+              </div>
+            )
           )}
         </div>
       </div>
