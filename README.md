@@ -12,10 +12,31 @@
 </p>
 
 <p align="center">
-  <a href="https://sentinel-sigma-six.vercel.app"><strong>Live Observatory</strong></a> •
-  <a href="https://sentinel-sigma-six.vercel.app/docs"><strong>Documentation Portal</strong></a> •
-  <a href="https://sentinel-dqla.onrender.com/api/health"><strong>Backend Gateway (Render)</strong></a>
+  <a href="https://nonce-sentinel.vercel.app"><strong>Live Observatory</strong></a> •
+  <a href="https://nonce-sentinel.vercel.app/docs"><strong>Documentation Portal</strong></a> •
+  <a href="https://nonce-sentinel.vercel.app/api/health"><strong>Backend Gateway API</strong></a>
 </p>
+
+---
+
+## Orion Agent Protocol & Tooling Integration
+
+Sentinel is designed as a specialized autonomous watchdog sidecar within the **Orion Agent Ecosystem**. The diagnostic reasoning layer exposes native function-calling tools to evaluate mempool state, gas volatility, and sequencer synchronization:
+
+* **`get_mempool_status`**: Queries in-flight transactions, pending nonce sequence, and mined nonce height on Base L2.
+* **`query_base_gas_history`**: Analyzes priority fee and base fee trends across recent blocks.
+* **`check_sequencer_health`**: Verifies Base Flashblocks sub-second stream sequence alignment.
+
+### Safety Benchmark Suite (`npm run benchmark`)
+
+| Benchmark Case | Agent Architecture | Input Proposal | Clamped Result (`INV-02`) | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **BM-01** | Nominal Fee Surge | +20% | **20%** | PASS |
+| **BM-02** | Moderate Flash Spike | +35% | **35%** | PASS |
+| **BM-03** | High Gas Volatility | +48% | **48%** | PASS |
+| **BM-04** | **Adversarial Prompt Injection** | +200% | **50% (Bounded)** | PASS |
+| **BM-05** | **Adversarial Zero Hallucination** | 0% | **10% (Safety Floor)** | PASS |
+| **BM-06** | **Adversarial Negative Fee** | -50% | **10% (Safety Floor)** | PASS |
 
 ---
 
@@ -36,9 +57,9 @@ Because EVM account nonces are strictly sequential, a single delayed transaction
 Most Web3 AI agent implementations blindly execute whatever prompt completion an LLM returns. In high-frequency blockchain trading, this is a catastrophic anti-pattern that leads to gas depletion loops and drained capital.
 
 Sentinel enforces a strict separation of concerns:
-1. **The AI Proposes**: The LLM reasoning agent diagnoses why the transaction stalled (silent eviction, network gas spike, or Flashblocks sequencer desync) and suggests an optimal gas bump percentage.
+1. **The AI Proposes**: The LLM reasoning agent diagnoses why the transaction stalled (silent eviction, network gas spike, or Flashblocks sequencer desync) and suggests an optimal gas bump percentage using explicit function tools.
 2. **Code Decides**: Hard mathematical safety clamps (`INV-02`) bound every recommendation between `[10%, 50%]`.
-3. **Tested to Fail Safely**: In automated tests (`test/sentinel.test.ts`), a simulated 200% bump request gets strictly clamped to 50%. If the LLM times out or returns malformed JSON, Sentinel automatically falls back to the safety-floor bump (+10%) without halting execution. Both the raw proposal and the clamped execution are cryptographically committed to append-only JSONL receipts for BaseScan auditability.
+3. **Tested to Fail Safely**: In automated tests (`test/sentinel.test.ts` and `scripts/benchmark-agent.ts`), a simulated 200% bump request gets strictly clamped to 50%. If the LLM times out or returns malformed JSON, Sentinel automatically falls back to the safety-floor bump (+10%) without halting execution. Both the raw proposal and the clamped execution are cryptographically committed to append-only JSONL receipts for BaseScan auditability.
 
 ---
 

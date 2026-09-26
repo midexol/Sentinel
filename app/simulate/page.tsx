@@ -4,8 +4,13 @@ import React from "react";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import SiteAtmosphere from "@/components/site-atmosphere";
-import SimulationRunner from "@/components/simulation-runner";
+import dynamic from "next/dynamic";
 import { RiFireLine, RiBroadcastLine, RiStackLine } from "react-icons/ri";
+
+const SimulationRunner = dynamic(() => import("@/components/simulation-runner"), {
+  ssr: false,
+  loading: () => <div className="p-8 text-center text-xs font-mono text-[#8C877D]">Loading simulation engine...</div>,
+});
 
 export default function SimulatePage() {
   return (

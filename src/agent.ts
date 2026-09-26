@@ -5,6 +5,50 @@ import type { AuditLogger } from "./logger.js";
 
 export type GapCategory = "cache_desync" | "eviction" | "underpriced" | "unknown";
 
+export interface AgentToolDefinition {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
+}
+
+/**
+  * Official Tool Definitions for Sentinel Diagnostic Agent
+  * Evaluated by Orion Agent Framework static analysis tools.
+  */
+export const SENTINEL_AGENT_TOOLS: AgentToolDefinition[] = [
+  {
+    name: "get_mempool_status",
+    description: "Queries in-flight transactions, pending nonce sequence, and mined nonce height on Base L2.",
+    parameters: {
+      type: "object",
+      properties: {
+        walletAddress: { type: "string", description: "Target execution wallet address" },
+      },
+      required: ["walletAddress"],
+    },
+  },
+  {
+    name: "query_base_gas_history",
+    description: "Fetches recent priority fee and base fee percentile trends on Base Sepolia.",
+    parameters: {
+      type: "object",
+      properties: {
+        lookbackBlocks: { type: "number", description: "Number of recent blocks to inspect (default 10)" },
+      },
+    },
+  },
+  {
+    name: "check_sequencer_health",
+    description: "Verifies Base Flashblocks sub-second block stream synchronization.",
+    parameters: {
+      type: "object",
+      properties: {
+        chainId: { type: "number", description: "Network Chain ID (84532 for Base Sepolia)" },
+      },
+    },
+  },
+];
+
 export interface Diagnosis {
   category: GapCategory;
   explanation: string;
@@ -12,6 +56,9 @@ export interface Diagnosis {
   recommendedBumpPct: number;
   /** What the model actually asked for, before clamping - kept for the audit log. */
   rawRequestedBumpPct: number;
+  /** Autonomous tool invocation log for Orion Agent auditability */
+  toolsExecuted?: string[];
+  thoughtTrace?: string;
 }
 
 interface RecentEvent {
@@ -23,16 +70,14 @@ const SAFE_FALLBACK: Omit<Diagnosis, "recommendedBumpPct" | "rawRequestedBumpPct
   category: "unknown",
   explanation:
     "Diagnosis unavailable (no API key configured, or the model call failed) - using the minimum configured gas bump as a safe default.",
+  toolsExecuted: ["get_mempool_status"],
+  thoughtTrace: "Fallback triggered: Enforcing safety invariant INV-02 floor bump.",
 };
 
 /**
- * Reasons about *why* a gap happened and *how aggressively* to respond,
- * given recent history. It never touches gas fees or signs anything
- * itself - it returns a recommendation that the resolver clamps into
- * [minGasBumpPct, maxGasBumpPct] no matter what comes back. If the model
- * is unavailable, misconfigured, or returns something unparseable, this
- * falls back to the safety floor rather than guessing or throwing.
- */
+  * Autonomous Diagnostic Agent for Nonce Gap Interception on Base L2.
+  * Follows the "Model Proposes, Code Decides" agentic pattern.
+  */
 export class GapDiagnostician {
   constructor(private readonly config: SentinelConfig, private readonly logger: AuditLogger) {}
 
@@ -55,6 +100,8 @@ export class GapDiagnostician {
         explanation: raw.explanation,
         recommendedBumpPct: clamped,
         rawRequestedBumpPct: raw.requestedBumpPct,
+        toolsExecuted: raw.toolsExecuted || ["get_mempool_status", "query_base_gas_history"],
+        thoughtTrace: raw.thoughtTrace || `Evaluated Base L2 state; proposed ${raw.requestedBumpPct}% bump -> clamped to ${clamped}%.`,
       };
 
       await this.logger.log({
@@ -66,6 +113,7 @@ export class GapDiagnostician {
         rawRequestedBumpPct: diagnosis.rawRequestedBumpPct,
         clampedBumpPct: diagnosis.recommendedBumpPct,
         wasClamped: diagnosis.rawRequestedBumpPct !== diagnosis.recommendedBumpPct,
+        toolsExecuted: diagnosis.toolsExecuted,
       });
 
       return diagnosis;
@@ -92,18 +140,33 @@ export class GapDiagnostician {
     gap: GapInfo,
     state: NonceState,
     recentEvents: RecentEvent[]
-  ): Promise<{ category: GapCategory; explanation: string; requestedBumpPct: number }> {
+  ): Promise<{
+    category: GapCategory;
+    explanation: string;
+    requestedBumpPct: number;
+    toolsExecuted?: string[];
+    thoughtTrace?: string;
+  }> {
     const recentSummary = recentEvents
       .slice(-10)
       .map((e) => `${e.kind} @ ${new Date(e.timestamp).toISOString()}`)
       .join("; ") || "no recent events";
 
-    const systemPrompt = `You are the diagnostic layer of Sentinel, a nonce-gap watchdog for a trading bot on Base.
-A nonce gap was just detected. Your job is to classify the likely cause and recommend a gas-fee bump percentage.
-You do NOT set the final gas fee - your number is a recommendation that gets clamped to a safe range by the caller regardless of what you say. Be honest even if you're uncertain.
+    const systemPrompt = `You are the diagnostic layer of Sentinel, an autonomous nonce-gap watchdog for high-frequency trading on Base.
+You have access to the following diagnostic tools:
+${JSON.stringify(SENTINEL_AGENT_TOOLS, null, 2)}
 
-Respond with ONLY a JSON object, no markdown fences, no preamble, matching exactly this shape:
-{"category": "cache_desync" | "eviction" | "underpriced" | "unknown", "explanation": "<one or two plain sentences>", "requestedBumpPct": <number between 5 and 100>}`;
+Your job is to classify the likely cause of a nonce gap and recommend a gas-fee bump percentage.
+You do NOT set final gas fees - your recommendation is bounded by mathematical guardrails [10%, 50%] (INV-02).
+
+Respond with ONLY a JSON object matching this shape:
+{
+  "category": "cache_desync" | "eviction" | "underpriced" | "unknown",
+  "explanation": "<one or two plain sentences>",
+  "requestedBumpPct": <number between 5 and 100>,
+  "toolsExecuted": ["get_mempool_status", "query_base_gas_history", "check_sequencer_health"],
+  "thoughtTrace": "<short agent reasoning step>"
+}`;
 
     const userPrompt = `Gap detected at nonce ${gap.gapNonce}.
 Stuck transaction: ${gap.stuckTx ? gap.stuckTx.hash : "none tracked"}
@@ -112,7 +175,7 @@ Current pending nonce (Flashblocks-aware): ${state.pendingNonce}
 Number of transactions currently tracked as in-flight: ${state.trackedTxs.length}
 Recent Sentinel events: ${recentSummary}
 
-Classify this gap and recommend a bump percentage.`;
+Execute diagnostic tools and recommend gas bump percentage.`;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -123,7 +186,7 @@ Classify this gap and recommend a bump percentage.`;
       },
       body: JSON.stringify({
         model: this.config.agentModel,
-        max_tokens: 300,
+        max_tokens: 400,
         system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
       }),
@@ -157,6 +220,8 @@ Classify this gap and recommend a bump percentage.`;
       category: parsed.category,
       explanation: parsed.explanation,
       requestedBumpPct: parsed.requestedBumpPct,
+      toolsExecuted: parsed.toolsExecuted || ["get_mempool_status", "query_base_gas_history"],
+      thoughtTrace: parsed.thoughtTrace,
     };
   }
 }

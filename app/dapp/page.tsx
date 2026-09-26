@@ -17,8 +17,13 @@ import {
   RiBroadcastLine,
   RiLockLine,
 } from "react-icons/ri";
-import DappSettings from "@/components/dapp-settings";
+import dynamic from "next/dynamic";
 import "./dapp.css";
+
+const DappSettings = dynamic(() => import("@/components/dapp-settings"), {
+  ssr: false,
+  loading: () => <div className="p-8 text-center text-xs font-mono text-[#8C877D]">Loading settings module...</div>,
+});
 
 export interface TxDetails {
   nonce: number;
