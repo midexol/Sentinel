@@ -306,13 +306,13 @@ export default function LandingPage() {
                 Atomic Replacement & Queue Unfreeze
               </h3>
               <p className="text-xs text-[#A8A49C] leading-relaxed">
-                After verifying the nonce was not mined in flight, Sentinel dispatches a zero-value null self-transfer (<code className="text-[#C9A961] bg-white/[0.06] px-1 py-0.5 rounded">0 ETH</code>, null calldata) using an isolated operational gas wallet. It confirms in the next Flashblock, unblocking trades 43-50 immediately.
+                After verifying the nonce was not mined in flight, Sentinel re-sends your own signed transaction at the same nonce with a clamped fee bump (or, in cancel mode, a <code className="text-[#C9A961] bg-white/[0.06] px-1 py-0.5 rounded">0 ETH</code> self-transfer) using an isolated operational gas wallet. It confirms in the next Flashblock, unblocking trades 43-50 immediately.
               </p>
             </div>
             <div className="pt-3 border-t border-white/[0.06] space-y-1.5 text-[11px] font-mono text-[#8A867D]">
               <div className="flex items-center justify-between">
                 <span>Replacement type:</span>
-                <span className="text-white">Zero-Value Null Tx</span>
+                <span className="text-white">Same-nonce fee bump</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Mempool resolution:</span>
@@ -366,7 +366,7 @@ export default function LandingPage() {
             <div className="p-3.5 rounded-xl bg-white/[0.02] border border-[#C9A961]/30 space-y-2">
               <div className="text-[10px] text-[#C9A961] uppercase font-bold">4. Clamped Broadcast</div>
               <p className="text-[#C2BEB4] text-[11.5px] leading-relaxed">
-                INV-02 confirms bump is safe. Sentinel broadcasts zero-value replacement for #42.
+                INV-02 confirms bump is safe. Sentinel broadcasts the fee-bumped replacement for #42.
               </p>
             </div>
 
@@ -493,7 +493,7 @@ export default function LandingPage() {
               </span>
               <h3 className="font-serif text-xl sm:text-2xl text-white">AI Diagnostics & Clamped Gas Bumping</h3>
               <p className="text-xs sm:text-sm text-[#C2BEB4] leading-relaxed">
-                When a gap is confirmed, the LLM reasoning agent classifies the root cause. The resolver constructs a replacement or zero-value cancellation, strictly clamped within user-defined bounds.
+                When a gap is confirmed, the LLM reasoning agent classifies the root cause. The resolver builds a same-nonce replacement or a zero-value cancellation, with fees strictly clamped within user-defined bounds.
               </p>
               <div className="pt-2 flex flex-wrap items-center gap-3 text-xs font-mono text-[#C2BEB4]">
                 <span className="inline-flex items-center gap-1.5"><span className="text-[#C9A961] text-[8px] opacity-75">◆</span> Bounded Clamp (10% to 50%)</span>

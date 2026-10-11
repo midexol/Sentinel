@@ -43,7 +43,8 @@ export class TransactionInterceptor {
     private readonly resolver: GapResolver,
     private readonly diagnostician: GapDiagnostician,
     private readonly breaker: CircuitBreaker,
-    private readonly logger: AuditLogger
+    private readonly logger: AuditLogger,
+    private readonly isHalted: () => boolean = () => false
   ) {}
 
   async getNonceState(): Promise<NonceState> {
@@ -69,6 +70,9 @@ export class TransactionInterceptor {
   }
 
   private async submitInner(signedTx: `0x${string}`): Promise<`0x${string}`> {
+    // Operator halt: no interception, the bot's transaction goes straight to the RPC.
+    if (this.isHalted()) return this.tracker.broadcastRaw(signedTx);
+
     if (this.breaker.isTripped()) throw new CircuitBreakerOpenError();
 
     const parsed = parseTransaction(signedTx);

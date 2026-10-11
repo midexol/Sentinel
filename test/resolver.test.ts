@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { GapResolver, UntrackedNonceError } from "../src/resolver.js";
 import { PendingTxStore } from "../src/nonceTracker.js";
-import { makeTx, silentLogger, stubTracker, testConfig } from "./helpers.js";
+import { TEST_ADDRESS, TEST_KEY, makeTx, silentLogger, stubTracker, testConfig } from "./helpers.js";
 
 async function quiet<T>(fn: () => Promise<T>): Promise<T> {
   const orig = console.log;
@@ -109,5 +109,44 @@ describe("GapResolver (dry run)", () => {
     const { tracker } = stubTracker(config, store);
     const resolver = new GapResolver(config, tracker, store, silentLogger(config));
     await assert.rejects(resolver.resolveGap(1), /PRIVATE_KEY/);
+  });
+});
+
+describe("INV-03 replacement payload", () => {
+  async function broadcastWith(strategy: "replace" | "cancel") {
+    const config = testConfig({ dryRun: false, privateKey: TEST_KEY, gapResolutionStrategy: strategy });
+    const store = new PendingTxStore();
+    store.add(makeTx(5, { to: "0x3333333333333333333333333333333333333333", value: 7n, data: "0xdeadbeef", gasLimit: 90_000n }));
+    const { tracker } = stubTracker(config, store);
+    const resolver = new GapResolver(config, tracker, store, silentLogger(config));
+    let sent: Record<string, unknown> | undefined;
+    (resolver as unknown as { walletClient: { sendTransaction: (a: Record<string, unknown>) => Promise<string> } }).walletClient.sendTransaction =
+      async (args) => {
+        sent = args;
+        return `0x${"ee".repeat(32)}`;
+      };
+    await quiet(() => resolver.resolveGap(5, 20));
+    return { sent: sent!, store };
+  }
+
+  it("replace re-sends exactly what the bot signed, with higher fees and the same nonce", async () => {
+    const { sent, store } = await broadcastWith("replace");
+    assert.equal(sent.to, "0x3333333333333333333333333333333333333333");
+    assert.equal(sent.value, 7n);
+    assert.equal(sent.data, "0xdeadbeef");
+    assert.equal(sent.gas, 90_000n);
+    assert.equal(sent.nonce, 5);
+    assert.ok((sent.maxPriorityFeePerGas as bigint) >= 1_200_000_000n);
+    assert.equal(store.get(5)?.hash, `0x${"ee".repeat(32)}`);
+  });
+
+  it("cancel sends a zero-value empty-calldata self-transfer at the same nonce", async () => {
+    const { sent, store } = await broadcastWith("cancel");
+    assert.equal(sent.to, TEST_ADDRESS);
+    assert.equal(sent.value, 0n);
+    assert.equal(sent.data, "0x");
+    assert.equal(sent.gas, 21_000n);
+    assert.equal(sent.nonce, 5);
+    assert.equal(store.get(5)?.value, 0n);
   });
 });

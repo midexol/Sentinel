@@ -110,8 +110,8 @@ Trading desks traditionally handle this by tearing down order pipelines manually
 - **Monitors Dual RPC Tags**: Queries both \`pending\` and \`latest\` tags on Base L2 every 500ms to detect sequencer desynchronizations and missing numbers.
 - **Diagnoses via Reasoning**: LLM reasoning engine assesses whether the stall was caused by a sudden gas spike, sequencer cache lag, or silent eviction.
 - **Enforces Mathematical Clamps**: Binds every gas bump between a strict 10% minimum floor and a 50% safety ceiling (\`INV-02\`). The AI recommends; mathematical code decides.
-- **Atomic Zero-Value Dispatches**: Unjams queues by submitting zero-value self-replacements ($0\\text{ ETH}$, null calldata) or boosted parameter rewrites.
-- **Circuit Breakers & Audit Trail**: Trips into safe standby if failure rates exceed safety limits, logging all actions to tamper-proof append-only receipts.
+- **Faithful Replacements**: Unjams queues by re-sending exactly the transaction your bot signed (same recipient, value, calldata and gas limit) with higher fees, or, in \`cancel\` mode, a zero-value self-transfer at the stuck nonce.
+- **Circuit Breakers & Audit Trail**: Trips into safe standby if failure rates exceed safety limits, logging all actions to append-only JSONL receipts.
 
 ---
 
@@ -179,19 +179,20 @@ Configure your essential runtime parameters:
 
 \`\`\`env
 # Base L2 Network Configuration
+CHAIN=sepolia            # or mainnet
 RPC_URL=https://sepolia.base.org
-CHAIN_ID=84532
 
-# Operational Gas Wallet (Dedicated recovery key)
-PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+# Wallet Sentinel protects, and its dedicated operational key (leave PRIVATE_KEY empty for read-only mode)
+WALLET_ADDRESS=0x...
+PRIVATE_KEY=0x...
 
-# Autonomous Diagnosis Engine (Optional - falls back to deterministic rule engine)
-GEMINI_API_KEY=your_gemini_api_key_here
+# Autonomous Diagnosis Engine (Optional - falls back to the minimum safe bump)
+ANTHROPIC_API_KEY=sk-ant-...
 
 # Safety Invariant Bounds
 MAX_GAS_BUMP_PCT=50
 MIN_GAS_BUMP_PCT=10
-CIRCUIT_BREAKER_FAILURES=10
+CIRCUIT_BREAKER_THRESHOLD=10
 \`\`\`
 
 ---
@@ -268,10 +269,10 @@ Sentinel operates as a high-speed sentinel pipeline situated between algorithmic
 │     Enforces INV-02: bounds proposal in [10%, 50%]      │
 │                                                         │
 │  5. Atomic Dispatcher & Pre-Flight Receipt Validator    │
-│     Broadcasts zero-value null self-transfer to Base    │
+│     Re-sends the bot's own tx with higher fees          │
 │                                                         │
 │  6. Circuit Breaker & Audit Logger (logger.ts)          │
-│     Records SHA-256 JSONL receipts with redactions      │
+│     Records JSONL receipts with secret redaction           │
 └─────────────────────────────────────────────────────────┘
           │
           ▼ (Healed Pipeline)
@@ -288,7 +289,7 @@ Sentinel operates as a high-speed sentinel pipeline situated between algorithmic
 4. **Clamping**: \`resolver.ts\` clamps the recommendation:
    $$\\text{Bump}_{\\text{Final}} = \\max(10\\%, \\min(\\text{Bump}_{\\text{AI}}, 50\\%))$$
 5. **Pre-flight Receipt Check**: Immediately prior to dispatch, Sentinel re-checks if nonce $N-1$ was mined in the last sub-second Flashblock to prevent duplicate spend.
-6. **Broadcast**: A zero-value self-transaction ($0\\text{ ETH}$, null calldata) with the bumped gas parameters is dispatched.
+6. **Broadcast**: The same transaction your bot signed (identical recipient, value, calldata and gas limit; or a zero-value self-transfer in \`cancel\` mode) is re-sent at the same nonce with the bumped fee parameters.
 7. **Resolution**: Sequencer processes the replacement, clearing the gap. Bot transaction $N$ executes immediately.
 `,
     prev: { slug: "quickstart", title: "Quickstart (2 min)" },
@@ -407,24 +408,21 @@ If the LLM endpoint times out, throws a rate limit error, or returns unparseable
     category: "CORE CONCEPTS",
     badge: "INV-01-04",
     sections: [
-      { id: "inv-01", title: "INV-01: Strict Monotonicity Guarantee", level: 2 },
+      { id: "inv-01", title: "INV-01: Mined Nonces Are Never Tracked", level: 2 },
       { id: "inv-02", title: "INV-02: Hard Gas Bump Ceiling", level: 2 },
-      { id: "inv-03", title: "INV-03: Zero-Value Null Execution", level: 2 },
+      { id: "inv-03", title: "INV-03: Payload Fidelity", level: 2 },
       { id: "inv-04", title: "INV-04: Circuit Breaker Trip Rate", level: 2 },
     ],
     content: `
-Sentinel operates under four formally proven invariants verified in \`test/sentinel.test.ts\`:
+Sentinel operates under four invariants, each covered by tests in the \`test/\` directory:
 
 ---
 
-### INV-01: Strict Monotonicity Guarantee
+### INV-01: Mined Nonces Are Never Tracked
 
-$$\\text{Nonce}_{\\text{Mined}}(t) \\le \\text{Nonce}_{\\text{Pending}}(t)$$
+$$\\text{tracked}(t) \\subseteq \\{\\, n \\ge \\text{Nonce}_{\\text{Latest}}(t) \\,\\}$$
 
-The monitored mined nonce for an account must never exceed its pending nonce. Any violation indicates an RPC node reorg or severe caching split. When detected, Sentinel:
-- Pauses automated dispatch immediately.
-- Flushes local nonce stores.
-- Performs an atomic multi-node RPC state reconciliation before resuming.
+Any tracked transaction whose nonce is below the confirmed on-chain nonce is dropped from the in-flight store on every poll. A mined transaction can therefore never be mistaken for a stuck one, and the resolver additionally re-checks that the nonce is not mined immediately before every broadcast.
 
 ---
 
@@ -438,16 +436,14 @@ This eliminates automated gas exhaustion exploits under all market conditions.
 
 ---
 
-### INV-03: Zero-Value Null Execution
+### INV-03: Payload Fidelity
 
-$$\\text{Value} = 0 \\text{ ETH} \\quad \\land \\quad \\text{To} = \\text{From} \\quad \\land \\quad \\text{Data} = \\text{0x}$$
+A replacement never invents a payload. Sentinel only ever sends one of two things at a stuck nonce:
 
-Whenever Sentinel generates an autonomous queue-clearing replacement transaction to cancel out a stuck nonce, it enforces:
-- \`value: 0n\`
-- \`to: senderAddress\`
-- \`data: "0x"\`
+- **\`replace\` (default)**: the exact \`to\`, \`value\`, \`data\` and gas limit your bot already signed, with higher fees.
+- **\`cancel\`**: \`value: 0\`, \`to: <your own wallet>\`, \`data: "0x"\`, gas limit 21000.
 
-Sentinel cannot transfer funds to third parties or call arbitrary smart contracts.
+Sentinel therefore cannot redirect funds to a new recipient or call a contract your bot did not already target. Set \`GAP_RESOLUTION_STRATEGY\` (or the dashboard setting) to choose the mode. Note that \`replace\` re-executes the original trade, so use \`cancel\` if a late fill would be unacceptable.
 
 ---
 
@@ -455,10 +451,10 @@ Sentinel cannot transfer funds to third parties or call arbitrary smart contract
 
 $$\\text{Failures}_{\\Delta t} > K_{\\text{Threshold}} \\implies \\text{HALT}$$
 
-If consecutive resolution failures exceed $K_{\\text{Threshold}}$ (default: 10 failures within 5 minutes), Sentinel trips into **Safe Standby Mode**:
-- Ceases all automated dispatch.
-- Emits emergency webhooks to Discord and Telegram.
-- Preserves the pending transaction queue for manual desk inspection.
+If resolution failures within the rolling window reach $K_{\\text{Threshold}}$ (default: 10 within 5 minutes), Sentinel trips into **Safe Standby Mode**:
+- Stops automated gap resolution and rejects transactions submitted through the proxy.
+- Sends webhook alerts when a webhook is configured.
+- Persists the tripped state in the shared state file, so a restart does not silently reset it. With auto-recovery on, the breaker closes after the cooldown; it can also be reset from the dashboard.
 `,
     prev: { slug: "model-proposes-code-decides", title: "Model Proposes, Code Decides" },
     next: { slug: "eviction-detection", title: "Silent Eviction Detection" },
@@ -676,16 +672,19 @@ eventSource.addEventListener("gap_detected", (e) => {
     content: `
 ### GET /api/health
 
-Returns current node health, Base L2 block sync height, and daemon uptime.
+Returns RPC connectivity, block height and web-process uptime. Responds \`503\` with \`"status": "degraded"\` when the RPC is unreachable.
 
 **Response**:
 \`\`\`json
 {
-  "status": "healthy",
-  "network": "Base Sepolia (84532)",
+  "status": "ok",
+  "uptime": 9252,
   "currentBlock": 18459203,
-  "mempoolSyncLagMs": 142,
-  "circuitBreaker": "ACTIVE"
+  "rpcConnection": "Connected",
+  "rpcLatencyMs": 142,
+  "chainId": 84532,
+  "chainName": "Base Sepolia",
+  "walletAddress": "0x742d35Cc6634C0532925a3b844Bc454e4438BaEa"
 }
 \`\`\`
 
@@ -693,16 +692,21 @@ Returns current node health, Base L2 block sync height, and daemon uptime.
 
 ### GET /api/metrics
 
-Returns historical performance metrics, total gaps resolved, average resolution latency, and gas saved.
+Aggregates computed from the real audit log (\`sentinel.log\`). Values are \`0\` or \`null\` until the daemon has recorded events. Add \`?format=prometheus\` for Prometheus text.
 
 **Response**:
 \`\`\`json
 {
-  "totalGapsDetected": 148,
-  "totalGapsResolved": 148,
-  "averageResolutionTimeMs": 312,
-  "circuitBreakerTrips": 0,
-  "activeMonitoredWallets": 4
+  "totalGapsDetected": 12,
+  "totalGapsResolved": 11,
+  "totalGapsFailed": 1,
+  "successRatePct": 91.67,
+  "avgResolutionTimeMs": 3120,
+  "totalEvictionsDetected": 2,
+  "totalCircuitBreakerTrips": 0,
+  "circuitBreakerStatus": "ARMED",
+  "gasBumpDistribution": { "10_to_20_pct": 5, "20_to_30_pct": 4 },
+  "resolutionsByCause": { "underpriced": 8, "eviction": 3 }
 }
 \`\`\`
 
@@ -710,36 +714,41 @@ Returns historical performance metrics, total gaps resolved, average resolution 
 
 ### GET /api/state
 
-Fetches current pending vs latest nonce counts and queued transaction objects for a specific wallet.
+Live on-chain nonce state for a wallet plus counters from the audit log.
 
 **Query Parameters**:
-- \`wallet\`: Hex-encoded EVM address (\`0x...\`)
+- \`address\`: Hex-encoded EVM address (\`0x...\`). Defaults to the configured wallet.
 
 **Response**:
 \`\`\`json
 {
-  "wallet": "0x742d35Cc6634C0532925a3b844Bc454e4438BaEa",
-  "minedNonce": 105,
+  "currentBlock": 18459203,
+  "latestNonce": 105,
   "pendingNonce": 109,
-  "hasGap": true,
-  "lowestMissingNonce": 106
+  "systemStatus": "STALLED",
+  "circuitBreakerStatus": "ARMED",
+  "halted": false,
+  "monitoredAccounts": [{ "address": "0x742d…BaEa", "gap": 4, "status": "STALLED" }]
 }
 \`\`\`
+
+Also: \`GET /api/ledger?address=0x...\` returns the wallet's recent audit events; \`GET /api/stream\` is the SSE feed.
 
 ---
 
 ### POST /api/settings
 
-Updates daemon runtime bounds within mathematically verified constraints.
+Saves \`settings.json\` after validating every field. Requires \`Authorization: Bearer <SETTINGS_ADMIN_TOKEN>\` (writes are disabled in production when no token is set). The daemon reads these values at startup; environment variables take precedence.
 
 **Request Body**:
 \`\`\`json
 {
-  "maxGasBumpPct": 45,
-  "minGasBumpPct": 12,
-  "pollingIntervalMs": 500
+  "action": "save_settings",
+  "settings": { "gasStrategy": { "minGasIncreasePct": 12, "maxGasPriceCapGwei": 100 } }
 }
 \`\`\`
+
+Other actions: \`reset_defaults\`, \`test_alert\`. Daemon controls (\`halt\`, \`resume\`, \`reset_breaker\`) are \`POST /api/control\`.
 `,
     prev: { slug: "telemetry-stream", title: "Real-Time Telemetry & SSE" },
     next: { slug: "security-model", title: "Three-Layer Security Model" },
@@ -881,7 +890,7 @@ Sentinel enforces OWASP redaction rules before writing any log entry:
 
 ### On-Chain Verification
 
-Anyone can verify Sentinel receipts independently by querying BaseScan with the replacement transaction hash. The timestamp, sender, gas price, and zero-value null calldata match the audit trail entry byte-for-byte.
+Anyone can verify Sentinel receipts independently by querying BaseScan with the replacement transaction hash. The sender, nonce and fee fields match the audit trail entry.
 `,
     prev: { slug: "circuit-breaker", title: "Circuit Breaker & Alerts" },
     next: { slug: "configuration", title: "Environment Variables" },
@@ -903,8 +912,9 @@ Anyone can verify Sentinel receipts independently by querying BaseScan with the 
 | Variable | Required | Default | Description |
 | :--- | :--- | :--- | :--- |
 | \`RPC_URL\` | **Yes** | \`https://sepolia.base.org\` | Base L2 JSON-RPC endpoint. |
-| \`CHAIN_ID\` | **Yes** | \`84532\` | Chain ID (\`8453\` for Mainnet, \`84532\` for Sepolia). |
-| \`PORT\` | No | \`3000\` | HTTP server port for Command Center. |
+| \`CHAIN\` | No | \`sepolia\` | \`sepolia\` (84532) or \`mainnet\` (8453). |
+| \`WALLET_ADDRESS\` | **Yes** | None | Address Sentinel protects. |
+| \`PROXY_HOST\` / \`PROXY_PORT\` | No | \`127.0.0.1\` / \`8545\` | RPC proxy bind address. Set \`PROXY_AUTH_TOKEN\` if you bind beyond loopback. |
 
 ---
 
@@ -914,7 +924,7 @@ Anyone can verify Sentinel receipts independently by querying BaseScan with the 
 | :--- | :--- | :--- | :--- |
 | \`MAX_GAS_BUMP_PCT\` | No | \`50\` | Maximum permissible gas bump percentage (\`INV-02\`). |
 | \`MIN_GAS_BUMP_PCT\` | No | \`10\` | Minimum required replacement bump (EVM standard). |
-| \`CIRCUIT_BREAKER_FAILURES\`| No | \`10\` | Consecutive failures before tripping safe standby. |
+| \`CIRCUIT_BREAKER_THRESHOLD\`| No | \`10\` | Failures within the window before tripping safe standby. |
 | \`CIRCUIT_BREAKER_WINDOW_MS\`| No | \`300000\` | Rolling window duration in milliseconds (5 min). |
 
 ---
@@ -923,9 +933,14 @@ Anyone can verify Sentinel receipts independently by querying BaseScan with the 
 
 | Variable | Required | Default | Description |
 | :--- | :--- | :--- | :--- |
-| \`PRIVATE_KEY\` | **Yes** | None | Operational gas wallet private key (hex string). |
-| \`GEMINI_API_KEY\` | No | None | Google Gemini API key for LLM mempool diagnosis. |
-| \`POLL_INTERVAL_MS\` | No | \`500\` | Mempool dual-tag polling interval in milliseconds. |
+| \`PRIVATE_KEY\` | No | None | Operational key (0x + 64 hex). Without it Sentinel is read-only. A malformed value is a startup error. |
+| \`ANTHROPIC_API_KEY\` | No | None | Enables LLM diagnosis. Without it the minimum safe bump is used. |
+| \`AGENT_MODEL\` | No | \`claude-sonnet-5-5\` | Model used for diagnosis. |
+| \`GAP_DETECTION_INTERVAL_MS\` | No | \`500\` | Mempool dual-tag polling interval in milliseconds. |
+| \`GAP_RESOLUTION_STRATEGY\` | No | \`replace\` | \`replace\` or \`cancel\` (see INV-03). |
+| \`MAX_GAS_PRICE_CAP_GWEI\` | No | \`100\` | Sentinel refuses to broadcast a replacement above this maxFeePerGas. |
+| \`STATE_FILE\` | No | \`./sentinel-state.json\` | State shared by the proxy, watchdog and dashboard. |
+| \`SETTINGS_ADMIN_TOKEN\` | No | None | Bearer token required to change settings or control the daemon from the dashboard. |
 | \`ALERT_WEBHOOK_URL\` | No | None | Discord or Telegram webhook for emergency alerts. |
 `,
     prev: { slug: "audit-logging", title: "Append-Only Audit Trail" },
@@ -957,7 +972,7 @@ Anyone can verify Sentinel receipts independently by querying BaseScan with the 
 - **Model Proposes, Code Decides**: The architectural doctrine ensuring LLM outputs are treated strictly as unverified advisory proposals, bounded by deterministic mathematical code clamps.
 - **INV-02 Clamp**: Mathematical rule clamping any gas bump recommendation between a 10% floor and a 50% ceiling.
 - **Safe Standby**: The protective state Sentinel assumes when its circuit breaker trips, halting automated writes while continuing read-only monitoring.
-- **Null Execution**: A zero-value self-transfer ($0\\text{ ETH}$, null calldata) used to cleanly close a stalled nonce slot with minimal gas consumption.
+- **Cancel Mode**: A zero-value self-transfer (no calldata, 21000 gas) used to close a stalled nonce slot without re-executing the original trade.
 `,
     prev: { slug: "configuration", title: "Environment Variables" },
   },

@@ -158,31 +158,31 @@ export default function SecurityPage() {
   const invariants = [
     {
       id: "INV-01",
-      title: "Strict Monotonicity Guarantee",
-      formula: "Nonce_Mined(t) <= Nonce_Pending(t)",
+      title: "Mined Nonces Are Never Tracked",
+      formula: "tracked(t) ⊆ { n ≥ Nonce_Latest(t) }",
       description:
-        "The monitored keystore mined nonce must never exceed its pending nonce. Any negative gap triggers an emergency RPC state reconciliation.",
+        "Transactions below the confirmed on-chain nonce are dropped from the in-flight store on every poll, and the nonce is re-checked right before any broadcast, so a mined transaction is never replaced.",
     },
     {
       id: "INV-02",
       title: "Hard Gas Bump Ceiling",
       formula: "Bump_Effective <= 25.0% * maxPriorityFeePerGas",
       description:
-        "Replacement transactions are strictly clamped to a 25% ceiling above prevailing base fees. This mathematically prevents gas depletion loops under attack.",
+        "Replacement fee bumps are strictly clamped to the configured [10%, 50%] range, and a hard price cap refuses any replacement above it. This prevents gas depletion loops under attack.",
     },
     {
       id: "INV-03",
-      title: "Zero-Value Null Execution",
-      formula: "Value = 0 ETH ∧ To = From ∧ Data = 0x",
+      title: "Payload Fidelity",
+      formula: "replacement.payload = original.payload  ∨  (Value = 0 ∧ To = From ∧ Data = 0x)",
       description:
-        "Every autonomous healing transaction is an immutable self-transfer with zero ether and null calldata. The agent cannot drain protocol capital.",
+        "Sentinel only re-sends the exact transaction your bot signed (higher fee, same nonce) or a zero-value self-transfer. It cannot redirect funds to a new recipient or call a contract you did not target.",
     },
     {
       id: "INV-04",
       title: "Circuit Breaker Trip Rate",
-      formula: "Gaps_10_Blocks <= 3 ∨ TRIP",
+      formula: "Failures_Window < K ∨ TRIP",
       description:
-        "If more than 3 consecutive gaps occur within 10 blocks for a single keystore, Sentinel trips into SAFE mode, halting autonomous dispatch and alerting operators.",
+        "If resolution failures within the rolling window (default 10 in 5 minutes) reach the threshold, Sentinel trips into SAFE mode: it stops autonomous resolution, rejects proxy submissions and alerts operators.",
     },
   ];
 
@@ -445,7 +445,7 @@ export default function SecurityPage() {
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──[ Key Encrypted at Rest ]──&gt; Dedicated Gas Wallet Signer
               </div>
               <p className="text-xs font-mono text-ash leading-relaxed">
-                Notice that the client runtime possesses neither the RPC secret nor the wallet private key. All transactions signed by Sentinel are autonomous, zero-value self-transfers that strictly heal nonce sequences without risk of treasury capital drainage.
+                Notice that the client runtime possesses neither the RPC secret nor the wallet private key. Every transaction Sentinel signs is either a byte-identical re-send of a transaction your bot already signed (with higher fees) or a zero-value self-transfer, so it cannot redirect treasury capital to a new recipient.
               </p>
             </div>
           </div>

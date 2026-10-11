@@ -28,13 +28,19 @@ export interface PersistedBreaker {
   failures: number[];
 }
 
+export interface PersistedControl {
+  /** Operator pause: stop gap resolution and let the proxy forward transactions untouched. */
+  halted: boolean;
+}
+
 export interface PersistedState {
   txs: Record<string, PersistedTx>;
   breaker: PersistedBreaker;
+  control: PersistedControl;
 }
 
 function emptyState(): PersistedState {
-  return { txs: {}, breaker: { tripped: false, trippedAt: null, failures: [] } };
+  return { txs: {}, breaker: { tripped: false, trippedAt: null, failures: [] }, control: { halted: false } };
 }
 
 export class StateFile {
@@ -50,6 +56,7 @@ export class StateFile {
       return {
         txs: parsed.txs ?? {},
         breaker: { ...emptyState().breaker, ...(parsed.breaker ?? {}) },
+        control: { ...emptyState().control, ...(parsed.control ?? {}) },
       };
     } catch {
       return emptyState();

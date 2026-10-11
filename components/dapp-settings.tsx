@@ -27,9 +27,11 @@ export default function DappSettings({
 }: DappSettingsProps) {
   // Live polling data
   const [copied, setCopied] = useState(false);
-  const [rpcStatus, setRpcStatus] = useState<"Connected" | "Degraded" | "Disconnected">("Connected");
-  const [currentBlock, setCurrentBlock] = useState(19420845);
-  const [uptime, setUptime] = useState("2h 34m 12s");
+  const [rpcStatus, setRpcStatus] = useState<"Connected" | "Degraded" | "Disconnected">("Disconnected");
+  const [currentBlock, setCurrentBlock] = useState(0);
+  const [uptime, setUptime] = useState("-");
+  const [chainText, setChainText] = useState("-");
+  const [controlAvailable, setControlAvailable] = useState(false);
   const [isHalted, setIsHalted] = useState(false);
   const [isBreakerTripped, setIsBreakerTripped] = useState(false);
 
@@ -37,9 +39,9 @@ export default function DappSettings({
   const [initialSettings, setInitialSettings] = useState<any>(null);
   const [settings, setSettings] = useState<any>({
     system: {
-      walletAddress: "0x859901345112F0812b06aF1858E623414E472D72",
-      privateKeyLoaded: true,
-      rpcUrl: "https://sepolia.base.org",
+      walletAddress: "",
+      privateKeyLoaded: false,
+      rpcUrl: "",
       chainId: 84532,
       version: "1.0.0",
     },
@@ -98,15 +100,69 @@ export default function DappSettings({
 
   // Modals
   const [activeModal, setActiveModal] = useState<
-    "clear_webhooks" | "clear_log" | "halt_sentinel" | "reset_audit" | "clear_cache" | "reset_defaults" | null
+    "clear_webhooks" | "halt_sentinel" | "reset_defaults" | null
   >(null);
   const [modalInputText, setModalInputText] = useState("");
+
+  // Admin token for write actions. Kept in sessionStorage only (never persisted to disk).
+  const readToken = () => {
+    try {
+      return sessionStorage.getItem("sentinel_admin_token") ?? "";
+    } catch {
+      return "";
+    }
+  };
+
+  /** fetch() with the admin token attached; on 401 asks for the token once and retries. */
+  const authFetch = async (url: string, init: RequestInit = {}): Promise<Response> => {
+    const send = (token: string) =>
+      fetch(url, {
+        ...init,
+        headers: { ...(init.headers ?? {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      });
+    let res = await send(readToken());
+    if (res.status === 401) {
+      const entered = window.prompt("Enter the Sentinel admin token (SETTINGS_ADMIN_TOKEN):");
+      if (entered) {
+        try {
+          sessionStorage.setItem("sentinel_admin_token", entered);
+        } catch {
+          // storage unavailable: token is used for this request only
+        }
+        res = await send(entered);
+      }
+    }
+    return res;
+  };
+
+  const applyStatus = (data: any) => {
+    if (!data?.status) return;
+    setRpcStatus(data.status.rpcConnection === "Connected" ? "Connected" : "Disconnected");
+    setCurrentBlock(data.status.currentBlock || 0);
+    setUptime(data.status.uptime || "-");
+    setChainText(data.status.chainId || "-");
+  };
+
+  const loadControl = async () => {
+    try {
+      const res = await fetch("/api/control");
+      if (res.ok) {
+        const c = await res.json();
+        setControlAvailable(Boolean(c.available));
+        setIsHalted(Boolean(c.halted));
+        setIsBreakerTripped(Boolean(c.breakerTripped));
+      }
+    } catch {
+      // leave defaults
+    }
+  };
 
   // Fetch initial settings from backend API
   useEffect(() => {
     async function loadSettings() {
       try {
-        const res = await fetch("/api/settings");
+        const token = readToken();
+        const res = await fetch("/api/settings", { headers: token ? { Authorization: `Bearer ${token}` } : {} });
         if (res.ok) {
           const data = await res.json();
           if (data.settings) {
@@ -117,24 +173,27 @@ export default function DappSettings({
             setSettings(loaded);
             setInitialSettings(JSON.parse(JSON.stringify(loaded)));
           }
-          if (data.status) {
-            setRpcStatus(data.status.rpcConnection || "Connected");
-            setCurrentBlock(data.status.currentBlock || 19420845);
-            setUptime(data.status.uptime || "2h 34m 12s");
-          }
+          applyStatus(data);
         }
       } catch (err) {
         console.error("Failed to load settings:", err);
       }
     }
     loadSettings();
+    loadControl();
 
-    // Poll status every 2s
-    const interval = setInterval(() => {
-      setCurrentBlock((prev) => prev + 1);
-    }, 2000);
+    // Refresh live status (block height, uptime, RPC health) from the server
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/settings");
+        if (res.ok) applyStatus(await res.json());
+      } catch {
+        setRpcStatus("Disconnected");
+      }
+    }, 10000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Check dirty state whenever settings change
@@ -209,17 +268,18 @@ export default function DappSettings({
     if (hasBlockingErrors || !isDirty) return;
     setIsSaving(true);
     try {
-      const res = await fetch("/api/settings", {
+      const res = await authFetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "save_settings", settings }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setInitialSettings(JSON.parse(JSON.stringify(settings)));
         setIsDirty(false);
-        onPushToast("Settings Saved", "All configurations applied to active Sentinel loop.");
+        onPushToast("Settings Saved", data.message || "Settings written. The daemon applies them on its next start.");
       } else {
-        onPushToast("Save Error", "Unable to persist settings to disk.");
+        onPushToast("Save Error", data.error || "Unable to persist settings to disk.");
       }
     } catch {
       onPushToast("Save Error", "Network error saving settings.");
@@ -231,7 +291,7 @@ export default function DappSettings({
   const handleSendTestAlert = async () => {
     setTestAlertStatus("Sending test alert...");
     try {
-      const res = await fetch("/api/settings", {
+      const res = await authFetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -240,12 +300,12 @@ export default function DappSettings({
           discordUrl: settings.alerts.discordWebhookUrl,
         }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        setTestAlertStatus("Test alert sent successfully to configured webhooks.");
-        onPushToast("Test Alert Sent", "Webhooks received test payload.");
+        setTestAlertStatus(data.message || "Test alert delivered.");
+        onPushToast("Test Alert Sent", data.message || "Webhooks received the test payload.");
       } else {
-        setTestAlertStatus(data.error || "No webhook URLs configured.");
+        setTestAlertStatus(data.error || "Test alert failed.");
       }
     } catch {
       setTestAlertStatus("Failed to send test alert.");
@@ -253,63 +313,94 @@ export default function DappSettings({
     setTimeout(() => setTestAlertStatus(null), 4000);
   };
 
-  const handleDownloadLog = () => {
-    const blob = new Blob(
-      [
-        JSON.stringify(
-          {
-            timestamp: new Date().toISOString(),
-            event: "AUDIT_EXPORT",
-            account: settings.system.walletAddress,
-            state: "HEALTHY",
-            version: "1.0.0",
-          },
-          null,
-          2
-        ),
-      ],
-      { type: "application/json" }
-    );
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "sentinel.log";
-    a.click();
-    URL.revokeObjectURL(url);
-    onPushToast("Log Downloaded", "sentinel.log exported.");
+  const handleDownloadLog = async () => {
+    try {
+      const res = await authFetch("/api/audit");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        onPushToast("Download Failed", data.error || "Could not download the audit log.");
+        return;
+      }
+      const url = URL.createObjectURL(await res.blob());
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "sentinel.log";
+      a.click();
+      URL.revokeObjectURL(url);
+      onPushToast("Log Downloaded", "sentinel.log exported.");
+    } catch {
+      onPushToast("Download Failed", "Network error downloading the audit log.");
+    }
   };
 
-  const handleResetCircuitBreaker = () => {
-    setIsBreakerTripped(false);
-    onPushToast("Circuit Breaker Reset", "Sliding window and failure counters reset to 0.");
+  const sendControl = async (action: "halt" | "resume" | "reset_breaker"): Promise<boolean> => {
+    try {
+      const res = await authFetch("/api/control", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        onPushToast("Action Failed", data.error || "The control request was rejected.");
+        return false;
+      }
+      setControlAvailable(Boolean(data.available));
+      setIsHalted(Boolean(data.halted));
+      setIsBreakerTripped(Boolean(data.breakerTripped));
+      return true;
+    } catch {
+      onPushToast("Action Failed", "Network error sending the control request.");
+      return false;
+    }
   };
 
-  const handleToggleHalt = () => {
+  const handleResetCircuitBreaker = async () => {
+    if (await sendControl("reset_breaker")) {
+      onPushToast("Circuit Breaker Reset", "Failure counters cleared; the breaker is closed.");
+    }
+  };
+
+  const handleToggleHalt = async () => {
     if (!isHalted) {
       setActiveModal("halt_sentinel");
-    } else {
-      setIsHalted(false);
+    } else if (await sendControl("resume")) {
       onPushToast("Sentinel Resumed", "Automated nonce watchdog loop reactivated.");
     }
   };
 
-  const executeModalAction = () => {
-    if (activeModal === "clear_webhooks") {
-      updateField("alerts", "telegramWebhookUrl", "");
-      updateField("alerts", "discordWebhookUrl", "");
-      onPushToast("Webhooks Cleared", "Webhook endpoints reset to empty.");
-    } else if (activeModal === "reset_audit") {
-      onPushToast("Audit Reset", "All historical audit events wiped.");
-    } else if (activeModal === "halt_sentinel") {
-      setIsHalted(true);
-      onPushToast("Sentinel Halted", "Mempool watcher paused. Transactions routing directly to RPC.");
-    } else if (activeModal === "reset_defaults") {
-      setSettings(JSON.parse(JSON.stringify(initialSettings)));
-      setIsDirty(false);
-      onPushToast("Reset Complete", "All parameters restored to default values.");
-    }
+  const executeModalAction = async () => {
+    const modal = activeModal;
     setActiveModal(null);
     setModalInputText("");
+    if (modal === "clear_webhooks") {
+      updateField("alerts", "telegramWebhookUrl", "");
+      updateField("alerts", "discordWebhookUrl", "");
+      onPushToast("Webhooks Cleared", "Webhook endpoints reset to empty. Save to apply.");
+    } else if (modal === "halt_sentinel") {
+      if (await sendControl("halt")) {
+        onPushToast("Sentinel Halted", "Gap resolution paused. Transactions pass straight through to the RPC.");
+      }
+    } else if (modal === "reset_defaults") {
+      try {
+        const res = await authFetch("/api/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "reset_defaults" }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.settings) {
+          setSettings(data.settings);
+          setInitialSettings(JSON.parse(JSON.stringify(data.settings)));
+          setIsDirty(false);
+          onPushToast("Reset Complete", "All parameters restored to default values.");
+        } else {
+          onPushToast("Reset Failed", data.error || "Could not reset settings.");
+        }
+      } catch {
+        onPushToast("Reset Failed", "Network error resetting settings.");
+      }
+    }
   };
 
   return (
@@ -338,7 +429,9 @@ export default function DappSettings({
                 <span className="text-[#686660]">Wallet:</span>
                 <div className="flex items-center gap-2">
                   <span className="text-white font-medium truncate max-w-[180px]" title={settings.system.walletAddress}>
-                    {settings.system.walletAddress.slice(0, 10)}...{settings.system.walletAddress.slice(-4)}
+                    {settings.system.walletAddress
+                      ? `${settings.system.walletAddress.slice(0, 10)}...${settings.system.walletAddress.slice(-4)}`
+                      : "Not configured"}
                   </span>
                   <button
                     type="button"
@@ -352,8 +445,14 @@ export default function DappSettings({
               </div>
               <div className="flex items-center justify-between py-1">
                 <span className="text-[#686660]">Private Key:</span>
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold uppercase bg-[#8FAF92]/10 text-[#8FAF92] border border-[#8FAF92]/25">
-                  Loaded
+                <span
+                  className={`px-2.5 py-0.5 rounded text-[10px] font-semibold uppercase border ${
+                    settings.system.privateKeyLoaded
+                      ? "bg-[#8FAF92]/10 text-[#8FAF92] border-[#8FAF92]/25"
+                      : "bg-white/5 text-[#686660] border-white/10"
+                  }`}
+                >
+                  {settings.system.privateKeyLoaded ? "Loaded" : "Not set (read-only)"}
                 </span>
               </div>
 
@@ -361,20 +460,20 @@ export default function DappSettings({
               <div className="flex items-center justify-between py-1">
                 <span className="text-[#686660]">RPC:</span>
                 <span className="text-white truncate max-w-[200px]" title={settings.system.rpcUrl}>
-                  {settings.system.rpcUrl}
+                  {settings.system.rpcUrl || (rpcStatus === "Connected" ? "Connected" : "Unreachable")}
                 </span>
               </div>
               <div className="flex items-center justify-between py-1">
                 <span className="text-[#686660]">Block:</span>
                 <span className="text-white font-semibold">
-                  {currentBlock.toLocaleString()}
+                  {currentBlock ? currentBlock.toLocaleString() : "-"}
                 </span>
               </div>
 
               {/* Row 3 */}
               <div className="flex items-center justify-between py-1">
                 <span className="text-[#686660]">Chain:</span>
-                <span className="text-[#C9A961] font-medium">84532 (Base Sepolia)</span>
+                <span className="text-[#C9A961] font-medium">{chainText}</span>
               </div>
               <div className="flex items-center justify-between py-1">
                 <span className="text-[#686660]">Uptime:</span>
@@ -408,7 +507,7 @@ export default function DappSettings({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-void-2/40 rounded-xl border border-white/[0.05]">
                 <label className="text-[#C2BEB4]">Pending Nonce Tag:</label>
                 <select
-                  value={settings.nonceTracking.pendingNonceTag}
+                  value={settings.nonceTracking.pendingNonceTag} disabled title="Not applied by the Sentinel daemon yet"
                   onChange={(e) => updateField("nonceTracking", "pendingNonceTag", e.target.value)}
                   className="px-3 py-1.5 rounded-lg bg-[#08090C] border border-white/[0.1] text-white focus:border-[#C9A961] outline-none cursor-pointer"
                 >
@@ -423,7 +522,7 @@ export default function DappSettings({
                   type="number"
                   min="1"
                   max="500"
-                  value={settings.nonceTracking.maxPendingTransactions}
+                  value={settings.nonceTracking.maxPendingTransactions} disabled title="Not applied by the Sentinel daemon yet"
                   onChange={(e) => updateField("nonceTracking", "maxPendingTransactions", Number(e.target.value))}
                   className="w-24 px-3 py-1.5 rounded-lg bg-[#08090C] border border-white/[0.1] text-white text-right focus:border-[#C9A961] outline-none"
                 />
@@ -432,12 +531,12 @@ export default function DappSettings({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-void-2/40 rounded-xl border border-white/[0.05]">
                 <label className="text-[#C2BEB4]">Gap Resolution Strategy:</label>
                 <select
-                  value={settings.nonceTracking.gapResolutionStrategy}
+                  value={settings.nonceTracking.gapResolutionStrategy === "cancel_first" ? "cancel" : settings.nonceTracking.gapResolutionStrategy}
                   onChange={(e) => updateField("nonceTracking", "gapResolutionStrategy", e.target.value)}
                   className="px-3 py-1.5 rounded-lg bg-[#08090C] border border-white/[0.1] text-white focus:border-[#C9A961] outline-none cursor-pointer"
                 >
-                  <option value="replace">replace</option>
-                  <option value="cancel_first">cancel_first</option>
+                  <option value="replace">replace (re-send original, higher fee)</option>
+                  <option value="cancel">cancel (zero-value self-transfer)</option>
                 </select>
               </div>
             </div>
@@ -483,7 +582,7 @@ export default function DappSettings({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-void-2/40 rounded-xl border border-white/[0.05]">
                 <label className="text-[#C2BEB4]">Priority Fee Strategy:</label>
                 <select
-                  value={settings.gasStrategy.priorityFeeStrategy}
+                  value={settings.gasStrategy.priorityFeeStrategy} disabled title="Not applied by the Sentinel daemon yet"
                   onChange={(e) => updateField("gasStrategy", "priorityFeeStrategy", e.target.value)}
                   className="px-3 py-1.5 rounded-lg bg-[#08090C] border border-white/[0.1] text-white focus:border-[#C9A961] outline-none cursor-pointer"
                 >
@@ -737,12 +836,14 @@ export default function DappSettings({
 
             <div className="p-4 rounded-xl bg-red-950/10 border border-red-500/20 space-y-4">
               <p className="text-[11px] text-[#C2BEB4]">
-                Irreversible and critical interventions. Proceed with caution when modifying real-time mempool loops.
+                Critical interventions that act on the running daemon. Requires the admin token.
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   type="button"
                   onClick={handleToggleHalt}
+                  disabled={!controlAvailable}
+                  title={controlAvailable ? undefined : "Needs a STATE_FILE shared with the daemon"}
                   className={`px-4 py-2.5 rounded-lg font-mono text-xs font-semibold transition-colors flex items-center gap-2 ${
                     isHalted
                       ? "bg-[#8FAF92]/10 hover:bg-[#8FAF92]/15 text-[#8FAF92] border border-[#8FAF92]/30"
@@ -755,17 +856,19 @@ export default function DappSettings({
 
                 <button
                   type="button"
-                  onClick={() => setActiveModal("reset_audit")}
-                  className="px-4 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-mono text-xs font-semibold transition-colors flex items-center gap-2"
+                  onClick={handleDownloadLog}
+                  className="px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-[#C2BEB4] border border-white/15 font-mono text-xs font-semibold transition-colors flex items-center gap-2"
                 >
-                  <RiDeleteBinLine className="w-3.5 h-3.5" />
-                  <span>Reset Audit Log</span>
+                  <RiSaveLine className="w-3.5 h-3.5" />
+                  <span>Download Audit Log</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleResetCircuitBreaker}
-                  className="px-4 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-mono text-xs font-semibold transition-colors flex items-center gap-2"
+                  disabled={!controlAvailable || !isBreakerTripped}
+                  title={!controlAvailable ? "Needs a STATE_FILE shared with the daemon" : !isBreakerTripped ? "Circuit breaker is not tripped" : undefined}
+                  className="disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-mono text-xs font-semibold transition-colors flex items-center gap-2"
                 >
                   <RiRestartLine className="w-3.5 h-3.5" />
                   <span>Reset Circuit Breaker</span>
@@ -787,7 +890,6 @@ export default function DappSettings({
               <div>
                 <h3 className="font-cinzel text-base font-bold text-white">
                   {activeModal === "clear_webhooks" && "Clear All Webhooks?"}
-                  {activeModal === "reset_audit" && "Reset Audit Log?"}
                   {activeModal === "halt_sentinel" && "Halt Sentinel Watchdog?"}
                   {activeModal === "reset_defaults" && "Reset Settings to Defaults?"}
                 </h3>
@@ -797,12 +899,10 @@ export default function DappSettings({
             <p className="text-xs text-[#C2BEB4] leading-relaxed">
               {activeModal === "clear_webhooks" &&
                 "This will erase configured Telegram and Discord alert URLs. Alert notifications will be disabled."}
-              {activeModal === "reset_audit" &&
-                "This will permanently purge the local audit log file. All historical receipts will be lost."}
               {activeModal === "halt_sentinel" &&
-                "Halting pauses the automated watchdog loop. Gap detection and automatic nonce healing will stop."}
+                "Halting pauses the watchdog loop and makes the RPC proxy forward transactions untouched. Gap detection and automatic nonce healing will stop until you resume."}
               {activeModal === "reset_defaults" &&
-                "This will revert all 6 configuration sections to their factory default values."}
+                "This will overwrite settings.json with the factory defaults for all 6 configuration sections."}
             </p>
 
             <div className="flex justify-end gap-3 pt-2">

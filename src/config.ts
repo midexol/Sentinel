@@ -5,6 +5,13 @@ import path from "node:path";
 export type ChainName = "sepolia" | "mainnet";
 
 /**
+ * How a stuck nonce is cleared:
+ * - "replace": re-send the exact transaction the bot signed (same to/value/data/gas) with higher fees.
+ * - "cancel":  send a zero-value, empty-calldata self-transfer at that nonce (drops the original trade).
+ */
+export type ResolutionStrategy = "replace" | "cancel";
+
+/**
  * All Sentinel behavior is tunable via environment variables so it can be
  * dropped into any trading bot's deployment without code changes.
  *
@@ -21,6 +28,7 @@ export interface SentinelConfig {
   evictionTimeoutMs: number;
   maxEvictionResubmissions: number;
   evictionBackoffMultiplier: number;
+  gapResolutionStrategy: ResolutionStrategy;
   circuitBreakerEnabled: boolean;
   circuitBreakerThreshold: number;
   circuitBreakerWindowMs: number;
@@ -104,6 +112,13 @@ function num(name: string, fromSettings: unknown, fallback: number, opts: NumOpt
   return value;
 }
 
+function strategy(fromSettings: unknown): ResolutionStrategy {
+  const raw = String(process.env.GAP_RESOLUTION_STRATEGY || fromSettings || "replace").toLowerCase();
+  if (raw === "replace") return "replace";
+  if (raw === "cancel" || raw === "cancel_first") return "cancel";
+  throw new Error(`GAP_RESOLUTION_STRATEGY must be "replace" or "cancel", got: ${raw}`);
+}
+
 function bool(name: string, fromSettings: unknown, fallback: boolean): boolean {
   const envRaw = process.env[name];
   if (envRaw !== undefined && envRaw !== "") return envRaw.toLowerCase() === "true";
@@ -163,6 +178,7 @@ export function loadConfig(): SentinelConfig {
     evictionTimeoutMs: num("EVICTION_TIMEOUT_MS", s.evictionMonitoring?.evictionTimeout, 30_000, { min: 1000 }),
     maxEvictionResubmissions: num("MAX_EVICTION_RESUBMISSIONS", s.evictionMonitoring?.maxEvictionResubmissions, 3, { min: 0, int: true }),
     evictionBackoffMultiplier: num("EVICTION_BACKOFF_MULTIPLIER", s.evictionMonitoring?.evictionBackoffMultiplier, 1.5, { min: 1 }),
+    gapResolutionStrategy: strategy(s.nonceTracking?.gapResolutionStrategy),
     circuitBreakerEnabled: bool("CIRCUIT_BREAKER_ENABLED", s.circuitBreaker?.enabled, true),
     circuitBreakerThreshold: num("CIRCUIT_BREAKER_THRESHOLD", s.circuitBreaker?.failureThreshold, 10, { min: 1, int: true }),
     circuitBreakerWindowMs: num("CIRCUIT_BREAKER_WINDOW_MS", s.circuitBreaker?.failureWindow, 300_000, { min: 1000 }),
@@ -211,6 +227,7 @@ export function makeConfig(overrides: Partial<SentinelConfig> = {}): SentinelCon
     evictionTimeoutMs: 30_000,
     maxEvictionResubmissions: 3,
     evictionBackoffMultiplier: 1.5,
+    gapResolutionStrategy: "replace",
     circuitBreakerEnabled: true,
     circuitBreakerThreshold: 10,
     circuitBreakerWindowMs: 300_000,

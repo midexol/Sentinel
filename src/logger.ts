@@ -15,7 +15,9 @@ export type AuditAction =
   | "eviction_resubmission_limit"
   | "diagnosis" // the AI reasoning step - see agent.ts
   | "circuit_breaker_tripped"
-  | "circuit_breaker_reset";
+  | "circuit_breaker_reset"
+  | "sentinel_halted"
+  | "sentinel_resumed";
 
 export interface AuditEntryBase {
   action: AuditAction;

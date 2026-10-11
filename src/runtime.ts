@@ -25,10 +25,11 @@ export function buildSentinel(config: SentinelConfig = loadConfig()) {
   const breaker = new CircuitBreaker(config, logger, state);
   const eviction = new EvictionMonitor(config, tracker, store, resolver, logger, breaker);
   const diagnostician = new GapDiagnostician(config, logger, new SentinelToolbox(config, tracker, store));
-  const interceptor = new TransactionInterceptor(config, tracker, store, resolver, diagnostician, breaker, logger);
+  const isHalted = () => state.read().control.halted;
+  const interceptor = new TransactionInterceptor(config, tracker, store, resolver, diagnostician, breaker, logger, isHalted);
   const recentEvents: RecentEvent[] = [];
 
-  return { config, store, tracker, logger, resolver, breaker, eviction, diagnostician, interceptor, recentEvents };
+  return { config, store, tracker, logger, resolver, breaker, eviction, diagnostician, interceptor, recentEvents, isHalted };
 }
 
 export type Sentinel = ReturnType<typeof buildSentinel>;

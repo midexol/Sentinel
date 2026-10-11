@@ -88,7 +88,7 @@ function sleep(ms: number, signal: AbortSignal): Promise<void> {
 
 /** Continuous loop: detect, diagnose, resolve, monitor evictions, on a timer. Stops when `signal` aborts. */
 export async function watch(sentinel: Sentinel, signal: AbortSignal): Promise<void> {
-  const { config, tracker, logger, breaker, eviction } = sentinel;
+  const { config, tracker, logger, breaker, eviction, isHalted } = sentinel;
 
   console.log(
     `Watching ${config.walletAddress} on ${config.rpcUrl} (${config.chain}) every ${config.gapDetectionIntervalMs}ms.` +
@@ -103,6 +103,15 @@ export async function watch(sentinel: Sentinel, signal: AbortSignal): Promise<vo
 
   let lastHaltNotice = 0;
   while (!signal.aborted) {
+    if (isHalted()) {
+      if (Date.now() - lastHaltNotice > 30_000) {
+        console.warn("Sentinel is halted by the operator. Resolution is paused until resumed.");
+        lastHaltNotice = Date.now();
+      }
+      await sleep(config.gapDetectionIntervalMs, signal);
+      continue;
+    }
+
     if (breaker.isTripped()) {
       // Paused, not dead: with autoRecovery the breaker closes after the cooldown.
       if (Date.now() - lastHaltNotice > 30_000) {

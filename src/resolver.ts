@@ -167,6 +167,14 @@ export class GapResolver {
       throw new Error(`Refusing to resolve nonce ${gapNonce}: ${reason}.`);
     }
 
+    // INV-03: the payload of a "replace" is byte-identical to what the bot signed
+    // (same to / value / data / gas). A "cancel" is a zero-value, empty-calldata
+    // self-transfer. Sentinel never constructs any other kind of transaction.
+    const cancel = this.config.gapResolutionStrategy === "cancel";
+    const payload = cancel
+      ? { to: this.config.walletAddress, value: 0n, data: "0x" as `0x${string}`, gas: 21_000n }
+      : { to: stuckTx.to, value: stuckTx.value, data: stuckTx.data, gas: stuckTx.gasLimit };
+
     let newHash: `0x${string}`;
     if (this.config.dryRun) {
       // Never touches the network or a signing key. A fake hash keeps repeated
@@ -178,10 +186,10 @@ export class GapResolver {
         newHash = await this.walletClient!.sendTransaction({
           account: this.account!,
           chain: this.config.chain === "sepolia" ? baseSepolia : base,
-          to: stuckTx.to,
-          value: stuckTx.value,
-          data: stuckTx.data,
-          gas: stuckTx.gasLimit,
+          to: payload.to,
+          value: payload.value,
+          data: payload.data,
+          gas: payload.gas,
           nonce: stuckTx.nonce,
           maxPriorityFeePerGas: newPriorityFee,
           maxFeePerGas: finalMaxFee,
@@ -201,6 +209,10 @@ export class GapResolver {
       // (possibly shared) state untouched.
       const replacement: TrackedTx = {
         ...stuckTx,
+        to: payload.to,
+        value: payload.value,
+        data: payload.data,
+        gasLimit: payload.gas,
         hash: newHash,
         submittedAt: Date.now(),
         maxPriorityFeePerGas: newPriorityFee,
@@ -220,6 +232,7 @@ export class GapResolver {
       oldMaxFeePerGas: stuckTx.maxFeePerGas.toString(),
       newMaxFeePerGas: finalMaxFee.toString(),
       bumpPct,
+      strategy: this.config.gapResolutionStrategy,
       result: this.config.dryRun ? "dry_run" : "success",
     });
 

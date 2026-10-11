@@ -49,7 +49,8 @@ export default function IntegratePage() {
 
               <div className="p-4 rounded-xl bg-[#050608] border border-white/[0.08] font-mono text-xs space-y-2 text-marble-dim/90 overflow-x-auto">
                 <p className="text-ash">// 1. Import from Sentinel core</p>
-                <p className="text-[#C9A961]">import <span className="text-white">&#123; TransactionInterceptor &#125;</span> from <span className="text-[#C2BEB4]">&quot;sentinel&quot;</span>;</p>
+                <p className="text-[#C9A961]">import <span className="text-white">&#123; buildSentinel &#125;</span> from <span className="text-[#C2BEB4]">&quot;sentinel&quot;</span>;</p>
+                <p className="text-[#C9A961]">const &#123; interceptor &#125; = buildSentinel();</p>
                 <p className="text-ash pt-1">// 2. Replace client.sendRawTransaction(signedTx)</p>
                 <p className="text-[#C9A961] font-semibold">const hash = await interceptor.submitTransaction(signedTx);</p>
               </div>

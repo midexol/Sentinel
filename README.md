@@ -21,13 +21,15 @@
 
 ## Orion Agent Protocol & Tooling Integration
 
-Sentinel is designed as a specialized autonomous watchdog sidecar within the **Orion Agent Ecosystem**. The diagnostic reasoning layer exposes native function-calling tools to evaluate mempool state, gas volatility, and sequencer synchronization:
+Sentinel is designed as a specialized autonomous watchdog sidecar within the **Orion Agent Ecosystem**. The diagnostic reasoning layer calls three read-only tools through the Anthropic Messages API tool-use loop. Each call is executed by Sentinel's own code against the RPC, and the audit log records only the tools that actually ran:
 
 * **`get_mempool_status`**: Queries in-flight transactions, pending nonce sequence, and mined nonce height on Base L2.
 * **`query_base_gas_history`**: Analyzes priority fee and base fee trends across recent blocks.
-* **`check_sequencer_health`**: Verifies Base Flashblocks sub-second stream sequence alignment.
+* **`check_sequencer_health`**: Checks latest-block freshness and chain ID as a proxy for sequencer health.
 
 ### Safety Benchmark Suite (`npm run benchmark`)
+
+These cases exercise the deterministic clamp (`clampBumpPct`) against hostile *model outputs*. They do not call a model; model-output parsing and the tool loop are covered in `test/agent.test.ts`.
 
 | Benchmark Case | Agent Architecture | Input Proposal | Clamped Result (`INV-02`) | Status |
 | :--- | :--- | :--- | :--- | :--- |
@@ -37,6 +39,8 @@ Sentinel is designed as a specialized autonomous watchdog sidecar within the **O
 | **BM-04** | **Adversarial Prompt Injection** | +200% | **50% (Bounded)** | PASS |
 | **BM-05** | **Adversarial Zero Hallucination** | 0% | **10% (Safety Floor)** | PASS |
 | **BM-06** | **Adversarial Negative Fee** | -50% | **10% (Safety Floor)** | PASS |
+| **BM-07** | **Adversarial Non-Finite** | Infinity | **10% (Safety Floor)** | PASS |
+| **BM-08** | **Adversarial Non-Finite** | NaN | **10% (Safety Floor)** | PASS |
 
 ---
 
@@ -85,7 +89,7 @@ flowchart TD
         Tracker["Mempool Nonce Tracker\n(nonceTracker.ts)"]
         Diagnosis["AI Diagnosis & Reasoning\n(agent.ts)"]
         SafetyClamp["Mathematical Gas Clamp\n(resolver.ts)"]
-        Resolver["Atomic Replacement Dispatcher\n(resolver.ts)"]
+        Resolver["Replacement Dispatcher\n(resolver.ts)"]
         Breaker["Circuit Breaker & Alerts\n(circuitBreaker.ts)"]
         Audit["Append-Only Audit Logger\n(logger.ts)"]
     end
@@ -104,7 +108,7 @@ flowchart TD
     Tracker -->|"Gap Detected"| Diagnosis
     Diagnosis -->|"Recommend Gas Bump"| SafetyClamp
     SafetyClamp -->|"Enforce [10%, 50%] Ceiling"| Resolver
-    Resolver -->|"Broadcast Healing Tx"| RPC
+    Resolver -->|"Broadcast Replacement Tx"| RPC
     Resolver --> Audit
     Diagnosis --> Audit
     Resolver -->|"Track Consecutive Failures"| Breaker
@@ -131,7 +135,7 @@ sequenceDiagram
         AI-->>Sentinel: Recommend Bump Pct & Strategy
         Sentinel->>Sentinel: Apply Hard Invariant Clamp [MIN_BUMP, MAX_BUMP]
         Sentinel->>Base: Verify Receipt (Ensure Nonce not mined in flight)
-        Sentinel->>Base: Broadcast Zero-Value Null Replacement Tx
+        Sentinel->>Base: Broadcast same-nonce replacement (higher fee)
         Base-->>Sentinel: Tx Hash Confirmed
         Sentinel->>Sentinel: Append Audit Receipt to JSONL
     end
@@ -178,13 +182,13 @@ graph LR
 
 | Module | Priority | Description | Implementation |
 | :--- | :--- | :--- | :--- |
-| **Nonce Tracking** | P0 | Queries both `pending` and `latest` tags on Base L2 every 500ms to detect missing sequences. | [`src/nonceTracker.ts`](file:///c:/Users/olamide/Desktop/Sentinel/src/nonceTracker.ts) |
-| **AI Diagnosis Engine** | P1 | Leverages The LLM reasoning agent to categorize mempool anomalies and suggest optimal replacement gas fees. | [`src/agent.ts`](file:///c:/Users/olamide/Desktop/Sentinel/src/agent.ts) |
-| **Atomic Resolution** | P0 | Resubmits stuck transactions with clamped gas bumps; validates receipts immediately before broadcast. | [`src/resolver.ts`](file:///c:/Users/olamide/Desktop/Sentinel/src/resolver.ts) |
-| **Eviction Monitoring** | P1 | Detects silent mempool drops using sliding consecutive-missing windows and triggers autonomous re-dispatch. | [`src/evictionMonitor.ts`](file:///c:/Users/olamide/Desktop/Sentinel/src/evictionMonitor.ts) |
-| **Circuit Breaker** | P0 | Halts autonomous dispatch and triggers emergency webhooks if resolution failures breach safety limits. | [`src/circuitBreaker.ts`](file:///c:/Users/olamide/Desktop/Sentinel/src/circuitBreaker.ts) |
-| **Bot Interceptor** | P0 | Drop-in SDK gateway allowing trading algorithms to route transactions through Sentinel seamlessly. | [`src/interceptor.ts`](file:///c:/Users/olamide/Desktop/Sentinel/src/interceptor.ts) |
-| **Audit Log Trail** | P0 | Append-only structured JSONL logging with automated secret and private key redaction. | [`src/logger.ts`](file:///c:/Users/olamide/Desktop/Sentinel/src/logger.ts) |
+| **Nonce Tracking** | P0 | Queries both `pending` and `latest` tags on Base L2 (default every 500ms) to detect missing sequences. | [`src/nonceTracker.ts`](src/nonceTracker.ts) |
+| **AI Diagnosis Engine** | P1 | Leverages The LLM reasoning agent to categorize mempool anomalies and suggest optimal replacement gas fees. | [`src/agent.ts`](src/agent.ts) |
+| **Replacement** | P0 | Resubmits stuck transactions with clamped gas bumps; checks that the nonce is not already mined immediately before broadcast. | [`src/resolver.ts`](src/resolver.ts) |
+| **Eviction Monitoring** | P1 | Detects silent mempool drops (a tx that was seen pending, then vanished for longer than the timeout) and re-dispatches, with a resubmission cap and backoff. | [`src/evictionMonitor.ts`](src/evictionMonitor.ts) |
+| **Circuit Breaker** | P0 | Pauses resolution, rejects proxy submissions and sends webhook alerts if resolution failures breach the threshold. State is shared across processes and can auto-recover after a cooldown. | [`src/circuitBreaker.ts`](src/circuitBreaker.ts) |
+| **Bot Interceptor** | P0 | Drop-in gateway (library or JSON-RPC proxy) that routes transactions through Sentinel. EIP-1559 transactions only. | [`src/interceptor.ts`](src/interceptor.ts) |
+| **Audit Log Trail** | P0 | Append-only structured JSONL logging with secret redaction, size-based rotation and retention. | [`src/logger.ts`](src/logger.ts) |
 
 ---
 
@@ -192,13 +196,13 @@ graph LR
 
 Sentinel enforces four hard-coded formal safety invariants:
 
-### INV-01: Strict Monotonicity Guarantee
+### INV-01: Mined Nonces Are Never Tracked
 
 $$
-\text{Nonce}_{\text{Mined}}(t) \le \text{Nonce}_{\text{Pending}}(t)
+\text{tracked}(t) \subseteq \{\, n \ge \text{Nonce}_{\text{Latest}}(t) \,\}
 $$
 
-The monitored mined nonce must never exceed the pending nonce. Any negative gap triggers an emergency RPC state reconciliation.
+Any transaction whose nonce is below the confirmed on-chain nonce is dropped from the in-flight store on every poll, so a mined transaction can never be mistaken for a stuck one or replaced.
 
 ### INV-02: Hard Gas Bump Ceiling
 
@@ -206,15 +210,15 @@ $$
 \text{Bump}_{\text{Effective}} = \max\left(10\%, \min\left(\text{Bump}_{\text{AI}}, 50\%\right)\right)
 $$
 
-Replacement transactions are clamped between a 10% floor and a 50% ceiling. This mathematically eliminates gas depletion loops under adversarial network conditions.
+Replacement fee bumps are clamped between a 10% floor and a 50% ceiling (non-finite proposals fall back to the floor), and a hard `MAX_GAS_PRICE_CAP_GWEI` refuses any replacement above the cap.
 
-### INV-03: Zero-Value Null Execution
+### INV-03: Payload Fidelity
 
 $$
-\text{Value} = 0 \text{ ETH} \quad \land \quad \text{To} = \text{From} \quad \land \quad \text{Data} = \text{0x}
+\text{replacement.payload} = \text{original.payload} \;\lor\; (\text{Value}=0 \land \text{To}=\text{From} \land \text{Data}=\texttt{0x})
 $$
 
-Autonomous gap-healing transactions are strictly zero-value self-transfers with null calldata. The agent cannot drain protocol assets.
+In the default `replace` strategy Sentinel re-sends exactly what the bot signed (same `to`, `value`, `data`, gas limit and nonce) with higher fees, so it can never redirect funds to a new recipient. In `cancel` mode (`GAP_RESOLUTION_STRATEGY=cancel`) it sends a zero-value, empty-calldata self-transfer instead. Note that `replace` re-executes the original trade; use `cancel` where a late fill is unacceptable.
 
 ### INV-04: Circuit Breaker Trip Rate
 
@@ -222,7 +226,7 @@ $$
 \text{Failures}_{\Delta t} \le K_{\text{Threshold}} \quad \lor \quad \text{TRIP\_SAFE\_MODE}
 $$
 
-If consecutive failures exceed the threshold (default: 10 within 5 minutes), Sentinel enters safe standby mode and dispatches alerts to Telegram / Discord webhooks.
+If failures within the rolling window reach the threshold (default: 10 within 5 minutes), Sentinel pauses resolution, rejects transactions submitted through the proxy, and sends webhook alerts. With auto-recovery on, the breaker closes again after the cooldown.
 
 ---
 
@@ -231,31 +235,38 @@ If consecutive failures exceed the threshold (default: 10 within 5 minutes), Sen
 ```
 Sentinel/
 ├── app/                        # Next.js 14 App Router Command Center
-│   ├── api/                    # Server-side proxy endpoints
-│   │   ├── health/             # Uptime, block sync, and node health
-│   │   ├── metrics/            # Resolution metrics and latency counters
-│   │   ├── settings/           # Boundary-validated daemon settings
-│   │   ├── state/              # Live wallet nonce and queue state
-│   │   └── stream/             # Real-time mempool telemetry feed
-│   ├── dapp/                   # Institutional trading command dashboard
-│   ├── docs/                   # GitBook-style dark mode technical documentation (14 articles)
-│   ├── security/               # 3-layer security model, checklist, invariants
-│   ├── simulate/               # Interactive adversarial mempool simulator
-│   ├── layout.tsx              # Root layout with Pacifico & Cinzel typography
-│   └── page.tsx                # Interactive landing experience with solid black aesthetic
-├── src/                        # Sentinel Autonomous Core Engine
-│   ├── agent.ts                # AI diagnosis and prompt reasoning
-│   ├── circuitBreaker.ts       # Trip-wire halt and webhook alerts
-│   ├── cli.ts                  # Autonomous daemon entrypoint
-│   ├── config.ts               # Environment validation and boundary clamps
-│   ├── evictionMonitor.ts      # Sliding window mempool eviction detector
-│   ├── interceptor.ts          # Drop-in SDK proxy for trading algorithms
-│   ├── logger.ts               # Append-only JSONL receipts with secret redaction
-│   ├── nonceTracker.ts         # Dual-tag (pending vs latest) gap detection
-│   └── resolver.ts             # Atomic replacement dispatcher with receipt checks
-├── lib/                        # Viem network and contract clients
-├── next.config.mjs             # OWASP HTTP security header configuration
-└── tailwind.config.ts          # Renaissance-inspired Void & Aurum design tokens
+│   ├── api/                    # Server-side endpoints
+│   │   ├── audit/              # Admin-only audit log download
+│   │   ├── control/            # Halt / resume / reset breaker (admin)
+│   │   ├── health/             # Uptime, block sync, RPC health
+│   │   ├── ledger/             # Recent audit events for a wallet
+│   │   ├── metrics/            # Metrics computed from the audit log
+│   │   ├── settings/           # Validated, authenticated settings
+│   │   ├── state/              # Live wallet nonce state + audit counters
+│   │   └── stream/             # SSE telemetry feed
+│   ├── dapp/                   # Command dashboard
+│   ├── docs/                   # Technical documentation
+│   ├── security/               # Security model and invariants
+│   └── simulate/               # Interactive (simulated) mempool playground
+├── src/                        # Sentinel core engine
+│   ├── agent.ts                # LLM diagnosis with a real tool-use loop
+│   ├── alerts.ts               # Webhook alerts (toggles + cooldown)
+│   ├── circuitBreaker.ts       # Failure window, trip, cooldown recovery
+│   ├── cli.ts                  # One-shot / watch entrypoint
+│   ├── config.ts               # Validated configuration (env > settings.json)
+│   ├── daemon.ts               # Watchdog + RPC proxy in one process
+│   ├── evictionMonitor.ts      # Eviction detection, resubmission cap/backoff
+│   ├── interceptor.ts          # Submission gateway for trading bots
+│   ├── logger.ts               # JSONL audit log, redaction, rotation
+│   ├── nonceTracker.ts         # Dual-tag gap detection + shared tx store
+│   ├── proxy.ts / proxyServer.ts  # Hardened JSON-RPC proxy
+│   ├── resolver.ts             # Fee-bumped replacement dispatcher
+│   ├── runtime.ts              # Wires all components together
+│   ├── state.ts                # File-backed state shared across processes
+│   └── watcher.ts              # Watch loop
+├── test/                       # node:test suite
+├── lib/                        # Viem clients, server-side helpers
+└── next.config.mjs             # Security headers incl. CSP
 ```
 
 ---
@@ -291,45 +302,51 @@ cp .env.example .env
 ```
 
 ```env
-# Required for telemetry and nonce tracking
+# Required
 WALLET_ADDRESS=0x742d35Cc6634C0532925a3b844Bc454e4438BaEa
-RPC_URL=https://sepolia.base.org
+CHAIN=sepolia                    # or mainnet
 
-# Required for autonomous healing (optional for Dry-Run mode)
+# Required for autonomous healing; leave empty for read-only mode
 PRIVATE_KEY=0x...
 
-# Optional AI diagnosis (falls back to deterministic floor if omitted)
+# Optional AI diagnosis (falls back to the minimum safe bump if omitted)
 ANTHROPIC_API_KEY=sk-ant-...
 
 # Safety bounds
 DRY_RUN=false
 MIN_GAS_BUMP_PCT=10
 MAX_GAS_BUMP_PCT=50
+MAX_GAS_PRICE_CAP_GWEI=100
 CIRCUIT_BREAKER_THRESHOLD=10
 ```
 
+See `.env.example` for every option. Invalid values (non-numeric numbers, a malformed `PRIVATE_KEY`, `MIN_GAS_BUMP_PCT` above `MAX_GAS_BUMP_PCT`) are startup errors rather than silent defaults.
+
 ### 4. Two Integration Options
 
-#### Option A: In-Line Bot Interceptor (Drop-in SDK)
-Wrap your trading bot's transaction broadcast. If a nonce gap exists behind your transaction, Sentinel heals it before passing your order through:
-```typescript
-import { TransactionInterceptor } from "sentinel";
+#### Option A: JSON-RPC Proxy (no code changes)
+Point your bot's RPC URL at Sentinel. Everything except `eth_sendRawTransaction` is forwarded untouched; sends go through the interceptor.
+```bash
+npm run build:cli && node dist/proxy.js     # listens on 127.0.0.1:8545
+```
+The proxy binds to loopback, sends no CORS headers, rejects browser-origin and non-JSON requests, caps request bodies at 1 MiB and supports `PROXY_AUTH_TOKEN` (clients send `Authorization: Bearer <token>`). If you bind it elsewhere (`PROXY_HOST=0.0.0.0`) **set a token**. Only EIP-1559 (type 2) transactions from `WALLET_ADDRESS` are tracked; others pass through.
 
+#### Option B: In-Line Library
+```typescript
+import { buildSentinel } from "sentinel";
+
+const { interceptor } = buildSentinel();
 // Replace client.sendRawTransaction(signedTx)
 const txHash = await interceptor.submitTransaction(signedTx);
 ```
 
-#### Option B: Headless Watchdog Daemon (CLI)
-Keep your trading bot 100% untouched. Run Sentinel in a background container or tmux session:
+#### Option C: Headless Watchdog Daemon (CLI)
+Run Sentinel next to your bot. The watchdog can only repair transactions it saw submitted, so route sends through Option A or B (they share state via `STATE_FILE`).
 ```bash
-# Single scan
-npm run cli
-
-# Continuous autonomous sub-second loop
-npm run cli:watch
-
-# Standalone compiled binary
-npm run build:cli && node dist/cli.js
+npm run cli          # single scan
+npm run cli:watch    # continuous loop
+npm run daemon       # watchdog + RPC proxy in one process
+npm run build:cli && node dist/daemon.js
 ```
 
 ### 5. Running the Web Command Center
@@ -338,7 +355,7 @@ npm run build:cli && node dist/cli.js
 npm run build
 npm start
 ```
-The interface will be live at `http://localhost:3000`.
+The interface will be live at `http://localhost:3000`. Metrics, ledger and counters are computed from the real `sentinel.log`, so they stay empty until the daemon has recorded events. Changing settings or controlling the daemon from the dashboard requires `SETTINGS_ADMIN_TOKEN` (settings are read-only in production without it); the daemon reads `settings.json` at startup, with environment variables taking precedence.
 
 ### 6. Docker Container Deployment
 
@@ -351,7 +368,7 @@ docker compose up -d
 # View live daemon and proxy logs:
 docker compose logs -f
 
-# Run only the headless Watchdog loop (e.g. if Web UI is on Vercel):
+# Run only the headless Watchdog loop (shares ./sentinel-state.json via the volume):
 docker compose --profile split up sentinel-watchdog -d
 
 # Run only the JSON-RPC Proxy on port 8545:
@@ -364,6 +381,17 @@ docker compose --profile split up sentinel-proxy -d
 
 | Endpoint | Method | Access | Purpose |
 | :--- | :--- | :--- | :--- |
+| `/api/health` | GET | Public | RPC connectivity, block height, uptime (503 when the RPC is unreachable). |
+| `/api/metrics` | GET | Public | Counts, success rate and latency computed from the audit log (`?format=prometheus`). |
+| `/api/state` | GET | Public | Live wallet nonces plus audit-log counters and breaker / halt flags. |
+| `/api/ledger` | GET | Public | Recent audit events for a wallet. |
+| `/api/stream` | GET | Public | Server-sent events with real block / nonce telemetry. |
+| `/api/settings` | GET | Public (webhook URLs masked) | Read settings and live status. |
+| `/api/settings` | POST | Admin token | Validated save / reset / webhook test. |
+| `/api/control` | POST | Admin token | `halt`, `resume`, `reset_breaker` (needs a shared `STATE_FILE`). |
+| `/api/audit` | GET | Admin token | Download the audit log. |
+
+--- | :--- | :--- | :--- |
 | `/api/health` | GET | Public | Node connectivity, block height, uptime, and latency checks. |
 | `/api/metrics` | GET | Public | Aggregate resolution count, gas savings, and failure counts. |
 | `/api/state` | GET | Internal | Current wallet mined vs pending nonce states. |
@@ -374,15 +402,21 @@ docker compose --profile split up sentinel-proxy -d
 
 ## Verification & Testing
 
-Sentinel includes end-to-end simulation suites:
-
 ```bash
-# Execute unit and invariant test suites
+# Unit, integration and invariant tests (node:test; no network needed)
 npm test
 
-# Run dry-run verification against live Base Sepolia RPC
-DRY_RUN=true npm run dev
+# Type-check the app and the daemon
+npm run typecheck
+
+# Clamp benchmark against adversarial model outputs
+npm run benchmark
+
+# Detect and diagnose real gaps against the live RPC without ever broadcasting
+DRY_RUN=true npm run cli:watch
 ```
+
+CI runs the type-checks, tests and a production build on every push.
 
 ---
 

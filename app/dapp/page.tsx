@@ -51,105 +51,82 @@ interface LedgerEntry {
   txDetails?: TxDetails;
 }
 
-const initialMockEntries: LedgerEntry[] = [
-  {
-    id: "init-1",
-    time: "12:34:18",
-    tag: "gap_resolved",
-    text: "0x8f2a9c1e… to 0x3d1c4b8f… (24% bump)",
-    extra: "success",
-    txDetails: {
-      nonce: 127,
-      originalHash: "0x8f2a9c1e7d4a5b6c3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d",
-      replacementHash: "0x3d1c4b8f9e0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c",
-      to: "0x388C818CA8B9251b393131C08a73683246A11274",
-      valueEth: "0.1500",
-      originalGasGwei: "0.0010",
-      replacementGasGwei: "0.00124",
-      bumpPct: 24,
-      cause: "underpriced: Priority fee sits well below current network conditions",
-      durationSec: 3.2,
-      status: "confirmed",
-      submittedTime: "12:34:14",
-      confirmedTime: "12:34:18",
-      blockNumber: 47023466,
-    },
-  },
-  {
-    id: "init-2",
-    time: "12:34:15",
-    tag: "diagnosis",
-    text: "underpriced: recommending a 24% bump (clamped)",
-    txDetails: {
-      nonce: 127,
-      originalHash: "0x8f2a9c1e7d4a5b6c3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d",
-      to: "0x388C818CA8B9251b393131C08a73683246A11274",
-      valueEth: "0.1500",
-      originalGasGwei: "0.0010",
-      bumpPct: 24,
-      cause: "underpriced: Priority fee sits well below current network conditions",
-      status: "resubmitted",
-      submittedTime: "12:34:14",
-    },
-  },
-  {
-    id: "init-3",
-    time: "12:34:14",
-    tag: "gap_detected",
-    text: "nonce 127 stalled behind queued transaction",
-    txDetails: {
-      nonce: 127,
-      originalHash: "0x8f2a9c1e7d4a5b6c3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d",
-      to: "0x388C818CA8B9251b393131C08a73683246A11274",
-      valueEth: "0.1500",
-      originalGasGwei: "0.0010",
-      cause: "underpriced: Priority fee sits well below current network conditions",
-      status: "gap",
-      submittedTime: "12:34:14",
-    },
-  },
-  {
-    id: "init-4",
-    time: "12:33:50",
-    tag: "gap_resolved",
-    text: "nonce 126 confirmed on schedule",
-    extra: "success",
-    txDetails: {
-      nonce: 126,
-      originalHash: "0x5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c",
-      to: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
-      valueEth: "0.0250",
-      originalGasGwei: "0.0012",
-      status: "confirmed",
-      submittedTime: "12:33:48",
-      confirmedTime: "12:33:50",
-      blockNumber: 47023464,
-    },
-  },
-  {
-    id: "init-5",
-    time: "12:33:12",
-    tag: "gap_resolved",
-    text: "0x1e49c7a2… to 0x7b5a8f3d… (18% bump)",
-    extra: "success",
-    txDetails: {
-      nonce: 125,
-      originalHash: "0x1e49c7a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0",
-      replacementHash: "0x7b5a8f3d2e1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a",
-      to: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
-      valueEth: "0.5000",
-      originalGasGwei: "0.0009",
-      replacementGasGwei: "0.00106",
-      bumpPct: 18,
-      cause: "cache_desync: Pending-nonce cache briefly out of step with confirmed chain state",
-      durationSec: 2.8,
-      status: "confirmed",
-      submittedTime: "12:33:08",
-      confirmedTime: "12:33:12",
-      blockNumber: 47023458,
-    },
-  },
-];
+/** Real audit-log record as served by /api/ledger. */
+interface AuditRecord {
+  action: string;
+  timestamp: string;
+  [key: string]: unknown;
+}
+
+const weiToGwei = (wei: unknown): string | undefined => {
+  try {
+    if (wei === undefined || wei === null) return undefined;
+    return (Number(BigInt(String(wei))) / 1e9).toFixed(5);
+  } catch {
+    return undefined;
+  }
+};
+
+const shortHash = (h: unknown) => (typeof h === "string" && h.length > 12 ? `${h.slice(0, 8)}…` : String(h ?? "-"));
+
+/** Convert one audit-log line into a ledger row (or null for events the ledger does not show). */
+function auditToLedger(e: AuditRecord): LedgerEntry | null {
+  const d = new Date(e.timestamp);
+  const pad = (n: number) => (n < 10 ? "0" + n : "" + n);
+  const time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const nonce = Number(e.gapNonce ?? e.nonce ?? 0);
+  const id = `${e.timestamp}-${e.action}-${nonce}`;
+  const originalHash = String(e.originalTxHash ?? e.stuckTxHash ?? e.txHash ?? "");
+
+  switch (e.action) {
+    case "gap_detected":
+      return {
+        id, time, tag: "gap_detected",
+        text: `nonce ${nonce} stalled behind queued transaction`,
+        txDetails: { nonce, originalHash, to: "", valueEth: "", originalGasGwei: "", status: "gap", submittedTime: time },
+      };
+    case "diagnosis":
+      return {
+        id, time, tag: "diagnosis",
+        text: e.error
+          ? "diagnosis unavailable: minimum safe bump used"
+          : `${String(e.category)}: recommending a ${String(e.rawRequestedBumpPct)}% bump${e.wasClamped ? ` (clamped to ${String(e.clampedBumpPct)}%)` : ""}`,
+        txDetails: { nonce, originalHash, to: "", valueEth: "", originalGasGwei: "", bumpPct: Number(e.clampedBumpPct ?? 0) || undefined, cause: String(e.explanation ?? ""), status: "resubmitted", submittedTime: time },
+      };
+    case "gap_resolved": {
+      const confirmedAlready = e.result === "already_confirmed";
+      return {
+        id, time, tag: "gap_resolved",
+        text: confirmedAlready
+          ? `nonce ${nonce} was already confirmed`
+          : `${shortHash(e.originalTxHash)} to ${shortHash(e.newTxHash)} (${String(e.bumpPct)}% bump${e.result === "dry_run" ? ", dry run" : ""})`,
+        extra: confirmedAlready ? "success" : e.result === "dry_run" ? "dry run" : "success",
+        txDetails: {
+          nonce, originalHash,
+          replacementHash: e.newTxHash ? String(e.newTxHash) : undefined,
+          to: "", valueEth: "",
+          originalGasGwei: weiToGwei(e.oldMaxPriorityFeePerGas) ?? "",
+          replacementGasGwei: weiToGwei(e.newMaxPriorityFeePerGas),
+          bumpPct: typeof e.bumpPct === "number" ? e.bumpPct : undefined,
+          status: confirmedAlready ? "confirmed" : "resubmitted",
+          submittedTime: time,
+        },
+      };
+    }
+    case "gap_resolve_failed":
+      return { id, time, tag: "gap_detected", text: `resolution failed for nonce ${nonce}: ${String(e.reason ?? "unknown")}`, extra: "failed" };
+    case "eviction_detected":
+      return { id, time, tag: "gap_detected", text: `nonce ${nonce} dropped from the mempool`, extra: "eviction" };
+    case "eviction_resolved":
+      return { id, time, tag: "gap_resolved", text: `nonce ${nonce} resubmitted after eviction`, extra: "success" };
+    case "circuit_breaker_tripped":
+      return { id, time, tag: "circuit_breaker", text: "threshold exceeded: halting resolution", extra: "tripped" };
+    case "circuit_breaker_reset":
+      return { id, time, tag: "circuit_breaker", text: "circuit breaker reset", extra: "reset" };
+    default:
+      return null;
+  }
+}
 
 interface ToastItem {
   id: string;
@@ -360,11 +337,25 @@ export default function DappPage() {
 
   
 
+  /** Replace the ledger with the real audit-log events for this wallet (newest first). */
+  const loadLedger = async (target: string) => {
+    try {
+      const res = await fetch(`/api/ledger?address=${target}`);
+      if (!res.ok) return;
+      const { entries } = (await res.json()) as { entries: AuditRecord[] };
+      const rows = entries.map(auditToLedger).filter((r): r is LedgerEntry => r !== null).reverse();
+      setAllEntries(rows);
+    } catch {
+      // keep whatever is on screen
+    }
+  };
+
   const connectAccount = async (target: string) => {
     setWalletAddress(target);
     setConnected(true);
     setConnecting(false);
-    setAllEntries(initialMockEntries);
+    setAllEntries([]);
+    loadLedger(target);
 
     try {
       const res = await fetch(`/api/state?address=${target}`);
@@ -382,7 +373,6 @@ export default function DappPage() {
     }
 
     pushToast("Connected", `Watching ${shortAddr(target)} on Base Sepolia.`);
-    addLedgerRow("gap_resolved", `Sentinel started: watching wallet ${shortAddr(target)}`);
   };
 
   // Initial on-chain state sync & account check
@@ -447,199 +437,57 @@ export default function DappPage() {
     pushToast("Disconnected", "Session ended. Connect wallet to resume mempool monitoring.");
   };
 
-  // Live feed simulation loop and onchain sync
+  // Live data: real SSE telemetry + the real audit ledger and breaker state, polled while connected
   useEffect(() => {
-    if (!connected) return;
+    if (!connected || !walletAddress) return;
 
-    // Real SSE Live Stream
     let eventSource: EventSource | null = null;
     try {
       eventSource = new EventSource(`/api/stream?address=${walletAddress}`);
       eventSource.addEventListener("telemetry", (e) => {
+        if (isFeedPaused) return;
         try {
           const data = JSON.parse(e.data);
           if (data.block) setCurrentBlock(data.block);
+          if (typeof data.nonceExpected === "number") setLatest(data.nonceExpected);
+          if (typeof data.nonceReceived === "number") setPending(data.nonceReceived);
+          if (typeof data.gapSize === "number") {
+            setHasGap(data.gapSize > 0);
+            setGapNonce(data.gapSize > 0 ? data.nonceExpected : null);
+          }
         } catch {
-          // ignore
+          // ignore malformed event
         }
       });
     } catch {
-      // fallback
+      // streaming unavailable; polling below still works
     }
 
-    let timeoutId: NodeJS.Timeout;
-    const categories = [
-      { cat: "underpriced", text: "Priority fee sits well below current network conditions." },
-      { cat: "cache_desync", text: "The pending-nonce cache looks briefly out of step with the confirmed chain state." },
-      { cat: "eviction", text: "This transaction dropped from the mempool rather than merely stalling." },
-    ];
-
-    const runGapCycle = () => {
+    const poll = async () => {
       if (isFeedPaused) return;
-      const origHash = rndFullHash();
-      const replHash = rndFullHash();
-
-      setPending((prev) => {
-        const nextPending = prev + 1;
-        setFlashPending(true);
-        setTimeout(() => setFlashPending(false), 500);
-        return nextPending;
-      });
-
-      setLatest((currLatest) => {
-        const gapNum = currLatest;
-        setHasGap(true);
-        setGapNonce(gapNum);
-        const subTime = timeNow();
-        addLedgerRow("gap_detected", `nonce ${gapNum} stalled behind queued transaction`, "", {
-          nonce: gapNum,
-          originalHash: origHash,
-          to: "0x388C818CA8B9251b393131C08a73683246A11274",
-          valueEth: "0.1500",
-          originalGasGwei: "0.0010",
-          status: "gap",
-          submittedTime: subTime,
-        });
-
-        setTimeout(() => {
-          if (isFeedPaused) return;
-          const c = categories[Math.floor(Math.random() * categories.length)];
-          const requested = Math.round(15 + Math.random() * 45);
-          const clamped = Math.max(10, Math.min(50, requested));
-
-          setDiagCategory(c.cat.replace("_", " "));
-          setDiagExplain(c.text);
-          setGaugeRequested(requested);
-          setGaugeClamped(clamped);
-          setReqReadout(`requested ${requested}%`);
-          setClampReadout(`clamped ${clamped}%`);
-
-          addLedgerRow(
-            "diagnosis",
-            `${c.cat}: recommending a ${requested}% bump${requested !== clamped ? ` (clamped to ${clamped}%)` : ""}`,
-            "",
-            {
-              nonce: gapNum,
-              originalHash: origHash,
-              to: "0x388C818CA8B9251b393131C08a73683246A11274",
-              valueEth: "0.1500",
-              originalGasGwei: "0.0010",
-              bumpPct: clamped,
-              cause: `${c.cat}: ${c.text}`,
-              status: "resubmitted",
-              submittedTime: subTime,
-            }
-          );
-
-          setTimeout(() => {
-            if (isFeedPaused) return;
-            const willFail = Math.random() < 0.1;
-            if (willFail) {
-              setFailuresInWindow((f) => Math.min(10, f + 1));
-              addLedgerRow("gap_detected", `resubmission failed for nonce ${gapNum}`, "retrying");
-              setTimeout(() => {
-                if (isFeedPaused) return;
-                setLatest((l) => l + 1);
-                setFlashLatest(true);
-                setTimeout(() => setFlashLatest(false), 500);
-                setHasGap(false);
-                setGapNonce(null);
-                addLedgerRow("gap_resolved", `0x${origHash.slice(2, 8)}… to 0x${replHash.slice(2, 8)}…`, "success", {
-                  nonce: gapNum,
-                  originalHash: origHash,
-                  replacementHash: replHash,
-                  to: "0x388C818CA8B9251b393131C08a73683246A11274",
-                  valueEth: "0.1500",
-                  originalGasGwei: "0.0010",
-                  replacementGasGwei: (0.001 * (1 + clamped / 100)).toFixed(5),
-                  bumpPct: clamped,
-                  cause: `${c.cat}: ${c.text}`,
-                  durationSec: 3.4,
-                  status: "confirmed",
-                  submittedTime: subTime,
-                  confirmedTime: timeNow(),
-                  blockNumber: currentBlock,
-                });
-              }, 1400);
-            } else {
-              setLatest((l) => l + 1);
-              setFlashLatest(true);
-              setTimeout(() => setFlashLatest(false), 500);
-              setHasGap(false);
-              setGapNonce(null);
-              addLedgerRow("gap_resolved", `0x${origHash.slice(2, 8)}… to 0x${replHash.slice(2, 8)}…`, "success", {
-                nonce: gapNum,
-                originalHash: origHash,
-                replacementHash: replHash,
-                to: "0x388C818CA8B9251b393131C08a73683246A11274",
-                valueEth: "0.1500",
-                originalGasGwei: "0.0010",
-                replacementGasGwei: (0.001 * (1 + clamped / 100)).toFixed(5),
-                bumpPct: clamped,
-                cause: `${c.cat}: ${c.text}`,
-                durationSec: 3.4,
-                status: "confirmed",
-                submittedTime: subTime,
-                confirmedTime: timeNow(),
-                blockNumber: currentBlock,
-              });
-            }
-          }, 1600);
-        }, 1000);
-
-        return currLatest;
-      });
-    };
-
-    const ordinaryTick = () => {
-      if (isFeedPaused) return;
-      const ordHash = rndFullHash();
-      const subTime = timeNow();
-      setPending((p) => {
-        setFlashPending(true);
-        setTimeout(() => setFlashPending(false), 500);
-        return p + 1;
-      });
-      setLatest((l) => {
-        const nextL = l + 1;
-        setFlashLatest(true);
-        setTimeout(() => setFlashLatest(false), 500);
-        addLedgerRow("gap_resolved", `nonce ${nextL} confirmed on schedule`, "success", {
-          nonce: nextL,
-          originalHash: ordHash,
-          to: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
-          valueEth: "0.0500",
-          originalGasGwei: "0.0012",
-          status: "confirmed",
-          submittedTime: subTime,
-          confirmedTime: timeNow(),
-          blockNumber: currentBlock,
-        });
-        return nextL;
-      });
-    };
-
-    const loop = () => {
-      if (!isFeedPaused) {
-        if (Math.random() < 0.35) runGapCycle();
-        else ordinaryTick();
+      await loadLedger(walletAddress);
+      try {
+        const res = await fetch(`/api/state?address=${walletAddress}`);
+        if (res.ok) {
+          const st = await res.json();
+          setTripped(st.circuitBreakerStatus === "TRIPPED");
+          // The breaker card shows failures on a 0-10 scale; derive it from the real pressure percentage.
+          setFailuresInWindow(Math.min(10, Math.round(((st.breakerTripPct ?? 0) / 100) * 10)));
+          const acct = st.monitoredAccounts?.[0];
+          if (acct?.balanceEth) setBalanceEth(acct.balanceEth);
+        }
+      } catch {
+        // transient; try again next tick
       }
-      timeoutId = setTimeout(loop, 3200 + Math.random() * 2600);
     };
 
-    timeoutId = setTimeout(loop, 2500);
-    return () => clearTimeout(timeoutId);
-  }, [connected, isFeedPaused, currentBlock]);
-
-  // Circuit breaker watcher
-  useEffect(() => {
-    if (failuresInWindow >= 10 && !tripped) {
-      setTripped(true);
-      addLedgerRow("circuit_breaker", "threshold exceeded: halting resolution", "tripped");
-    } else if (failuresInWindow < 10 && tripped) {
-      setTripped(false);
-    }
-  }, [failuresInWindow, tripped]);
+    const id = setInterval(poll, 5000);
+    return () => {
+      eventSource?.close();
+      clearInterval(id);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected, walletAddress, isFeedPaused]);
 
   // Simulation Playground Execution
   const runSimulation = () => {

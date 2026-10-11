@@ -4,53 +4,52 @@ import {
   formatEther as viemFormatEther,
   formatGwei as viemFormatGwei,
 } from "viem";
-import { baseSepolia } from "viem/chains";
+import { base, baseSepolia } from "viem/chains";
+
+/** Dashboard network: NEXT_PUBLIC_CHAIN (build-time) or CHAIN, defaulting to Base Sepolia. */
+export const isMainnet = (process.env.NEXT_PUBLIC_CHAIN ?? process.env.CHAIN ?? "sepolia").toLowerCase() === "mainnet";
+
+export const activeChain = isMainnet ? base : baseSepolia;
+export const chainLabel = isMainnet ? "Base" : "Base Sepolia";
+export const explorerBase = isMainnet ? "https://basescan.org" : "https://sepolia.basescan.org";
 
 export const defaultRpcUrl =
   process.env.NEXT_PUBLIC_RPC_URL ||
   process.env.RPC_URL ||
-  "https://sepolia.base.org";
+  (isMainnet ? "https://mainnet.base.org" : "https://sepolia.base.org");
 
 export const publicClient = createPublicClient({
-  chain: baseSepolia,
+  chain: activeChain,
   transport: http(defaultRpcUrl),
 });
 
+export const ADDRESS_RE = /^0x[a-fA-F0-9]{40}$/;
+
+/**
+ * Reads the account's nonces, balance, block and gas price. Errors propagate
+ * so callers can report an RPC failure instead of showing fabricated zeros.
+ */
 export async function fetchOnChainAccountState(address: `0x${string}`) {
-  try {
-    const [latestNonce, pendingNonce, balance, blockNumber, gasPrice] =
-      await Promise.all([
-        publicClient.getTransactionCount({ address, blockTag: "latest" }).catch(() => 0),
-        publicClient.getTransactionCount({ address, blockTag: "pending" }).catch(() => 0),
-        publicClient.getBalance({ address }).catch(() => 0n),
-        publicClient.getBlockNumber().catch(() => 0n),
-        publicClient.getGasPrice().catch(() => 0n),
-      ]);
+  const [latestNonce, pendingNonce, balance, blockNumber, gasPrice] = await Promise.all([
+    publicClient.getTransactionCount({ address, blockTag: "latest" }),
+    publicClient.getTransactionCount({ address, blockTag: "pending" }),
+    publicClient.getBalance({ address }),
+    publicClient.getBlockNumber(),
+    publicClient.getGasPrice(),
+  ]);
 
-    const latest = Number(latestNonce);
-    const pending = Number(pendingNonce);
-    const gap = Math.max(0, pending - latest);
+  const latest = Number(latestNonce);
+  const pending = Number(pendingNonce);
 
-    return {
-      latestNonce: latest,
-      pendingNonce: pending,
-      gap,
-      balanceWei: balance.toString(),
-      balanceEth: Number(viemFormatEther(balance)).toFixed(4),
-      currentBlock: Number(blockNumber),
-      gasPriceGwei: formatGwei(gasPrice),
-    };
-  } catch {
-    return {
-      latestNonce: 0,
-      pendingNonce: 0,
-      gap: 0,
-      balanceWei: "0",
-      balanceEth: "0.0000",
-      currentBlock: 0,
-      gasPriceGwei: "0.001",
-    };
-  }
+  return {
+    latestNonce: latest,
+    pendingNonce: pending,
+    gap: Math.max(0, pending - latest),
+    balanceWei: balance.toString(),
+    balanceEth: Number(viemFormatEther(balance)).toFixed(4),
+    currentBlock: Number(blockNumber),
+    gasPriceGwei: formatGwei(gasPrice),
+  };
 }
 
 export function truncateAddress(address: string, chars = 4): string {
@@ -84,13 +83,13 @@ export function formatEther(wei: bigint | string | number): string {
 }
 
 export function getBaseScanTxUrl(hash: string): string {
-  return `https://sepolia.basescan.org/tx/${hash}`;
+  return `${explorerBase}/tx/${hash}`;
 }
 
 export function getBaseScanAddressUrl(address: string): string {
-  return `https://sepolia.basescan.org/address/${address}`;
+  return `${explorerBase}/address/${address}`;
 }
 
 export function getBaseScanBlockUrl(blockNumber: number | string): string {
-  return `https://sepolia.basescan.org/block/${blockNumber}`;
+  return `${explorerBase}/block/${blockNumber}`;
 }

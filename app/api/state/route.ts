@@ -1,54 +1,64 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchOnChainAccountState } from "@/lib/viem";
-import fs from "fs";
-import path from "path";
+import { ADDRESS_RE, fetchOnChainAccountState, publicClient } from "@/lib/viem";
+import { readSettings } from "@/lib/server/settings";
+import { breakerPressurePct, computeMetrics, readAuditEntries } from "@/lib/server/audit";
+import { readControlState } from "@/lib/server/control";
 
 export const dynamic = "force-dynamic";
 
-function getStoredSettings() {
-  try {
-    const filePath = path.join(process.cwd(), "settings.json");
-    if (fs.existsSync(filePath)) {
-      return JSON.parse(fs.readFileSync(filePath, "utf-8"));
-    }
-  } catch {
-    // fallback
-  }
-  return {
-    system: {
-      walletAddress: process.env.WALLET_ADDRESS || "0x859901345112F0812b06aF1858E623414E472D72",
-      privateKeyLoaded: true,
-      rpcUrl: "https://sepolia.base.org",
-      chainId: 84532,
-    },
-    circuitBreaker: {
-      enabled: true,
-    },
-  };
-}
-
+/**
+ * Live account state from the chain plus aggregates computed from the real
+ * audit log (sentinel.log). Nothing here is simulated: if the daemon has not
+ * written any events yet the counters are simply zero / null.
+ */
 export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const settings = readSettings();
+  const address = searchParams.get("address") || settings.system.walletAddress || "";
+
+  const entries = readAuditEntries();
+  const metrics = computeMetrics(entries);
+  // The shared state file is authoritative for the live breaker/halt flags;
+  // fall back to what the audit log implies when it is unavailable.
+  const control = readControlState();
+  const breakerTripped = control.available ? control.breakerTripped : metrics.circuitBreakerStatus === "TRIPPED";
+  const base = {
+    totalGapsResolved: metrics.totalGapsResolved,
+    avgResolutionMs: metrics.avgResolutionTimeMs,
+    halted: control.halted,
+    circuitBreakerStatus: !settings.circuitBreaker.enabled ? "DISABLED" : breakerTripped ? "TRIPPED" : "ARMED",
+    breakerTripPct: breakerPressurePct(entries, settings.circuitBreaker.failureWindow, settings.circuitBreaker.failureThreshold),
+  };
+
+  // No wallet configured/connected: report network state only.
+  if (!address) {
+    try {
+      return NextResponse.json({
+        ...base,
+        currentBlock: Number(await publicClient.getBlockNumber()),
+        latestNonce: 0,
+        pendingNonce: 0,
+        systemStatus: "OPERATIONAL",
+        monitoredAccounts: [],
+      });
+    } catch (error) {
+      return NextResponse.json({ error: "Failed to fetch on-chain state", details: String(error) }, { status: 502 });
+    }
+  }
+
+  if (!ADDRESS_RE.test(address)) {
+    return NextResponse.json({ error: "Invalid address" }, { status: 400 });
+  }
+
   try {
-    const { searchParams } = new URL(req.url);
-    const settings = getStoredSettings();
-    const address = (searchParams.get("address") ||
-      settings.system?.walletAddress ||
-      process.env.WALLET_ADDRESS ||
-      "0x859901345112F0812b06aF1858E623414E472D72") as `0x${string}`;
-
-    const onchain = await fetchOnChainAccountState(address);
-
-    const state = {
+    const onchain = await fetchOnChainAccountState(address as `0x${string}`);
+    return NextResponse.json({
+      ...base,
       currentBlock: onchain.currentBlock,
       latestNonce: onchain.latestNonce,
       pendingNonce: onchain.pendingNonce,
-      totalGapsResolved: 148,
-      activeKeystores: 1,
-      avgResolutionMs: 384,
-      systemStatus: onchain.gap > 0 ? "STALLED" : "OPERATIONAL",
-      circuitBreakerStatus: settings.circuitBreaker?.enabled ? "ARMED" : "DISABLED",
-      breakerTripPct: 0.0,
       gasPriceGwei: onchain.gasPriceGwei,
+      systemStatus: onchain.gap > 0 ? "STALLED" : "OPERATIONAL",
       monitoredAccounts: [
         {
           address,
@@ -61,62 +71,8 @@ export async function GET(req: NextRequest) {
           balanceEth: onchain.balanceEth,
         },
       ],
-    };
-
-    return NextResponse.json(state);
+    });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch on-chain state", details: String(error) },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const settings = getStoredSettings();
-    const address = (body.address ||
-      settings.system?.walletAddress ||
-      process.env.WALLET_ADDRESS ||
-      "0x859901345112F0812b06aF1858E623414E472D72") as `0x${string}`;
-
-    const onchain = await fetchOnChainAccountState(address);
-
-    if (body.action === "inject_gap") {
-      const simulatedPending = onchain.latestNonce + 1;
-      return NextResponse.json({
-        success: true,
-        message: `Simulated stalled gap at Nonce #${simulatedPending}`,
-        state: {
-          currentBlock: onchain.currentBlock,
-          latestNonce: onchain.latestNonce,
-          pendingNonce: simulatedPending,
-          gap: 1,
-          systemStatus: "HEALING",
-        },
-      });
-    }
-
-    if (body.action === "resolve_gap") {
-      return NextResponse.json({
-        success: true,
-        message: "Simulated gap resolved with replacement transaction",
-        state: {
-          currentBlock: onchain.currentBlock,
-          latestNonce: onchain.latestNonce + 1,
-          pendingNonce: onchain.latestNonce + 1,
-          gap: 0,
-          systemStatus: "OPERATIONAL",
-        },
-      });
-    }
-
-    return NextResponse.json(
-      { success: false, message: "Unknown action" },
-      { status: 400 }
-    );
-  } catch {
-    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    return NextResponse.json({ error: "Failed to fetch on-chain state", details: String(error) }, { status: 502 });
   }
 }
