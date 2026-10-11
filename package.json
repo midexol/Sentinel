@@ -12,10 +12,11 @@
     "cli": "tsx src/cli.ts",
     "cli:watch": "tsx src/cli.ts watch",
     "demo": "tsx scripts/demo-trigger.ts",
-    "test": "tsx test/sentinel.test.ts",
+    "test": "node --import tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.cli.json",
     "benchmark": "tsx scripts/benchmark-agent.ts",
     "proxy": "tsx src/proxy.ts",
-    "serve": "node scripts/server.js"
+    "daemon": "tsx src/daemon.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.103.1",

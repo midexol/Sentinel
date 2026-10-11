@@ -1,6 +1,7 @@
 import { createPublicClient, http, type PublicClient } from "viem";
 import { baseSepolia, base } from "viem/chains";
 import type { SentinelConfig } from "./config.js";
+import { StateFile, type PersistedTx } from "./state.js";
 
 /**
  * A transaction the Sentinel knows it sent (or was told about) and is
@@ -31,37 +32,98 @@ export interface GapInfo {
   stuckTx: TrackedTx | null;
 }
 
-/** In-memory record of transactions this Sentinel instance has submitted. */
+/** A recent Sentinel event, shared with the diagnosis prompt. */
+export interface RecentEvent {
+  timestamp: number;
+  kind: "gap" | "eviction" | "resolved" | "failed";
+}
+
+/** Keep a bounded rolling list of recent events. */
+export function recordEvent(events: RecentEvent[], kind: RecentEvent["kind"]): void {
+  events.push({ timestamp: Date.now(), kind });
+  if (events.length > 50) events.shift();
+}
+
+function serialize(tx: TrackedTx): PersistedTx {
+  return {
+    hash: tx.hash,
+    nonce: tx.nonce,
+    to: tx.to,
+    value: tx.value.toString(),
+    data: tx.data,
+    gasLimit: tx.gasLimit.toString(),
+    maxPriorityFeePerGas: tx.maxPriorityFeePerGas.toString(),
+    maxFeePerGas: tx.maxFeePerGas.toString(),
+    submittedAt: tx.submittedAt,
+  };
+}
+
+function deserialize(tx: PersistedTx): TrackedTx {
+  return {
+    hash: tx.hash as `0x${string}`,
+    nonce: tx.nonce,
+    to: tx.to as `0x${string}`,
+    value: BigInt(tx.value),
+    data: tx.data as `0x${string}`,
+    gasLimit: BigInt(tx.gasLimit),
+    maxPriorityFeePerGas: BigInt(tx.maxPriorityFeePerGas),
+    maxFeePerGas: BigInt(tx.maxFeePerGas),
+    submittedAt: tx.submittedAt,
+  };
+}
+
+/**
+ * Record of transactions this Sentinel has submitted, keyed by nonce.
+ * Backed by a StateFile so the proxy and the watchdog (separate processes)
+ * share one view; in-memory when constructed without one.
+ */
 export class PendingTxStore {
-  private txs = new Map<number, TrackedTx>(); // keyed by nonce
+  constructor(private readonly state: StateFile = new StateFile(null)) {}
 
   add(tx: TrackedTx): void {
-    this.txs.set(tx.nonce, tx);
+    this.state.update((s) => {
+      s.txs[String(tx.nonce)] = serialize(tx);
+    });
   }
 
   remove(nonce: number): void {
-    this.txs.delete(nonce);
+    this.state.update((s) => {
+      delete s.txs[String(nonce)];
+    });
+  }
+
+  /** Drop every tracked tx below `nonce` - those nonces are already mined. */
+  pruneBelow(nonce: number): void {
+    const stale = Object.keys(this.state.read().txs).filter((k) => Number(k) < nonce);
+    if (stale.length === 0) return;
+    this.state.update((s) => {
+      for (const k of stale) delete s.txs[k];
+    });
   }
 
   get(nonce: number): TrackedTx | undefined {
-    return this.txs.get(nonce);
+    const tx = this.state.read().txs[String(nonce)];
+    return tx ? deserialize(tx) : undefined;
   }
 
   all(): TrackedTx[] {
-    return [...this.txs.values()].sort((a, b) => a.nonce - b.nonce);
+    return Object.values(this.state.read().txs)
+      .map(deserialize)
+      .sort((a, b) => a.nonce - b.nonce);
   }
 }
+
+export type TxStatus = "pending" | "confirmed" | "not_found" | "unknown";
 
 export class NonceTracker {
   private readonly client: PublicClient;
 
   constructor(
     private readonly config: SentinelConfig,
-    private readonly store: PendingTxStore,
-    chainId: "sepolia" | "mainnet" = "sepolia"
+    private readonly store: PendingTxStore
   ) {
     this.client = createPublicClient({
-      chain: chainId === "sepolia" ? baseSepolia : base,
+      chain: config.chain === "sepolia" ? baseSepolia : base,
       transport: http(config.rpcUrl),
     }) as PublicClient;
   }
@@ -84,6 +146,10 @@ export class NonceTracker {
       }),
     ]);
 
+    // Anything below the confirmed nonce is mined; stop tracking it so it
+    // can't be mistaken for an in-flight transaction.
+    this.store.pruneBelow(latestNonce);
+
     return { latestNonce, pendingNonce, trackedTxs: this.store.all() };
   }
 
@@ -94,52 +160,74 @@ export class NonceTracker {
    */
   async detectGap(): Promise<GapInfo | null> {
     const { latestNonce, pendingNonce, trackedTxs } = await this.getNonceState();
+    return NonceTracker.findGap(latestNonce, pendingNonce, trackedTxs);
+  }
 
+  /** Pure gap-finding logic, separated from RPC access so it can be tested. */
+  static findGap(latestNonce: number, pendingNonce: number, trackedTxs: TrackedTx[]): GapInfo | null {
     if (pendingNonce <= latestNonce) {
       return null; // nothing in flight, nothing to gap
     }
 
+    const byNonce = new Map(trackedTxs.map((tx) => [tx.nonce, tx]));
     let expectedNonce = latestNonce;
-    for (const tx of trackedTxs) {
+    for (const tx of [...trackedTxs].sort((a, b) => a.nonce - b.nonce)) {
+      if (tx.nonce < latestNonce) continue; // already mined
       if (tx.nonce === expectedNonce) {
         expectedNonce += 1;
       } else if (tx.nonce > expectedNonce) {
         // We jumped past expectedNonce without seeing it - that's the gap.
-        return { gapNonce: expectedNonce, stuckTx: this.store.get(expectedNonce) ?? null };
+        return { gapNonce: expectedNonce, stuckTx: byNonce.get(expectedNonce) ?? null };
       }
     }
 
     if (expectedNonce < pendingNonce) {
       // Every tracked tx accounted for, but the chain still reports more
       // pending nonces than we have transactions for.
-      return { gapNonce: expectedNonce, stuckTx: this.store.get(expectedNonce) ?? null };
+      return { gapNonce: expectedNonce, stuckTx: byNonce.get(expectedNonce) ?? null };
     }
 
     return null;
   }
 
-  /** True once a transaction has a receipt - i.e. it's actually confirmed. */
+  /**
+   * True once a transaction has a receipt. A "not found" answer means not
+   * confirmed yet; any other RPC failure is rethrown so callers don't act
+   * (and resubmit) on the basis of a network blip.
+   */
   async isConfirmed(hash: `0x${string}`): Promise<boolean> {
     try {
       const receipt = await this.client.getTransactionReceipt({ hash });
       return receipt !== null;
-    } catch {
-      return false; // not found yet = not confirmed
+    } catch (err) {
+      if (err instanceof Error && err.name === "TransactionReceiptNotFoundError") return false;
+      throw err;
     }
+  }
+
+  /** True if some transaction with this nonce has already been mined. */
+  async isNonceMined(nonce: number): Promise<boolean> {
+    const latest = await this.client.getTransactionCount({
+      address: this.config.walletAddress,
+      blockTag: "latest",
+    });
+    return latest > nonce;
   }
 
   /**
    * Distinguishes "still sitting in the mempool" from "the node has no
    * record of this transaction at all" - the latter, sustained past the
    * eviction timeout, is how the Sentinel infers an eviction (Base has no
-   * direct "evicted" event to subscribe to).
+   * direct "evicted" event to subscribe to). An RPC failure is reported as
+   * "unknown" so it is never confused with an eviction.
    */
-  async getTransactionStatus(hash: `0x${string}`): Promise<"pending" | "confirmed" | "not_found"> {
+  async getTransactionStatus(hash: `0x${string}`): Promise<TxStatus> {
     try {
       const tx = await this.client.getTransaction({ hash });
       return tx.blockNumber ? "confirmed" : "pending";
-    } catch {
-      return "not_found";
+    } catch (err) {
+      if (err instanceof Error && err.name === "TransactionNotFoundError") return "not_found";
+      return "unknown";
     }
   }
 
@@ -150,6 +238,20 @@ export class NonceTracker {
 
   async getPriorityFeeEstimate(): Promise<bigint> {
     return this.client.estimateMaxPriorityFeePerGas();
+  }
+
+  /** Recent base fee / priority fee percentiles, for the diagnostic agent. */
+  async getFeeHistory(blockCount: number) {
+    return this.client.getFeeHistory({ blockCount, rewardPercentiles: [25, 50, 75] });
+  }
+
+  /** Latest block number + timestamp, for the sequencer-health diagnostic. */
+  async getLatestBlockInfo(): Promise<{ number: bigint; timestamp: bigint; chainId: number }> {
+    const [block, chainId] = await Promise.all([
+      this.client.getBlock({ blockTag: "latest" }),
+      this.client.getChainId(),
+    ]);
+    return { number: block.number, timestamp: block.timestamp, chainId };
   }
 
   /** Broadcasts an already-signed raw transaction as-is. Used by the interceptor. */

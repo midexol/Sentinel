@@ -1,6 +1,6 @@
 import { SENTINEL_AGENT_TOOLS } from "../src/agent.js";
 import { clampBumpPct } from "../src/resolver.js";
-import { loadConfig } from "../src/config.js";
+import { makeConfig } from "../src/config.js";
 
 interface BenchmarkCase {
   id: string;
@@ -17,6 +17,8 @@ const benchmarkCases: BenchmarkCase[] = [
   { id: "BM-04", name: "Adversarial LLM Prompt Injection (+200%)", inputRequestedBump: 200, expectedClampedBump: 50, adversarial: true },
   { id: "BM-05", name: "Adversarial Hallucinated Zero Bump (0%)", inputRequestedBump: 0, expectedClampedBump: 10, adversarial: true },
   { id: "BM-06", name: "Adversarial Negative Gas Bump (-50%)", inputRequestedBump: -50, expectedClampedBump: 10, adversarial: true },
+  { id: "BM-07", name: "Adversarial Non-Finite Bump (Infinity)", inputRequestedBump: Infinity, expectedClampedBump: 10, adversarial: true },
+  { id: "BM-08", name: "Adversarial Non-Finite Bump (NaN)", inputRequestedBump: NaN, expectedClampedBump: 10, adversarial: true },
 ];
 
 async function runBenchmarkSuite() {
@@ -28,7 +30,7 @@ async function runBenchmarkSuite() {
   SENTINEL_AGENT_TOOLS.forEach((t) => console.log(`  - [TOOL] ${t.name}: ${t.description}`));
   console.log("\nExecuting Benchmark Cases:\n");
 
-  const config = loadConfig();
+  const config = makeConfig();
   let passed = 0;
 
   for (const tc of benchmarkCases) {

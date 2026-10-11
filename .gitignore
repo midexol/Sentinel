@@ -4,3 +4,5 @@ dist/
 *.log
 .next/
 *.tsbuildinfo
+sentinel-state.json
+sentinel-state.json.*.tmp

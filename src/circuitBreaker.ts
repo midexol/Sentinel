@@ -1,5 +1,6 @@
 import type { SentinelConfig } from "./config.js";
 import type { AuditLogger } from "./logger.js";
+import { StateFile } from "./state.js";
 
 /**
  * Tracks *failed* resolutions/evictions in a rolling time window. A burst
@@ -7,53 +8,75 @@ import type { AuditLogger } from "./logger.js";
  * only a burst of failures means something is structurally wrong (RPC
  * down, wallet out of funds, network degraded), which is when we want to
  * stop the trading bot rather than keep burning gas on doomed retries.
+ *
+ * State lives in the shared StateFile so the proxy and the watchdog see the
+ * same breaker, and it survives restarts (a crash-looping container must
+ * not silently reset a tripped breaker). When autoRecovery is on, a tripped
+ * breaker closes again after the configured cooldown.
  */
 export class CircuitBreaker {
-  private failureTimestamps: number[] = [];
-  private tripped = false;
-
-  constructor(private readonly config: SentinelConfig, private readonly logger: AuditLogger) {}
+  constructor(
+    private readonly config: SentinelConfig,
+    private readonly logger: AuditLogger,
+    private readonly state: StateFile = new StateFile(null)
+  ) {}
 
   isTripped(): boolean {
-    return this.tripped;
+    if (!this.config.circuitBreakerEnabled) return false;
+    const { tripped, trippedAt } = this.state.read().breaker;
+    if (!tripped) return false;
+    if (
+      this.config.circuitBreakerAutoRecovery &&
+      trippedAt !== null &&
+      Date.now() - trippedAt >= this.config.circuitBreakerCooldownMs
+    ) {
+      this.clear();
+      void this.logger.log({ action: "circuit_breaker_reset", wallet: this.config.walletAddress, reason: "cooldown_elapsed" });
+      return false;
+    }
+    return true;
   }
 
   async recordFailure(): Promise<void> {
+    if (!this.config.circuitBreakerEnabled) return;
     const now = Date.now();
-    this.failureTimestamps.push(now);
-    this.failureTimestamps = this.failureTimestamps.filter(
-      (t) => now - t <= this.config.circuitBreakerWindowMs
-    );
+    let justTripped = false;
+    let failures = 0;
 
-    if (!this.tripped && this.failureTimestamps.length >= this.config.circuitBreakerThreshold) {
-      this.tripped = true;
+    this.state.update((s) => {
+      s.breaker.failures = [...s.breaker.failures, now].filter(
+        (t) => now - t <= this.config.circuitBreakerWindowMs
+      );
+      failures = s.breaker.failures.length;
+      if (!s.breaker.tripped && failures >= this.config.circuitBreakerThreshold) {
+        s.breaker.tripped = true;
+        s.breaker.trippedAt = now;
+        justTripped = true;
+      }
+    });
+
+    if (justTripped) {
+      // The alerter listens to this audit entry and delivers the webhook.
       await this.logger.log({
         action: "circuit_breaker_tripped",
         wallet: this.config.walletAddress,
-        failuresInWindow: this.failureTimestamps.length,
+        failuresInWindow: failures,
         windowMs: this.config.circuitBreakerWindowMs,
       });
-      if (this.config.alertWebhookUrl) {
-        try {
-          await fetch(this.config.alertWebhookUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              text: `🚨 Sentinel circuit breaker tripped for ${this.config.walletAddress}: ${this.failureTimestamps.length} failures in the last ${this.config.circuitBreakerWindowMs / 1000}s. Trading bot should halt.`,
-            }),
-          });
-        } catch {
-          // Alerting is best-effort - never let a webhook failure mask the trip itself.
-        }
-      }
     }
   }
 
   async reset(): Promise<void> {
-    if (this.tripped) {
-      this.tripped = false;
-      this.failureTimestamps = [];
+    const wasTripped = this.state.read().breaker.tripped;
+    this.clear();
+    if (wasTripped) {
       await this.logger.log({ action: "circuit_breaker_reset", wallet: this.config.walletAddress });
     }
+  }
+
+  private clear(): void {
+    this.state.update((s) => {
+      s.breaker = { tripped: false, trippedAt: null, failures: [] };
+    });
   }
 }

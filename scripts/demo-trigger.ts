@@ -10,12 +10,12 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { baseSepolia } from "viem/chains";
-import { loadConfig } from "../src/config.js";
+import { DEFAULT_AGENT_MODEL, loadConfig, makeConfig } from "../src/config.js";
 import { NonceTracker, PendingTxStore } from "../src/nonceTracker.js";
 import { AuditLogger } from "../src/logger.js";
 import { GapResolver } from "../src/resolver.js";
 import { GapDiagnostician } from "../src/agent.js";
-import { TransactionInterceptor } from "../src/interceptor.js";
+import { buildSentinel } from "../src/runtime.js";
 
 /**
  * Demo Trigger Script for Sentinel.
@@ -27,7 +27,7 @@ import { TransactionInterceptor } from "../src/interceptor.js";
  *
  * Modes:
  * - `npm run demo -- --mode=raw`:
- *   Submits transactions directly to Base Sepolia RPC. Run `npm run watch`
+ *   Submits transactions directly to Base Sepolia RPC. Run `npm run cli:watch`
  *   in a separate terminal to watch Sentinel detect the gap, diagnose it
  *   with the LLM agent, and resubmit it with the clamped bump.
  *
@@ -48,22 +48,12 @@ async function runSimulation() {
   console.log("  SENTINEL DEMO: In-Memory Dry-Run Simulation (No ETH / Private Key Required)");
   console.log("================================================================================\n");
 
-  const mockConfig = {
-    rpcUrl: "https://sepolia.base.org",
-    walletAddress: "0x1111111111111111111111111111111111111111" as `0x${string}`,
-    privateKey: null,
-    gapDetectionIntervalMs: 500,
-    evictionTimeoutMs: 30000,
-    circuitBreakerThreshold: 5,
-    circuitBreakerWindowMs: 60000,
-    logFile: "./sentinel.log",
-    alertWebhookUrl: null,
-    minGasBumpPct: 10,
-    maxGasBumpPct: 50,
-    anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? null,
-    agentModel: process.env.AGENT_MODEL ?? "llm-reasoning-agent",
+  const mockConfig = makeConfig({
+    walletAddress: "0x1111111111111111111111111111111111111111",
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY || null,
+    agentModel: process.env.AGENT_MODEL || DEFAULT_AGENT_MODEL,
     dryRun: true,
-  };
+  });
 
   const store = new PendingTxStore();
   const logger = new AuditLogger(mockConfig.logFile);
@@ -153,6 +143,10 @@ async function runLive(mode: "raw" | "interceptor") {
   console.log(`================================================================================\n`);
 
   const config = loadConfig();
+  if (config.chain !== "sepolia") {
+    console.error("Error: the live demo only runs against Base Sepolia (set CHAIN=sepolia).");
+    process.exit(1);
+  }
   if (!config.privateKey) {
     console.error("Error: Live demo requires PRIVATE_KEY in .env.");
     console.error("Please fund your wallet on Base Sepolia faucet (https://www.coinbase.com/faucets/base-ethereum-sepolia-faucet) and add PRIVATE_KEY to .env");
@@ -182,45 +176,43 @@ async function runLive(mode: "raw" | "interceptor") {
   const dest = account.address; // Self-transfer 0 ETH to test safely
   const baseFee = await client.getBlock({ blockTag: "latest" }).then((b) => b.baseFeePerGas ?? 1000000n);
 
+  const sentinel = mode === "interceptor" ? buildSentinel(config) : null;
+
+  // Raw mode talks to the node directly; interceptor mode signs locally and
+  // hands the signed transaction to Sentinel, which tracks it and resolves
+  // any gap sitting in front of it before forwarding.
+  const send = async (nonce: number, maxPriorityFeePerGas: bigint, maxFeePerGas: bigint): Promise<`0x${string}`> => {
+    if (!sentinel) {
+      return wallet.sendTransaction({ account, chain: baseSepolia, to: dest, value: 0n, nonce, maxPriorityFeePerGas, maxFeePerGas });
+    }
+    const signed = await account.signTransaction({
+      type: "eip1559",
+      chainId: baseSepolia.id,
+      to: dest,
+      value: 0n,
+      nonce,
+      gas: 21000n,
+      maxPriorityFeePerGas,
+      maxFeePerGas,
+    });
+    return sentinel.interceptor.submitTransaction(signed);
+  };
+
   console.log("Step 1: Firing Tx #1 (Normal gas)...");
-  const hash1 = await wallet.sendTransaction({
-    account,
-    chain: baseSepolia,
-    to: dest,
-    value: 0n,
-    nonce: currentNonce,
-    maxPriorityFeePerGas: parseGwei("1"),
-    maxFeePerGas: baseFee * 2n + parseGwei("1"),
-  });
+  const hash1 = await send(currentNonce, parseGwei("1"), baseFee * 2n + parseGwei("1"));
   console.log(`  Tx #1 submitted: ${hash1} (nonce ${currentNonce})`);
 
   console.log("\nStep 2: Firing Tx #2 (DELIBERATELY UNDERPRICED - 1 wei priority fee)...");
-  const hash2 = await wallet.sendTransaction({
-    account,
-    chain: baseSepolia,
-    to: dest,
-    value: 0n,
-    nonce: currentNonce + 1,
-    maxPriorityFeePerGas: 1n, // 1 wei priority fee
-    maxFeePerGas: baseFee + 1n, // bare minimum
-  });
+  const hash2 = await send(currentNonce + 1, 1n, baseFee + 1n);
   console.log(`  Tx #2 submitted: ${hash2} (nonce ${currentNonce + 1}) [STUCK]`);
 
   console.log("\nStep 3: Firing Tx #3 (Normal gas - will be queued behind nonce " + (currentNonce + 1) + ")...");
-  const hash3 = await wallet.sendTransaction({
-    account,
-    chain: baseSepolia,
-    to: dest,
-    value: 0n,
-    nonce: currentNonce + 2,
-    maxPriorityFeePerGas: parseGwei("2"),
-    maxFeePerGas: baseFee * 2n + parseGwei("2"),
-  });
+  const hash3 = await send(currentNonce + 2, parseGwei("2"), baseFee * 2n + parseGwei("2"));
   console.log(`  Tx #3 submitted: ${hash3} (nonce ${currentNonce + 2}) [QUEUED]`);
 
   console.log("\n--------------------------------------------------------------------------------");
   console.log("Tx sequence deployed! Nonce gap created at nonce", currentNonce + 1);
-  console.log("Run 'npm run watch' in another window to see Sentinel detect and resolve it live!");
+  console.log("Run 'npm run cli:watch' in another window to see Sentinel detect and resolve it live!");
   console.log("--------------------------------------------------------------------------------\n");
 }
 

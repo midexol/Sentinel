@@ -1,13 +1,23 @@
-import { parseTransaction } from "viem";
-import type { SentinelConfig } from "./config.js";
-import type { NonceTracker, PendingTxStore, TrackedTx, GapInfo, NonceState } from "./nonceTracker.js";
-import type { GapResolver } from "./resolver.js";
+import { parseTransaction, recoverTransactionAddress, type TransactionSerialized } from "viem";
+import { CHAIN_IDS, type SentinelConfig } from "./config.js";
+import {
+  recordEvent,
+  type NonceTracker,
+  type PendingTxStore,
+  type TrackedTx,
+  type GapInfo,
+  type NonceState,
+  type RecentEvent,
+} from "./nonceTracker.js";
+import { UntrackedNonceError, type GapResolver } from "./resolver.js";
 import type { GapDiagnostician } from "./agent.js";
+import type { CircuitBreaker } from "./circuitBreaker.js";
 import type { AuditLogger } from "./logger.js";
 
-interface RecentEvent {
-  timestamp: number;
-  kind: "gap" | "eviction" | "resolved" | "failed";
+export class CircuitBreakerOpenError extends Error {
+  constructor() {
+    super("Sentinel circuit breaker is tripped: transaction submission is halted until it recovers.");
+  }
 }
 
 /**
@@ -23,7 +33,8 @@ interface RecentEvent {
  * the bot is currently trying to send.
  */
 export class TransactionInterceptor {
-  private recentEvents: RecentEvent[] = [];
+  private readonly recentEvents: RecentEvent[] = [];
+  private chain: Promise<unknown> = Promise.resolve();
 
   constructor(
     private readonly config: SentinelConfig,
@@ -31,13 +42,9 @@ export class TransactionInterceptor {
     private readonly store: PendingTxStore,
     private readonly resolver: GapResolver,
     private readonly diagnostician: GapDiagnostician,
+    private readonly breaker: CircuitBreaker,
     private readonly logger: AuditLogger
   ) {}
-
-  private record(kind: RecentEvent["kind"]): void {
-    this.recentEvents.push({ timestamp: Date.now(), kind });
-    if (this.recentEvents.length > 50) this.recentEvents.shift();
-  }
 
   async getNonceState(): Promise<NonceState> {
     return this.tracker.getNonceState();
@@ -48,16 +55,49 @@ export class TransactionInterceptor {
   }
 
   /**
-   * Submits a signed transaction on the bot's behalf. If a nonce gap
-   * exists ahead of this transaction, resolves it first (diagnose, then
-   * resubmit the stuck one with a safely-clamped gas bump), then forwards
-   * the bot's own transaction unchanged. If there's no gap, forwards
-   * immediately.
+   * Submits a signed transaction on the bot's behalf. Submissions are
+   * serialized so concurrent requests (e.g. a JSON-RPC batch) can't race to
+   * resolve the same gap. If a nonce gap exists ahead of this transaction,
+   * resolves it first (diagnose, then resubmit the stuck one with a
+   * safely-clamped gas bump), then forwards the bot's own transaction
+   * unchanged. If there's no gap, forwards immediately.
    */
-  async submitTransaction(signedTx: `0x${string}`): Promise<`0x${string}`> {
+  submitTransaction(signedTx: `0x${string}`): Promise<`0x${string}`> {
+    const run = this.chain.then(() => this.submitInner(signedTx));
+    this.chain = run.catch(() => undefined);
+    return run;
+  }
+
+  private async submitInner(signedTx: `0x${string}`): Promise<`0x${string}`> {
+    if (this.breaker.isTripped()) throw new CircuitBreakerOpenError();
+
     const parsed = parseTransaction(signedTx);
-    if (parsed.nonce === undefined || !parsed.to) {
-      throw new Error("Interceptor requires a fully-formed signed transaction (nonce and to are required).");
+
+    if (parsed.chainId !== undefined && parsed.chainId !== CHAIN_IDS[this.config.chain]) {
+      throw new Error(
+        `Transaction chainId ${parsed.chainId} does not match configured chain (${this.config.chain}, ${CHAIN_IDS[this.config.chain]}).`
+      );
+    }
+
+    // Transactions from other senders are not ours to protect: pass through.
+    const sender = await recoverTransactionAddress({ serializedTransaction: signedTx as TransactionSerialized });
+    if (sender.toLowerCase() !== this.config.walletAddress.toLowerCase()) {
+      return this.tracker.broadcastRaw(signedTx);
+    }
+
+    // Replacement fees are computed from EIP-1559 fields. A legacy or 2930
+    // transaction would be tracked with zero fees and "bumped" into nonsense.
+    if (
+      parsed.type !== "eip1559" ||
+      parsed.nonce === undefined ||
+      !parsed.to ||
+      parsed.gas === undefined ||
+      parsed.maxFeePerGas === undefined ||
+      parsed.maxPriorityFeePerGas === undefined
+    ) {
+      throw new Error(
+        "Interceptor requires a fully-formed EIP-1559 transaction (type 2 with nonce, to, gas, maxFeePerGas and maxPriorityFeePerGas)."
+      );
     }
 
     const gap = await this.tracker.detectGap();
@@ -66,7 +106,7 @@ export class TransactionInterceptor {
     // to send - if this transaction *is* the gap filler, or the gap is
     // ahead of it, there's nothing to resolve before forwarding.
     if (gap && gap.gapNonce < parsed.nonce) {
-      this.record("gap");
+      recordEvent(this.recentEvents, "gap");
       await this.logger.log({
         action: "gap_detected",
         wallet: this.config.walletAddress,
@@ -79,19 +119,20 @@ export class TransactionInterceptor {
 
       try {
         await this.resolver.resolveGap(gap.gapNonce, diagnosis.recommendedBumpPct);
-        this.record("resolved");
+        recordEvent(this.recentEvents, "resolved");
       } catch (err) {
-        this.record("failed");
+        recordEvent(this.recentEvents, "failed");
+        // An untracked nonce is a coverage gap, not an infrastructure failure.
+        if (!(err instanceof UntrackedNonceError)) await this.breaker.recordFailure();
         // We still forward the bot's transaction below - it may queue
         // behind the gap rather than land immediately, but silently
         // dropping the bot's own submission because gap resolution failed
-        // would be worse than letting it queue.
-        await this.logger.log({
-          action: "gap_resolve_failed",
-          wallet: this.config.walletAddress,
-          gapNonce: gap.gapNonce,
-          reason: err instanceof Error ? err.message : String(err),
-        });
+        // would be worse than letting it queue. (The resolver already
+        // wrote the failure to the audit log.)
+        console.error(
+          `[interceptor] Gap resolution failed for nonce ${gap.gapNonce}:`,
+          err instanceof Error ? err.message : err
+        );
       }
     }
 
@@ -103,9 +144,9 @@ export class TransactionInterceptor {
       to: parsed.to,
       value: parsed.value ?? 0n,
       data: parsed.data ?? "0x",
-      gasLimit: parsed.gas ?? 0n,
-      maxPriorityFeePerGas: parsed.maxPriorityFeePerGas ?? 0n,
-      maxFeePerGas: parsed.maxFeePerGas ?? 0n,
+      gasLimit: parsed.gas,
+      maxPriorityFeePerGas: parsed.maxPriorityFeePerGas,
+      maxFeePerGas: parsed.maxFeePerGas,
       submittedAt: Date.now(),
     };
     this.store.add(tracked);
