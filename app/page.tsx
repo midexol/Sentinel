@@ -250,7 +250,7 @@ export default function LandingPage() {
                 Gap Discovery & Eviction Inference
               </h3>
               <p className="text-xs text-[#A8A49C] leading-relaxed">
-                When <code className="text-[#C9A961] bg-white/[0.06] px-1 py-0.5 rounded">pending &gt; latest</code> and a sequential nonce is missing (e.g. Nonce 42 is stalled while Nonces 43-50 wait), Sentinel flags an active gap. If an in-flight hash disappears for 3 consecutive poll cycles, Sentinel identifies a <strong className="text-white">Silent Eviction</strong>.
+                When <code className="text-[#C9A961] bg-white/[0.06] px-1 py-0.5 rounded">pending &gt; latest</code> and a sequential nonce is missing (e.g. Nonce 42 is stalled while Nonces 43-50 wait), Sentinel flags an active gap. If a transaction that was seen pending disappears for longer than the eviction timeout (30s by default), Sentinel identifies a <strong className="text-white">Silent Eviction</strong>.
               </p>
             </div>
             <div className="pt-3 border-t border-white/[0.06] space-y-1.5 text-[11px] font-mono text-[#8A867D]">
@@ -260,7 +260,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span>Eviction window:</span>
-                <span className="text-white">3 cycles (1,500ms)</span>
+                <span className="text-white">30s default (configurable)</span>
               </div>
             </div>
           </div>
@@ -316,7 +316,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span>Mempool resolution:</span>
-                <span className="text-emerald-400">Sub-second unblock</span>
+                <span className="text-emerald-400">Next-block unblock</span>
               </div>
             </div>
           </div>
@@ -359,7 +359,7 @@ export default function LandingPage() {
             <div className="p-3.5 rounded-xl bg-white/[0.02] border border-[#C9A961]/30 space-y-2">
               <div className="text-[10px] text-[#C9A961] uppercase font-bold">3. Sentinel Diagnoses</div>
               <p className="text-[#C2BEB4] text-[11.5px] leading-relaxed">
-                Dual-tag tracker detects missing #42. AI assesses base fee and requests +25% bump.
+                Dual-tag tracker detects missing #42. AI assesses base fee and proposes a bump (clamped to 10-50%).
               </p>
             </div>
 
@@ -432,7 +432,7 @@ export default function LandingPage() {
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-[#C9A961] text-[9px] mt-1 shrink-0 select-none">◆</span>
-                <span>Sub-second atomic unblocking unjams downstream pipeline in milliseconds.</span>
+                <span>The replacement unjams the downstream pipeline as soon as the next block includes it.</span>
               </li>
             </ul>
           </div>
@@ -497,7 +497,7 @@ export default function LandingPage() {
               </p>
               <div className="pt-2 flex flex-wrap items-center gap-3 text-xs font-mono text-[#C2BEB4]">
                 <span className="inline-flex items-center gap-1.5"><span className="text-[#C9A961] text-[8px] opacity-75">◆</span> Bounded Clamp (10% to 50%)</span>
-                <span className="inline-flex items-center gap-1.5"><span className="text-[#C9A961] text-[8px] opacity-75">◆</span> Fallback Fast Heuristics</span>
+                <span className="inline-flex items-center gap-1.5"><span className="text-[#C9A961] text-[8px] opacity-75">◆</span> Safe-Default Fallback</span>
                 <span className="inline-flex items-center gap-1.5"><span className="text-[#C9A961] text-[8px] opacity-75">◆</span> Atomic Nonce Unblocking</span>
               </div>
             </div>
@@ -562,7 +562,7 @@ export default function LandingPage() {
               <div className="text-xs text-[#C9A961] font-semibold tracking-wider">AXIOM IV</div>
               <div className="font-serif text-sm sm:text-base text-white">Audit Trail Provenance</div>
               <p className="text-ash text-[11px] leading-relaxed">
-                Every gap detection, diagnosis reason, and broadcast hash is permanently recorded to structured JSONL logs.
+                Every gap detection, diagnosis reason, and broadcast hash is recorded to append-only structured JSONL logs.
               </p>
             </div>
           </div>

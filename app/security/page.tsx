@@ -41,14 +41,14 @@ export default function SecurityPage() {
       id: "pk-2",
       category: "Private Key",
       label: ".env Git exclusion guarantee",
-      description: ".env and credentials files are isolated in .gitignore and protected by pre-commit scanners.",
+      description: ".env and credential files are excluded via .gitignore. Add a secret scanner (e.g. gitleaks) to your own pipeline for defence in depth.",
       verified: true,
     },
     {
       id: "pk-3",
       category: "Private Key",
       label: "Dedicated operational gas wallet",
-      description: "Autonomous signer is restricted to an isolated gas wallet; main treasury capital is physically segregated.",
+      description: "Recommended deployment: give Sentinel an isolated, low-balance gas wallet so treasury capital is never exposed to its key. This is operator practice, not something the software enforces.",
       verified: true,
     },
     {
@@ -76,14 +76,14 @@ export default function SecurityPage() {
       id: "rpc-3",
       category: "RPC & Network",
       label: "Backend gateway proxy validation",
-      description: "Server-side proxy strictly validates payloads, enforces request bounds, and prevents arbitrary RPC injection.",
+      description: "The RPC proxy validates JSON-RPC shape and the raw-transaction parameter, caps request bodies at 1 MiB, requires JSON content types and supports a bearer token. Non-send methods are forwarded to the configured upstream.",
       verified: true,
     },
     {
       id: "rpc-4",
       category: "RPC & Network",
       label: "Strict CORS allowlist configuration",
-      description: "Wildcard CORS origins are forbidden; communication is constrained to explicit verified origins.",
+      description: "The RPC proxy sends no CORS headers and rejects browser-origin requests unless the origin is allow-listed (PROXY_ALLOWED_ORIGINS).",
       verified: true,
     },
     {
@@ -132,14 +132,14 @@ export default function SecurityPage() {
       id: "api-3",
       category: "API & Logging",
       label: "Append-only immutable receipts",
-      description: "Every autonomous action logs an unalterable JSONL line recording hash, gas, latency, and timestamp.",
+      description: "Every autonomous action appends one JSONL line (hashes, fees, timestamp). The file is append-only by convention; use filesystem permissions or log shipping if you need tamper evidence.",
       verified: true,
     },
     {
       id: "api-4",
       category: "API & Logging",
       label: "Sanitized error responses",
-      description: "Production API failures suppress internal stack traces to protect system internals and path structures.",
+      description: "API error responses return short, generic messages and never include stack traces or upstream error bodies.",
       verified: true,
     },
   ]);
@@ -278,9 +278,9 @@ export default function SecurityPage() {
               <RiVerifiedBadgeLine className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs font-mono text-ash uppercase">Pre-Launch Verification</div>
+              <div className="text-xs font-mono text-ash uppercase">Self-Review Checklist</div>
               <div className="text-base font-serif font-medium text-[#C9A961]">
-                {verifiedPct}% Complete
+                {verifiedCount}/{checklist.length} items checked
               </div>
             </div>
           </div>
@@ -306,7 +306,7 @@ export default function SecurityPage() {
                 : "bg-void-2 text-ash hover:text-marble border border-transparent"
             }`}
           >
-            Pre-Launch Checklist ({verifiedCount}/{checklist.length})
+            Self-Review Checklist ({verifiedCount}/{checklist.length})
           </button>
           <button
             onClick={() => setActiveTab("invariants")}
@@ -361,7 +361,7 @@ export default function SecurityPage() {
                   </div>
                   <div className="flex items-start gap-2.5">
                     <span className="text-[#8FAF92] text-[9px] mt-1 shrink-0 select-none">◆</span>
-                    <span>Support for KMS / HashiCorp Vault key rotation</span>
+                    <span>Rotate by restarting with a new PRIVATE_KEY (no KMS / Vault integration yet)</span>
                   </div>
                 </div>
               </div>
@@ -445,7 +445,7 @@ export default function SecurityPage() {
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──[ Key Encrypted at Rest ]──&gt; Dedicated Gas Wallet Signer
               </div>
               <p className="text-xs font-mono text-ash leading-relaxed">
-                Notice that the client runtime possesses neither the RPC secret nor the wallet private key. Every transaction Sentinel signs is either a byte-identical re-send of a transaction your bot already signed (with higher fees) or a zero-value self-transfer, so it cannot redirect treasury capital to a new recipient.
+                Notice that the client runtime possesses neither the RPC secret nor the wallet private key. Every transaction Sentinel signs is either a re-send of a transaction your bot already signed (same recipient, value and calldata, with higher fees) or a zero-value self-transfer, so it cannot redirect treasury capital to a new recipient.
               </p>
             </div>
           </div>
@@ -456,7 +456,7 @@ export default function SecurityPage() {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-[#07080A] border border-white/[0.08] p-6">
               <div>
-                <h2 className="font-cinzel text-xl font-bold text-marble">Pre-Launch Security Audit Checklist</h2>
+                <h2 className="font-cinzel text-xl font-bold text-marble">Security Self-Review Checklist</h2>
                 <p className="text-xs font-mono text-ash mt-1">
                   Verified against production requirements before deployment. Toggle items to verify audit status.
                 </p>

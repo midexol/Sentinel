@@ -19,20 +19,20 @@ const steps = [
   },
   {
     step: 3,
-    title: "Heuristic AI Diagnosis",
-    description: "Analyzer discovers Nonce #1420 was dropped during a 1.8 Gwei gas spike.",
+    title: "AI Diagnosis",
+    description: "The diagnostic agent concludes Nonce #1420 was dropped during a 1.8 Gwei gas spike and proposes a bump.",
     status: "DIAGNOSED",
   },
   {
     step: 4,
     title: "Invariant & Bounds Verification",
-    description: "Circuit breaker calculates required gas bump: +12.5%. Enforces maximum safety limit (<= 25%).",
+    description: "The proposed +12.5% bump is checked against the clamp: never below 10%, never above the 50% ceiling.",
     status: "INVARIANT_VERIFIED",
   },
   {
     step: 5,
     title: "Autonomous Healing Dispatch",
-    description: "Zero-value self-transfer signed and broadcast with Nonce #1420 and 12.5% higher maxPriorityFee.",
+    description: "The original transaction is re-sent at Nonce #1420 with a 12.5% higher maxPriorityFee (or a zero-value cancel, if configured).",
     status: "HEALED",
   },
   {
@@ -152,7 +152,7 @@ export default function SimulationRunner() {
           {">"} [SENTINEL::ENGINE] Active Step: {currentStep} / 6
         </div>
         <div className="text-marble-dim">
-          {">"} Invariant Assertion: Nonce gap strictly non-decreasing, gas ceiling locked at 25%.
+          {">"} Invariant Assertion: Nonce gap strictly non-decreasing, bump clamped to [10%, 50%].
         </div>
         {currentStep >= 5 && (
           <div className="text-[#8FAF92] flex items-center gap-2">

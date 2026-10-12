@@ -140,6 +140,19 @@ export default function DocArticleViewer({ article }: DocArticleViewerProps) {
           }
         }
 
+        // Display math ($$ ... $$ on one line)
+        if (trimmed.length > 4 && trimmed.startsWith("$$") && trimmed.endsWith("$$")) {
+          elements.push(
+            <div
+              key={`math-${lineIdx}`}
+              className="my-5 px-4 py-3 rounded-xl border border-white/[0.08] bg-[#07080A] text-center font-mono text-sm text-[#E4D5A8] overflow-x-auto"
+            >
+              {texToText(trimmed.slice(2, -2))}
+            </div>
+          );
+          return;
+        }
+
         // Regular paragraph
         if (trimmed !== "") {
           elements.push(
@@ -158,10 +171,40 @@ export default function DocArticleViewer({ article }: DocArticleViewerProps) {
     });
   };
 
+  // The docs are written with LaTeX math but there is no TeX renderer on the
+  // page, so convert the small subset we use into readable Unicode text.
+  const texToText = (tex: string) =>
+    tex
+      .replace(/\\text(?:tt|bf)?\{([^}]*)\}/g, "$1")
+      .replace(/\\(?:quad|qquad|,|;|!)/g, " ")
+      .replace(/\\leq?\b/g, "≤")
+      .replace(/\\geq?\b/g, "≥")
+      .replace(/\\land\b/g, "∧")
+      .replace(/\\lor\b/g, "∨")
+      .replace(/\\implies\b/g, "⟹")
+      .replace(/\\subseteq\b/g, "⊆")
+      .replace(/\\dots\b/g, "…")
+      .replace(/\\Delta\b/g, "Δ")
+      .replace(/\\cdot\b/g, "·")
+      .replace(/\\times\b/g, "×")
+      .replace(/\\(max|min)\b/g, "$1")
+      .replace(/\\(?:left|right)\b/g, "")
+      .replace(/\\([{}%])/g, "$1")
+      .replace(/_\{([^}]*)\}/g, "_$1")
+      .replace(/\s+/g, " ")
+      .trim();
+
   const renderInlineFormatting = (text: string) => {
     // Replace **bold** with <strong>
-    const parts = text.split(/(\*\*.*?\*\*|`.*?`|\[.*?\]\(.*?\))/g);
+    const parts = text.split(/(\*\*.*?\*\*|`.*?`|\[.*?\]\(.*?\)|\$[^$\n]+\$)/g);
     return parts.map((part, i) => {
+      if (part.length > 2 && part.startsWith("$") && part.endsWith("$")) {
+        return (
+          <span key={i} className="font-mono text-[0.92em] text-[#E4D5A8]">
+            {texToText(part.slice(1, -1))}
+          </span>
+        );
+      }
       if (part.startsWith("**") && part.endsWith("**")) {
         return (
           <strong key={i} className="text-white font-semibold">

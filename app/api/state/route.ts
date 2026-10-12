@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
         monitoredAccounts: [],
       });
     } catch (error) {
-      return NextResponse.json({ error: "Failed to fetch on-chain state", details: String(error) }, { status: 502 });
+      return NextResponse.json({ error: "Failed to fetch on-chain state" }, { status: 502 });
     }
   }
 
@@ -73,6 +73,6 @@ export async function GET(req: NextRequest) {
       ],
     });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch on-chain state", details: String(error) }, { status: 502 });
+    return NextResponse.json({ error: "Failed to fetch on-chain state" }, { status: 502 });
   }
 }
