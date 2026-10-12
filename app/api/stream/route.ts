@@ -1,10 +1,16 @@
 import { NextRequest } from "next/server";
-import { ADDRESS_RE, publicClient } from "@/lib/viem";
+import { ADDRESS_RE, fetchOnChainAccountState, probeRpc } from "@/lib/viem";
 import { readSettings } from "@/lib/server/settings";
 
 export const dynamic = "force-dynamic";
+// A held-open stream bills as function duration, so it ends on its own and the
+// browser's EventSource reconnects (see the `retry:` hint). Keep this below the
+// platform's function time limit.
+export const maxDuration = 60;
 
-const TICK_MS = 5000;
+const TICK_MS = 10_000;
+const MAX_LIFETIME_MS = 55_000;
+const RECONNECT_MS = 15_000;
 
 /**
  * Server-sent events: one `telemetry` event every few seconds with the real
@@ -24,6 +30,7 @@ export async function GET(req: NextRequest) {
   }
 
   let interval: ReturnType<typeof setInterval> | undefined;
+  let lifetime: ReturnType<typeof setTimeout> | undefined;
   let closed = false;
 
   const stream = new ReadableStream({
@@ -40,15 +47,14 @@ export async function GET(req: NextRequest) {
       const tick = async () => {
         const started = Date.now();
         try {
-          const [block, latest, pending] = await Promise.all([
-            publicClient.getBlockNumber(),
-            account
-              ? publicClient.getTransactionCount({ address: account as `0x${string}`, blockTag: "latest" })
-              : Promise.resolve(0),
-            account
-              ? publicClient.getTransactionCount({ address: account as `0x${string}`, blockTag: "pending" })
-              : Promise.resolve(0),
+          // Shared, short-lived caches: N open streams cost about one RPC read per window.
+          const [probe, acct] = await Promise.all([
+            probeRpc(),
+            account ? fetchOnChainAccountState(account as `0x${string}`) : Promise.resolve(null),
           ]);
+          const block = probe.block;
+          const latest = acct?.latestNonce ?? 0;
+          const pending = acct?.pendingNonce ?? 0;
           const gapSize = Math.max(0, pending - latest);
           send("telemetry", {
             id: `evt-${Date.now()}`,
@@ -60,7 +66,7 @@ export async function GET(req: NextRequest) {
             nonceReceived: pending,
             gapSize,
             status: gapSize > 0 ? "pending" : "monitoring",
-            latencyMs: Date.now() - started,
+            latencyMs: probe.latencyMs,
             diagnosis:
               gapSize > 0
                 ? `${gapSize} transaction(s) pending ahead of confirmed nonce ${latest}`
@@ -77,6 +83,7 @@ export async function GET(req: NextRequest) {
         }
       };
 
+      controller.enqueue(encoder.encode(`retry: ${RECONNECT_MS}\n\n`));
       send("message", {
         type: "CONNECTED",
         timestamp: new Date().toISOString(),
@@ -85,10 +92,20 @@ export async function GET(req: NextRequest) {
       });
       void tick();
       interval = setInterval(tick, TICK_MS);
+      lifetime = setTimeout(() => {
+        closed = true;
+        if (interval) clearInterval(interval);
+        try {
+          controller.close();
+        } catch {
+          // already closed
+        }
+      }, MAX_LIFETIME_MS);
 
       req.signal.addEventListener("abort", () => {
         closed = true;
         if (interval) clearInterval(interval);
+        if (lifetime) clearTimeout(lifetime);
         try {
           controller.close();
         } catch {
@@ -99,6 +116,7 @@ export async function GET(req: NextRequest) {
     cancel() {
       closed = true;
       if (interval) clearInterval(interval);
+      if (lifetime) clearTimeout(lifetime);
     },
   });
 

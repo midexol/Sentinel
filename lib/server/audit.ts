@@ -48,6 +48,14 @@ export function readAuditEntries(): AuditRecord[] {
   }
 }
 
+/** Recent audit events for one wallet (all wallets if `address` is empty). */
+export function ledgerFor(address: string, max = 150): AuditRecord[] {
+  const wanted = address.toLowerCase();
+  return readAuditEntries()
+    .filter((e) => !wanted || String(e.wallet ?? "").toLowerCase() === wanted)
+    .slice(-max);
+}
+
 export interface Metrics {
   totalGapsDetected: number;
   totalGapsResolved: number;

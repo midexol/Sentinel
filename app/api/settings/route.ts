@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { publicClient, chainLabel } from "@/lib/viem";
+import { chainLabel, probeRpc } from "@/lib/viem";
 import {
   SettingsWriteError,
   WEBHOOK_MASK,
@@ -44,11 +44,8 @@ function authFailure(result: "unauthorized" | "disabled") {
 
 async function rpcStatus() {
   try {
-    const block = await Promise.race([
-      publicClient.getBlockNumber(),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 4000)),
-    ]);
-    return { rpcConnection: "Connected", currentBlock: Number(block) };
+    const { block } = await probeRpc();
+    return { rpcConnection: "Connected", currentBlock: block };
   } catch {
     return { rpcConnection: "Unreachable", currentBlock: 0 };
   }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { activeChain, chainLabel, publicClient } from "@/lib/viem";
+import { activeChain, chainLabel, probeRpc } from "@/lib/viem";
+import { PUBLIC_CACHE_HEADERS } from "@/lib/cache";
 import { readSettings } from "@/lib/server/settings";
 
 export const dynamic = "force-dynamic";
@@ -12,13 +13,9 @@ export async function GET() {
   let latencyMs = 0;
 
   try {
-    const start = Date.now();
-    const block = await Promise.race([
-      publicClient.getBlockNumber(),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 4000)),
-    ]);
-    latencyMs = Date.now() - start;
-    currentBlock = Number(block);
+    const probe = await probeRpc();
+    latencyMs = probe.latencyMs;
+    currentBlock = probe.block;
   } catch {
     rpcConnected = false;
   }
@@ -46,6 +43,7 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     },
     // A degraded dependency should be visible to load balancers and uptime probes.
-    { status: rpcConnected ? 200 : 503 }
+    // Only a healthy answer may be cached; an outage must be visible immediately.
+    { status: rpcConnected ? 200 : 503, headers: rpcConnected ? PUBLIC_CACHE_HEADERS : { "Cache-Control": "no-store" } }
   );
 }

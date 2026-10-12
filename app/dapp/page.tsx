@@ -337,16 +337,36 @@ export default function DappPage() {
 
   
 
-  /** Replace the ledger with the real audit-log events for this wallet (newest first). */
-  const loadLedger = async (target: string) => {
+  /**
+   * One request refreshes everything for this wallet: chain nonces, balance,
+   * breaker state and the audit ledger (newest first).
+   */
+  const refreshAccount = async (target: string) => {
     try {
-      const res = await fetch(`/api/ledger?address=${target}`);
+      const res = await fetch(`/api/state?address=${target}&include=ledger`);
       if (!res.ok) return;
-      const { entries } = (await res.json()) as { entries: AuditRecord[] };
-      const rows = entries.map(auditToLedger).filter((r): r is LedgerEntry => r !== null).reverse();
-      setAllEntries(rows);
+      const st = await res.json();
+      if (st.currentBlock) setCurrentBlock(st.currentBlock);
+      const acct = st.monitoredAccounts?.[0];
+      if (acct) {
+        setLatest(acct.latestNonce);
+        setPending(acct.pendingNonce);
+        setHasGap(acct.gap > 0);
+        setGapNonce(acct.gap > 0 ? acct.latestNonce : null);
+        if (acct.balanceEth) setBalanceEth(acct.balanceEth);
+      }
+      setTripped(st.circuitBreakerStatus === "TRIPPED");
+      // The breaker card shows failures on a 0-10 scale; derive it from the real pressure percentage.
+      setFailuresInWindow(Math.min(10, Math.round(((st.breakerTripPct ?? 0) / 100) * 10)));
+      if (Array.isArray(st.entries)) {
+        const rows = (st.entries as AuditRecord[])
+          .map(auditToLedger)
+          .filter((r): r is LedgerEntry => r !== null)
+          .reverse();
+        setAllEntries(rows);
+      }
     } catch {
-      // keep whatever is on screen
+      // keep whatever is on screen; try again next tick
     }
   };
 
@@ -355,22 +375,7 @@ export default function DappPage() {
     setConnected(true);
     setConnecting(false);
     setAllEntries([]);
-    loadLedger(target);
-
-    try {
-      const res = await fetch(`/api/state?address=${target}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.latestNonce !== undefined) setLatest(data.latestNonce);
-        if (data.pendingNonce !== undefined) setPending(data.pendingNonce);
-        if (data.currentBlock) setCurrentBlock(data.currentBlock);
-        if (data.monitoredAccounts?.[0]?.balanceEth) {
-          setBalanceEth(data.monitoredAccounts[0].balanceEth);
-        }
-      }
-    } catch {
-      // ignore
-    }
+    await refreshAccount(target);
 
     pushToast("Connected", `Watching ${shortAddr(target)} on Base Sepolia.`);
   };
@@ -437,54 +442,24 @@ export default function DappPage() {
     pushToast("Disconnected", "Session ended. Connect wallet to resume mempool monitoring.");
   };
 
-  // Live data: real SSE telemetry + the real audit ledger and breaker state, polled while connected
+  // Live data: refresh every 20s while connected. Hidden tabs do not poll (they refresh
+  // immediately when shown again), so a forgotten open tab costs nothing.
   useEffect(() => {
     if (!connected || !walletAddress) return;
 
-    let eventSource: EventSource | null = null;
-    try {
-      eventSource = new EventSource(`/api/stream?address=${walletAddress}`);
-      eventSource.addEventListener("telemetry", (e) => {
-        if (isFeedPaused) return;
-        try {
-          const data = JSON.parse(e.data);
-          if (data.block) setCurrentBlock(data.block);
-          if (typeof data.nonceExpected === "number") setLatest(data.nonceExpected);
-          if (typeof data.nonceReceived === "number") setPending(data.nonceReceived);
-          if (typeof data.gapSize === "number") {
-            setHasGap(data.gapSize > 0);
-            setGapNonce(data.gapSize > 0 ? data.nonceExpected : null);
-          }
-        } catch {
-          // ignore malformed event
-        }
-      });
-    } catch {
-      // streaming unavailable; polling below still works
-    }
-
-    const poll = async () => {
-      if (isFeedPaused) return;
-      await loadLedger(walletAddress);
-      try {
-        const res = await fetch(`/api/state?address=${walletAddress}`);
-        if (res.ok) {
-          const st = await res.json();
-          setTripped(st.circuitBreakerStatus === "TRIPPED");
-          // The breaker card shows failures on a 0-10 scale; derive it from the real pressure percentage.
-          setFailuresInWindow(Math.min(10, Math.round(((st.breakerTripPct ?? 0) / 100) * 10)));
-          const acct = st.monitoredAccounts?.[0];
-          if (acct?.balanceEth) setBalanceEth(acct.balanceEth);
-        }
-      } catch {
-        // transient; try again next tick
-      }
+    const tick = () => {
+      if (isFeedPaused || document.hidden) return;
+      void refreshAccount(walletAddress);
+    };
+    const onVisible = () => {
+      if (!document.hidden) tick();
     };
 
-    const id = setInterval(poll, 5000);
+    const id = setInterval(tick, 20000);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
-      eventSource?.close();
       clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connected, walletAddress, isFeedPaused]);

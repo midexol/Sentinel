@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ADDRESS_RE, fetchOnChainAccountState, publicClient } from "@/lib/viem";
+import { PUBLIC_CACHE_HEADERS } from "@/lib/cache";
+import { ADDRESS_RE, fetchOnChainAccountState, probeRpc } from "@/lib/viem";
 import { readSettings } from "@/lib/server/settings";
-import { breakerPressurePct, computeMetrics, readAuditEntries } from "@/lib/server/audit";
+import { breakerPressurePct, computeMetrics, ledgerFor, readAuditEntries } from "@/lib/server/audit";
 import { readControlState } from "@/lib/server/control";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +23,11 @@ export async function GET(req: NextRequest) {
   // fall back to what the audit log implies when it is unavailable.
   const control = readControlState();
   const breakerTripped = control.available ? control.breakerTripped : metrics.circuitBreakerStatus === "TRIPPED";
+  // ?include=ledger folds the wallet's recent audit events into the same response,
+  // so the dashboard needs a single request per refresh instead of two.
+  const withLedger = searchParams.get("include") === "ledger";
   const base = {
+    ...(withLedger ? { entries: ledgerFor(address) } : {}),
     totalGapsResolved: metrics.totalGapsResolved,
     avgResolutionMs: metrics.avgResolutionTimeMs,
     halted: control.halted,
@@ -33,14 +38,17 @@ export async function GET(req: NextRequest) {
   // No wallet configured/connected: report network state only.
   if (!address) {
     try {
-      return NextResponse.json({
-        ...base,
-        currentBlock: Number(await publicClient.getBlockNumber()),
-        latestNonce: 0,
-        pendingNonce: 0,
-        systemStatus: "OPERATIONAL",
-        monitoredAccounts: [],
-      });
+      return NextResponse.json(
+        {
+          ...base,
+          currentBlock: (await probeRpc()).block,
+          latestNonce: 0,
+          pendingNonce: 0,
+          systemStatus: "OPERATIONAL",
+          monitoredAccounts: [],
+        },
+        { headers: PUBLIC_CACHE_HEADERS }
+      );
     } catch (error) {
       return NextResponse.json({ error: "Failed to fetch on-chain state" }, { status: 502 });
     }
@@ -52,7 +60,8 @@ export async function GET(req: NextRequest) {
 
   try {
     const onchain = await fetchOnChainAccountState(address as `0x${string}`);
-    return NextResponse.json({
+    return NextResponse.json(
+      {
       ...base,
       currentBlock: onchain.currentBlock,
       latestNonce: onchain.latestNonce,
@@ -71,7 +80,9 @@ export async function GET(req: NextRequest) {
           balanceEth: onchain.balanceEth,
         },
       ],
-    });
+      },
+      { headers: PUBLIC_CACHE_HEADERS }
+    );
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch on-chain state" }, { status: 502 });
   }

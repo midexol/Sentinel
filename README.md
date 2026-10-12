@@ -384,7 +384,7 @@ The audit log, shared state file and editable `settings.json` live in the `senti
 | `/api/metrics` | GET | Public | Counts, success rate and latency computed from the audit log (`?format=prometheus`). |
 | `/api/state` | GET | Public | Live wallet nonces plus audit-log counters and breaker / halt flags. |
 | `/api/ledger` | GET | Public | Recent audit events for a wallet. |
-| `/api/stream` | GET | Public | Server-sent events with real block / nonce telemetry. |
+| `/api/stream` | GET | Public | Server-sent events with real block / nonce telemetry. Closes after ~55s; `EventSource` reconnects automatically. |
 | `/api/settings` | GET | Public (webhook URLs masked) | Read settings and live status. |
 | `/api/settings` | POST | Admin token | Validated save / reset / webhook test. |
 | `/api/control` | POST | Admin token | `halt`, `resume`, `reset_breaker` (needs a shared `STATE_FILE`). |

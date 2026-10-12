@@ -184,13 +184,14 @@ export default function DappSettings({
 
     // Refresh live status (block height, uptime, RPC health) from the server
     const interval = setInterval(async () => {
+      if (document.hidden) return;
       try {
         const res = await fetch("/api/settings");
         if (res.ok) applyStatus(await res.json());
       } catch {
         setRpcStatus("Disconnected");
       }
-    }, 10000);
+    }, 30000);
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { publicClient } from "@/lib/viem";
+import { probeRpc } from "@/lib/viem";
+import { PUBLIC_CACHE_HEADERS } from "@/lib/cache";
 import { computeMetrics, readAuditEntries } from "@/lib/server/audit";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   let currentBlock: number | null = null;
   try {
-    currentBlock = Number(await publicClient.getBlockNumber());
+    currentBlock = (await probeRpc()).block;
   } catch {
     // leave null: report the outage rather than inventing a block
   }
@@ -35,14 +36,17 @@ export async function GET(req: NextRequest) {
     metric("sentinel_resolution_duration_ms", "gauge", "Average detection-to-resolution time in ms", m.avgResolutionTimeMs);
     metric("sentinel_current_block", "gauge", "Latest block number seen by the RPC", currentBlock);
     return new NextResponse(lines.join("\n") + "\n", {
-      headers: { "Content-Type": "text/plain; version=0.0.4" },
+      headers: { "Content-Type": "text/plain; version=0.0.4", ...PUBLIC_CACHE_HEADERS },
     });
   }
 
-  return NextResponse.json({
-    uptimeSeconds,
-    currentBlock,
-    ...m,
-    timestamp: new Date().toISOString(),
-  });
+  return NextResponse.json(
+    {
+      uptimeSeconds,
+      currentBlock,
+      ...m,
+      timestamp: new Date().toISOString(),
+    },
+    { headers: PUBLIC_CACHE_HEADERS }
+  );
 }

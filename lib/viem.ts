@@ -1,3 +1,4 @@
+import { cached } from "@/lib/cache";
 import {
   createPublicClient,
   http,
@@ -25,11 +26,27 @@ export const publicClient = createPublicClient({
 
 export const ADDRESS_RE = /^0x[a-fA-F0-9]{40}$/;
 
+/** Latest block plus the measured round-trip time, shared for a few seconds across requests. */
+export function probeRpc(): Promise<{ block: number; latencyMs: number }> {
+  return cached("rpc:probe", 4000, async () => {
+    const started = Date.now();
+    const block = await Promise.race([
+      publicClient.getBlockNumber(),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 4000)),
+    ]);
+    return { block: Number(block), latencyMs: Date.now() - started };
+  });
+}
+
 /**
  * Reads the account's nonces, balance, block and gas price. Errors propagate
  * so callers can report an RPC failure instead of showing fabricated zeros.
  */
-export async function fetchOnChainAccountState(address: `0x${string}`) {
+export function fetchOnChainAccountState(address: `0x${string}`) {
+  return cached(`acct:${address.toLowerCase()}`, 5000, () => readAccountState(address));
+}
+
+async function readAccountState(address: `0x${string}`) {
   const [latestNonce, pendingNonce, balance, blockNumber, gasPrice] = await Promise.all([
     publicClient.getTransactionCount({ address, blockTag: "latest" }),
     publicClient.getTransactionCount({ address, blockTag: "pending" }),

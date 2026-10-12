@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PUBLIC_CACHE_HEADERS } from "@/lib/cache";
 import { ADDRESS_RE } from "@/lib/viem";
 import { readSettings } from "@/lib/server/settings";
-import { readAuditEntries } from "@/lib/server/audit";
+import { ledgerFor } from "@/lib/server/audit";
 
 export const dynamic = "force-dynamic";
-
-const MAX_ENTRIES = 150;
 
 /**
  * Recent audit-log events for one wallet, newest last. This is the real
@@ -18,10 +17,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Invalid address" }, { status: 400 });
   }
 
-  const wanted = address.toLowerCase();
-  const entries = readAuditEntries()
-    .filter((e) => !wanted || String(e.wallet ?? "").toLowerCase() === wanted)
-    .slice(-MAX_ENTRIES);
-
-  return NextResponse.json({ entries });
+  return NextResponse.json({ entries: ledgerFor(address) }, { headers: PUBLIC_CACHE_HEADERS });
 }

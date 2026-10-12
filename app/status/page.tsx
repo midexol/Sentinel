@@ -3,12 +3,13 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import SiteAtmosphere from "@/components/site-atmosphere";
 import { RiPulseLine, RiShieldCheckLine, RiErrorWarningLine, RiExternalLinkLine } from "react-icons/ri";
-import { chainLabel, explorerBase, publicClient } from "@/lib/viem";
+import { chainLabel, explorerBase, probeRpc } from "@/lib/viem";
 import { readSettings } from "@/lib/server/settings";
 import { computeMetrics, readAuditEntries } from "@/lib/server/audit";
 import { readControlState } from "@/lib/server/control";
 
-export const dynamic = "force-dynamic";
+// Rendered at most once per window and shared by every visitor (and uptime probe).
+export const revalidate = 30;
 
 type Level = "ok" | "warn" | "down";
 interface Check {
@@ -20,18 +21,14 @@ interface Check {
 }
 
 async function rpcCheck(): Promise<Check> {
-  const started = Date.now();
   try {
-    const block = await Promise.race([
-      publicClient.getBlockNumber(),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 4000)),
-    ]);
+    const { block, latencyMs } = await probeRpc();
     return {
       name: `${chainLabel} RPC`,
-      note: `Latest block #${Number(block).toLocaleString()}`,
+      note: `Latest block #${block.toLocaleString()}`,
       status: "OPERATIONAL",
       level: "ok",
-      detail: `Latency: ${Date.now() - started}ms`,
+      detail: `Latency: ${latencyMs}ms`,
     };
   } catch {
     return { name: `${chainLabel} RPC`, note: "The RPC endpoint did not respond", status: "UNREACHABLE", level: "down" };
@@ -97,7 +94,7 @@ export default async function StatusPage() {
           </div>
           <h1 className="font-serif text-3xl sm:text-5xl font-semibold tracking-tight text-marble">Integration Status</h1>
           <p className="font-sans text-marble-dim/80 text-base leading-relaxed">
-            Checked live on every page load: the RPC connection, the circuit breaker, daemon controls and the audit log.
+            Refreshed every 30 seconds: the RPC connection, the circuit breaker, daemon controls and the audit log.
           </p>
         </div>
 
