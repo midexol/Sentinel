@@ -1,8 +1,7 @@
 {
   "system": {
-    "walletAddress": "0x859901345112F0812b06aF1858E623414E472D72",
-    "privateKeyLoaded": true,
-    "rpcUrl": "https://sepolia.base.org",
+    "walletAddress": "",
+    "rpcUrl": "",
     "chainId": 84532,
     "version": "1.0.0"
   },
