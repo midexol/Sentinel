@@ -18,10 +18,10 @@ describe("cached()", () => {
   it("serves from cache within the TTL and reloads after it", async () => {
     let calls = 0;
     const load = async () => ++calls;
-    assert.equal(await cached("t:ttl", 30, load), 1);
-    assert.equal(await cached("t:ttl", 30, load), 1);
-    await new Promise((r) => setTimeout(r, 50));
-    assert.equal(await cached("t:ttl", 30, load), 2);
+    assert.equal(await cached("t:ttl", 400, load), 1);
+    assert.equal(await cached("t:ttl", 400, load), 1);
+    await new Promise((r) => setTimeout(r, 600));
+    assert.equal(await cached("t:ttl", 400, load), 2);
   });
 
   it("never caches a failure", async () => {

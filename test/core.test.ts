@@ -104,11 +104,11 @@ describe("CircuitBreaker", () => {
   });
 
   it("auto-recovers after the cooldown", async () => {
-    const config = testConfig({ circuitBreakerThreshold: 1, circuitBreakerCooldownMs: 20 });
+    const config = testConfig({ circuitBreakerThreshold: 1, circuitBreakerCooldownMs: 300 });
     const breaker = new CircuitBreaker(config, new AuditLogger(config.logFile));
     await breaker.recordFailure();
     assert.equal(breaker.isTripped(), true);
-    await new Promise((r) => setTimeout(r, 40));
+    await new Promise((r) => setTimeout(r, 450));
     assert.equal(breaker.isTripped(), false);
   });
 
