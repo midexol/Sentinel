@@ -362,18 +362,17 @@ The interface will be live at `http://localhost:3000`. Metrics, ledger and count
 Run Sentinel in Docker for 24/7 continuous operation on any VPS or local machine:
 
 ```bash
-# Start all services (Web Observatory, Watchdog loop, and RPC Proxy):
+# Start everything (dashboard on :3000, watchdog + RPC proxy daemon on 127.0.0.1:8545):
 docker compose up -d
 
 # View live daemon and proxy logs:
 docker compose logs -f
 
-# Run only the headless Watchdog loop (shares ./sentinel-state.json via the volume):
-docker compose --profile split up sentinel-watchdog -d
-
-# Run only the JSON-RPC Proxy on port 8545:
-docker compose --profile split up sentinel-proxy -d
+# Run the daemon and the dashboard as separate containers (they share the data volume):
+docker compose --profile split up sentinel-daemon sentinel-web -d
 ```
+
+The audit log, shared state file and editable `settings.json` live in the `sentinel-data` volume (`/app/data`). The proxy is published on the host loopback only; set `PROXY_AUTH_TOKEN` before exposing it anywhere else, and set `SETTINGS_ADMIN_TOKEN` to enable settings changes and daemon controls from the dashboard.
 
 ---
 

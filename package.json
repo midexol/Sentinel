@@ -3,7 +3,14 @@
   "version": "0.1.0",
   "description": "AI-assisted nonce gap detector and resolver for high-frequency agents on Base",
   "type": "module",
-  "main": "dist/cli.js",
+  "main": "dist/runtime.js",
+  "types": "dist/runtime.d.ts",
+  "bin": {
+    "sentinel": "dist/cli.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
